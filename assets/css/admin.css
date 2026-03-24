@@ -1,0 +1,260 @@
+/**
+ * WC AI Canvas Configurator - Admin Styles
+ */
+
+/* Builds List */
+.wc-aicc-admin-wrap {
+    max-width: 1200px;
+}
+
+.wc-aicc-admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.wc-aicc-admin-header h1 {
+    margin: 0;
+}
+
+/* Status Filters */
+.wc-aicc-status-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.wc-aicc-status-filters a {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #333;
+    font-size: 13px;
+}
+
+.wc-aicc-status-filters a:hover {
+    background: #e0e0e0;
+}
+
+.wc-aicc-status-filters a.current {
+    background: #2271b1;
+    color: #fff;
+}
+
+.wc-aicc-status-filters .count {
+    opacity: 0.7;
+    font-size: 12px;
+}
+
+/* Builds Table */
+.wc-aicc-builds-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wc-aicc-builds-table th,
+.wc-aicc-builds-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.wc-aicc-builds-table th {
+    background: #f9f9f9;
+    font-weight: 600;
+    font-size: 13px;
+    color: #555;
+}
+
+.wc-aicc-builds-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+/* UUID Column */
+.wc-aicc-uuid {
+    font-family: Monaco, Consolas, monospace;
+    font-size: 11px;
+    background: #f5f5f5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Status Badge */
+.wc-aicc-status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-draft {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.status-processing {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-ready {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-ordered {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-expired {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+/* Action Links */
+.wc-aicc-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.wc-aicc-actions a {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 12px;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.wc-aicc-actions .view-action {
+    background: #e7f3ff;
+    color: #0066cc;
+}
+
+.wc-aicc-actions .view-action:hover {
+    background: #cce5ff;
+}
+
+.wc-aicc-actions .retry-action {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.wc-aicc-actions .retry-action:hover {
+    background: #ffeeba;
+}
+
+.wc-aicc-actions .expire-action {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.wc-aicc-actions .expire-action:hover {
+    background: #f5c6cb;
+}
+
+/* Asset URLs */
+.wc-aicc-asset-links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wc-aicc-asset-links a {
+    font-size: 12px;
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.wc-aicc-asset-links a:hover {
+    text-decoration: underline;
+}
+
+/* Empty State */
+.wc-aicc-empty-state {
+    text-align: center;
+    padding: 60px 40px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wc-aicc-empty-state h3 {
+    margin: 0 0 8px;
+    color: #333;
+}
+
+.wc-aicc-empty-state p {
+    margin: 0;
+    color: #666;
+}
+
+/* Notice */
+.wc-aicc-notice {
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.wc-aicc-notice--success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.wc-aicc-notice--error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+/* Detail Modal */
+.wc-aicc-detail-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.wc-aicc-detail-row:last-child {
+    border-bottom: none;
+}
+
+.wc-aicc-detail-label {
+    font-weight: 600;
+    color: #555;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .wc-aicc-builds-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .wc-aicc-admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}

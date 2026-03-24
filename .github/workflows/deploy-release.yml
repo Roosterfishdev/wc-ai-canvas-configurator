@@ -1,0 +1,74 @@
+# Deploy to your WordPress server when you publish a GitHub Release.
+#
+# One-time GitHub repo secrets (Settings → Secrets and variables → Actions):
+#   WP_DEPLOY_HOST     — server hostname or IP (e.g. example.com)
+#   WP_DEPLOY_USER     — SSH user
+#   WP_DEPLOY_PATH     — absolute path to the plugin folder on the server, e.g.
+#                        /var/www/html/wp-content/plugins/wc-ai-canvas-configurator
+#   WP_DEPLOY_SSH_KEY  — private key (full PEM, including BEGIN/END lines)
+#
+# Release flow:
+#   1. Bump *Version* and WC_AICC_VERSION in wc-ai-canvas-configurator.php; commit & push.
+#   2. GitHub → Releases → “Draft a new release” → tag (e.g. v1.0.2) → Publish.
+#
+# WordPress.org directory uses SVN, not this workflow — use a different action for .org.
+
+name: Deploy release to WordPress
+
+on:
+  release:
+    types: [published]
+
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'List files only (no SSH deploy)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dry run
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
+        run: ls -la
+
+      - name: Install SSH key
+        if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.WP_DEPLOY_SSH_KEY }}
+
+      - name: Trust host key
+        if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H "${{ secrets.WP_DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Rsync to wp-content/plugins
+        if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true') }}
+        env:
+          HOST: ${{ secrets.WP_DEPLOY_HOST }}
+          USER: ${{ secrets.WP_DEPLOY_USER }}
+          REMOTE_PATH: ${{ secrets.WP_DEPLOY_PATH }}
+        run: |
+          set -e
+          REMOTE="${USER}@${HOST}"
+          DEST="${REMOTE_PATH%/}/"
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            -e "ssh -o StrictHostKeyChecking=yes" \
+            ./ "${REMOTE}:${DEST}"
+          echo "Deployed to ${REMOTE}:${DEST}"
