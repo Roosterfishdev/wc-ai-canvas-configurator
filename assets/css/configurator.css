@@ -284,12 +284,17 @@
     margin-bottom: 8px;
 }
 
+.wc-aicc-choice-cards--style {
+    grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+}
+
 .wc-aicc-choice-card {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    padding: 16px 14px;
+    align-items: stretch;
+    gap: 8px;
+    padding: 0;
+    overflow: hidden;
     min-height: 88px;
     text-align: left;
     background: #fff;
@@ -298,6 +303,57 @@
     cursor: pointer;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     font-family: inherit;
+}
+
+.wc-aicc-choice-card__thumb {
+    display: block;
+    width: 100%;
+    aspect-ratio: 5 / 3;
+    background: #f0f0f0;
+    overflow: hidden;
+}
+
+.wc-aicc-choice-card__thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Text block padding when card has a thumb (style step) or legacy padding */
+.wc-aicc-choice-card .wc-aicc-choice-card__label,
+.wc-aicc-choice-card .wc-aicc-choice-card__hint {
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.wc-aicc-choice-card .wc-aicc-choice-card__label {
+    padding-top: 4px;
+}
+
+.wc-aicc-choice-card .wc-aicc-choice-card__hint {
+    padding-bottom: 14px;
+}
+
+/* Situation / background cards: no thumbnail */
+.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb) {
+    padding: 16px 14px;
+    align-items: flex-start;
+}
+
+.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__label,
+.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__hint {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__label {
+    padding-top: 0;
+}
+
+.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__hint {
+    padding-bottom: 0;
 }
 
 .wc-aicc-choice-card:hover {

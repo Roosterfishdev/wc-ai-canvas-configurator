@@ -106,12 +106,8 @@ class Job_Handler {
             $repository->update_by_uuid( $build_uuid, array( 'final_art_key' => $final_art_key ) );
             $build->final_art_key = $final_art_key;
 
-            // Step 3: Mockup generation
+            // Step 3: Mockup generation (throws on failure with a detailed message)
             $mockup_key = $this->step_mockup_generate( $build );
-            
-            if ( ! $mockup_key ) {
-                throw new \Exception( __( 'Mockup generation failed.', 'wc-aicc' ) );
-            }
 
             // Update build with mockup key and set status to ready
             $repository->update_by_uuid(
@@ -304,7 +300,8 @@ class Job_Handler {
      * Step: Mockup generation
      *
      * @param Build $build Build object.
-     * @return string|false Mockup key or false on failure.
+     * @return string Mockup object key.
+     * @throws \Exception On failure.
      */
     private function step_mockup_generate( $build ) {
         Logger::info( 'Job', 'Step: mockup', array( 'build_uuid' => $build->build_uuid ) );
@@ -317,7 +314,7 @@ class Job_Handler {
 
         if ( empty( $final_art_url ) ) {
             Logger::error( 'Job', 'No final art URL for mockup', array( 'build_uuid' => $build->build_uuid ) );
-            return false;
+            throw new \Exception( __( 'Mockup: could not resolve final artwork URL.', 'wc-aicc' ) );
         }
 
         // Generate mockup
@@ -328,23 +325,32 @@ class Job_Handler {
             array()
         );
 
-        if ( ! $result['success'] ) {
+        if ( empty( $result['success'] ) ) {
+            $detail = isset( $result['error'] ) ? trim( (string) $result['error'] ) : '';
             Logger::error(
                 'Job',
                 'Mockup generator error',
                 array(
                     'build_uuid' => $build->build_uuid,
-                    'error'      => $result['error'] ?? '',
+                    'error'      => $detail,
                 )
             );
-            return false;
+            throw new \Exception(
+                $detail !== ''
+                    ? sprintf(
+                        /* translators: %s: reason from image library or network */
+                        __( 'Mockup generation failed: %s', 'wc-aicc' ),
+                        $detail
+                    )
+                    : __( 'Mockup generation failed.', 'wc-aicc' )
+            );
         }
 
         $image_data = $result['image_data'];
 
         if ( empty( $image_data ) ) {
             Logger::error( 'Job', 'No mockup image data', array( 'build_uuid' => $build->build_uuid ) );
-            return false;
+            throw new \Exception( __( 'Mockup generation produced empty image data.', 'wc-aicc' ) );
         }
 
         // Upload to R2 (use JPEG for mockups as they're composited from JPEG templates)
@@ -362,12 +368,12 @@ class Job_Handler {
 
             if ( file_put_contents( $local_file, $image_data ) === false ) {
                 Logger::error( 'Job', 'Failed to save mockup locally', array( 'build_uuid' => $build->build_uuid ) );
-                return false;
+                throw new \Exception( __( 'Mockup: could not save file to uploads (check directory permissions).', 'wc-aicc' ) );
             }
         } else {
             if ( ! $storage->put_object( $mockup_key, $image_data, 'image/jpeg' ) ) {
                 Logger::error( 'Job', 'Failed to upload mockup to R2', array( 'build_uuid' => $build->build_uuid ) );
-                return false;
+                throw new \Exception( __( 'Mockup: could not upload to cloud storage.', 'wc-aicc' ) );
             }
         }
 

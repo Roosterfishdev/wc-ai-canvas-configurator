@@ -25,7 +25,9 @@
         finalArtUrl: null,
         mockupUrl: null,
         errorMessage: null,
-        pollInterval: null
+        pollInterval: null,
+        /** Incremented when starting a new poll session so late/stale HTTP responses are ignored */
+        pollEpoch: 0
     };
 
     // DOM Elements
@@ -351,6 +353,8 @@
      */
     function startPolling() {
         stopPolling();
+        state.pollEpoch = (state.pollEpoch || 0) + 1;
+        const sessionEpoch = state.pollEpoch;
 
         state.pollInterval = setInterval(async () => {
             try {
@@ -366,13 +370,22 @@
                     throw new Error(data.message || 'Failed to get status');
                 }
 
+                // Ignore responses from a previous generate session or after a newer poll started
+                if (sessionEpoch !== state.pollEpoch) {
+                    return;
+                }
+
                 if (data.status === 'ready') {
                     stopPolling();
                     state.status = 'ready';
                     state.finalArtUrl = data.urls.final_art;
                     state.mockupUrl = data.urls.mockup;
                     updateGenerateUI();
-                    goToNextStep();
+                    // Only auto-advance once from the customize step. Concurrent poll ticks used to each call
+                    // goToNextStep() (3→4→5). Late responses also fired goToNextStep from step 4 (e.g. after Back).
+                    if (state.currentStep === 3) {
+                        goToNextStep();
+                    }
                 } else if (data.status === 'failed') {
                     stopPolling();
                     state.status = 'failed';

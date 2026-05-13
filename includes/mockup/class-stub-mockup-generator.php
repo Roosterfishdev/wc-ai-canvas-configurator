@@ -72,22 +72,12 @@ class Stub_Mockup_Generator implements Mockup_Generator_Interface {
         // TODO: Implement real template compositing using GD or Imagick
         // For now, download the final art and return it as the mockup
 
-        // Fetch the image
-        $response = wp_remote_get( $final_art_url, array( 'timeout' => 30 ) );
+        $image_data = Mockup_Image_Fetcher::fetch( $final_art_url );
 
-        if ( is_wp_error( $response ) ) {
+        if ( $image_data === false || $image_data === '' ) {
             return array(
                 'success' => false,
-                'error'   => $response->get_error_message(),
-            );
-        }
-
-        $image_data = wp_remote_retrieve_body( $response );
-
-        if ( empty( $image_data ) ) {
-            return array(
-                'success' => false,
-                'error'   => __( 'Failed to fetch final art image', 'wc-aicc' ),
+                'error'   => __( 'Failed to fetch final art image (check URL, SSL, or cron loopback to uploads).', 'wc-aicc' ),
             );
         }
 

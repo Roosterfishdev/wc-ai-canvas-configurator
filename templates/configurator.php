@@ -147,17 +147,31 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <p class="wc-aicc-customize-panel__meta"><?php echo esc_html( sprintf( __( 'Step %1$d of %2$d', 'wc-aicc' ), $sub_index, $total_sub ) ); ?></p>
                         </div>
 
-                        <div class="wc-aicc-choice-cards" role="group" aria-label="<?php echo esc_attr( $option['label'] ); ?>">
+                        <div class="wc-aicc-choice-cards<?php echo 'style' === $option_key ? ' wc-aicc-choice-cards--style' : ''; ?>" role="group" aria-label="<?php echo esc_attr( $option['label'] ); ?>">
                             <?php foreach ( $option['choices'] as $value => $choice_meta ) : ?>
                                 <?php
                                 $label = is_array( $choice_meta ) && isset( $choice_meta['label'] ) ? $choice_meta['label'] : (string) $choice_meta;
                                 $hint  = is_array( $choice_meta ) && ! empty( $choice_meta['hint'] ) ? $choice_meta['hint'] : '';
                                 $sel   = (string) $value === (string) $default ? ' wc-aicc-choice-card--selected' : '';
+                                $thumb = '';
+                                if ( 'style' === $option_key ) {
+                                    if ( is_array( $choice_meta ) && ! empty( $choice_meta['example_image'] ) ) {
+                                        $thumb = (string) $choice_meta['example_image'];
+                                    } else {
+                                        $thumb = \WC_AICC\Config\Prompt_Builder::resolve_style_example_image_url( (string) $value );
+                                    }
+                                }
+                                $card_mod = $thumb ? ' wc-aicc-choice-card--with-thumb' : '';
                                 ?>
                                 <button type="button"
-                                        class="wc-aicc-choice-card<?php echo esc_attr( $sel ); ?>"
+                                        class="wc-aicc-choice-card<?php echo esc_attr( $card_mod . $sel ); ?>"
                                         data-option-key="<?php echo esc_attr( $option_key ); ?>"
                                         data-value="<?php echo esc_attr( $value ); ?>">
+                                    <?php if ( $thumb ) : ?>
+                                        <span class="wc-aicc-choice-card__thumb">
+                                            <img src="<?php echo esc_url( $thumb ); ?>" alt="" loading="lazy" decoding="async" width="200" height="120" />
+                                        </span>
+                                    <?php endif; ?>
                                     <span class="wc-aicc-choice-card__label"><?php echo esc_html( $label ); ?></span>
                                     <?php if ( $hint ) : ?>
                                         <span class="wc-aicc-choice-card__hint"><?php echo esc_html( $hint ); ?></span>

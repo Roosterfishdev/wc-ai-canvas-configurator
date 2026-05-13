@@ -247,11 +247,11 @@ class Template_Mockup_Generator implements Mockup_Generator_Interface {
             throw new \Exception( __( 'Failed to load template image.', 'wc-aicc' ) );
         }
 
-        // Load artwork from binary data
-        $artwork = imagecreatefromstring( $artwork_data );
+        // Load artwork (WebP final art often needs imagecreatefromwebp; imagecreatefromstring may fail on GD without WebP).
+        $artwork = $this->load_artwork_for_gd( $artwork_data );
         if ( ! $artwork ) {
             imagedestroy( $template );
-            throw new \Exception( __( 'Failed to load artwork image.', 'wc-aicc' ) );
+            throw new \Exception( __( 'Failed to load artwork image (install Imagick or PHP GD with WebP support).', 'wc-aicc' ) );
         }
 
         // Get artwork dimensions
@@ -350,29 +350,58 @@ class Template_Mockup_Generator implements Mockup_Generator_Interface {
     }
 
     /**
-     * Download image from URL
+     * Download image from URL (uses disk read for local uploads when possible).
      *
      * @param string $url Image URL.
      * @return string|false Binary image data or false on failure.
      */
     private function download_image( $url ) {
-        $response = wp_remote_get( $url, array(
-            'timeout' => 60,
-            'sslverify' => false,
-        ) );
-
-        if ( is_wp_error( $response ) ) {
-            $this->log( "Download failed: " . $response->get_error_message(), 'error' );
+        $data = Mockup_Image_Fetcher::fetch( $url );
+        if ( $data === false ) {
+            $this->log( 'Download failed for artwork URL', 'error' );
             return false;
         }
 
-        $code = wp_remote_retrieve_response_code( $response );
-        if ( $code !== 200 ) {
-            $this->log( "Download failed with HTTP {$code}", 'error' );
-            return false;
+        return $data;
+    }
+
+    /**
+     * Decode artwork bytes for GD (handles WebP when imagecreatefromstring fails).
+     *
+     * @param string $artwork_data Raw image bytes.
+     * @return resource|\GdImage|false
+     */
+    private function load_artwork_for_gd( $artwork_data ) {
+        $img = @imagecreatefromstring( $artwork_data );
+        if ( $img ) {
+            return $img;
         }
 
-        return wp_remote_retrieve_body( $response );
+        if ( function_exists( 'imagecreatefromwebp' ) && $this->is_webp_binary( $artwork_data ) ) {
+            $tmp = wp_tempnam( 'wc-aicc-mockup' );
+            if ( $tmp && @file_put_contents( $tmp, $artwork_data ) !== false ) {
+                $webp = @imagecreatefromwebp( $tmp );
+                @unlink( $tmp );
+                if ( $webp ) {
+                    return $webp;
+                }
+            }
+            if ( $tmp && file_exists( $tmp ) ) {
+                @unlink( $tmp );
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $data Raw bytes.
+     * @return bool
+     */
+    private function is_webp_binary( $data ) {
+        return strlen( $data ) > 12
+            && substr( $data, 0, 4 ) === 'RIFF'
+            && substr( $data, 8, 4 ) === 'WEBP';
     }
 
     /**

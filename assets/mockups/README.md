@@ -2,6 +2,8 @@
 
 This directory contains room mockup template images used for compositing customer artwork.
 
+> **Note:** `README.md` is documentation only. WordPress does not load it; keeping or removing it does not affect mockup generation.
+
 ## Required Templates
 
 ### room-1.jpg
