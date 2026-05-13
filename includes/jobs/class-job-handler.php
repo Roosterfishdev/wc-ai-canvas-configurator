@@ -83,6 +83,17 @@ class Job_Handler {
             return;
         }
 
+        // Replicate polling + downloading the output can exceed default max_execution_time on shared hosts
+        // (often 30s). A fatal stop here never runs catch, so the build stays "processing" with null final_art.
+        if ( function_exists( 'wc_set_time_limit' ) ) {
+            wc_set_time_limit( 600 );
+        } else {
+            @set_time_limit( 600 );
+        }
+        if ( function_exists( 'wp_raise_memory_limit' ) ) {
+            wp_raise_memory_limit( 'admin' );
+        }
+
         try {
             // Step 1: Crop (placeholder - just copy original)
             $cropped_key = $this->step_crop( $build );
