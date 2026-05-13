@@ -94,6 +94,48 @@ class Job_Handler {
             wp_raise_memory_limit( 'admin' );
         }
 
+        // If PHP fatals during AI/download, catch never runs — build stays "processing" forever.
+        $job_completed = false;
+        register_shutdown_function(
+            function () use ( $build_uuid, &$job_completed ) {
+                if ( $job_completed ) {
+                    return;
+                }
+                $err = error_get_last();
+                if ( ! is_array( $err ) ) {
+                    return;
+                }
+                $fatal_types = array( E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR );
+                if ( ! in_array( (int) $err['type'], $fatal_types, true ) ) {
+                    return;
+                }
+                $repo = Build_Repository::instance();
+                $b    = $repo->get_by_uuid( $build_uuid );
+                if ( ! $b || $b->status !== Build::STATUS_PROCESSING ) {
+                    return;
+                }
+                $repo->update_by_uuid(
+                    $build_uuid,
+                    array(
+                        'status'        => Build::STATUS_FAILED,
+                        'error_message' => sprintf(
+                            /* translators: %s: PHP error message from the server */
+                            __( 'Server stopped during processing: %s', 'wc-aicc' ),
+                            $err['message']
+                        ),
+                    )
+                );
+                Logger::error(
+                    'Job',
+                    'Shutdown after PHP fatal',
+                    array(
+                        'build_uuid' => $build_uuid,
+                        'php_error'  => $err['message'],
+                    )
+                );
+            }
+        );
+
         try {
             // Step 1: Crop (placeholder - just copy original)
             $cropped_key = $this->step_crop( $build );
@@ -151,6 +193,8 @@ class Job_Handler {
 
             Logger::info( 'Job', 'Build completed successfully', array( 'build_uuid' => $build_uuid ) );
 
+            $job_completed = true;
+
         } catch ( \Exception $e ) {
             Logger::error(
                 'Job',
@@ -168,6 +212,7 @@ class Job_Handler {
                     'error_message' => $e->getMessage(),
                 )
             );
+            $job_completed = true;
         }
     }
 
@@ -284,46 +329,32 @@ class Job_Handler {
             // Base64 encoded data
             $image_data = base64_decode( $result['image_data'] );
         } elseif ( ! empty( $result['image_url'] ) ) {
-            // Download from Replicate output URL (often replicate.delivery — different host than api.replicate.com).
-            $remote_args = apply_filters(
-                'wc_aicc_download_generated_image_args',
+            Logger::info(
+                'Job',
+                'Downloading generated image',
                 array(
-                    'timeout' => 90,
-                    'redirection' => 5,
-                ),
-                $build->build_uuid,
-                $result['image_url']
+                    'build_uuid' => $build->build_uuid,
+                    'url_hint'   => Logger::summarize_url( $result['image_url'] ),
+                )
             );
-            $response    = wp_remote_get( $result['image_url'], $remote_args );
 
-            if ( is_wp_error( $response ) ) {
+            $image_data = $this->fetch_generated_image_bytes( $result['image_url'], $build->build_uuid );
+
+            if ( $image_data === false || $image_data === '' ) {
                 Logger::error(
                     'Job',
-                    'Failed to download generated image',
+                    'Generated image bytes empty after download attempts',
                     array(
                         'build_uuid' => $build->build_uuid,
-                        'wp_error'   => $response->get_error_message(),
                         'url_hint'   => Logger::summarize_url( $result['image_url'] ),
                     )
                 );
-                return false;
-            }
-
-            $http_code = (int) wp_remote_retrieve_response_code( $response );
-            $image_data = wp_remote_retrieve_body( $response );
-
-            if ( $http_code !== 200 || $image_data === '' ) {
-                Logger::error(
-                    'Job',
-                    'Download generated image bad response',
-                    array(
-                        'build_uuid' => $build->build_uuid,
-                        'http_code'  => $http_code,
-                        'body_len'   => strlen( (string) $image_data ),
-                        'url_hint'   => Logger::summarize_url( $result['image_url'] ),
+                throw new \Exception(
+                    __(
+                        'Could not download the generated image from Replicate (replicate.delivery). Check WC_AICC logs — your host may block outbound HTTPS or truncate long requests.',
+                        'wc-aicc'
                     )
                 );
-                return false;
             }
         }
 
@@ -445,6 +476,161 @@ class Job_Handler {
         Logger::info( 'Job', 'Mockup completed', array( 'build_uuid' => $build->build_uuid, 'key' => $mockup_key ) );
 
         return $mockup_key;
+    }
+
+    /**
+     * Allow outbound HTTP to Replicate hosts when WP_HTTP_BLOCK_EXTERNAL is enabled.
+     *
+     * @param mixed       $external Prior filter value.
+     * @param string|null $host     Host name.
+     * @return bool|mixed
+     */
+    private function filter_allow_replicate_hosts( $external, $host ) {
+        if ( ! is_string( $host ) ) {
+            return $external;
+        }
+        $h = strtolower( $host );
+        if ( strpos( $h, 'replicate.delivery' ) !== false || strpos( $h, 'replicate.com' ) !== false ) {
+            return true;
+        }
+        return $external;
+    }
+
+    /**
+     * Download generated image bytes from Replicate output URL (separate CDN from api.replicate.com).
+     *
+     * @param string $url        Image URL.
+     * @param string $build_uuid Build UUID for logging and filters.
+     * @return string|false Binary image data or false.
+     */
+    private function fetch_generated_image_bytes( $url, $build_uuid ) {
+        $url = esc_url_raw( $url );
+        if ( $url === '' ) {
+            Logger::error( 'Job', 'Empty image download URL', array( 'build_uuid' => $build_uuid ) );
+            return false;
+        }
+
+        $timeout = (int) apply_filters( 'wc_aicc_download_generated_image_timeout', 180, $build_uuid, $url );
+
+        add_filter( 'http_request_host_is_external', array( $this, 'filter_allow_replicate_hosts' ), 10, 2 );
+
+        if ( ! function_exists( 'download_url' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+
+        $tmp = null;
+        try {
+            $tmp = download_url( $url, $timeout );
+        } finally {
+            remove_filter( 'http_request_host_is_external', array( $this, 'filter_allow_replicate_hosts' ), 10 );
+        }
+
+        if ( ! is_wp_error( $tmp ) && is_string( $tmp ) && $tmp !== '' ) {
+            $data = file_get_contents( $tmp );
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlinkunlink
+            @unlink( $tmp );
+
+            if ( $data !== false && $data !== '' ) {
+                Logger::info(
+                    'Job',
+                    'Generated image fetched via download_url',
+                    array(
+                        'build_uuid' => $build_uuid,
+                        'bytes'      => strlen( $data ),
+                    )
+                );
+                return $data;
+            }
+        }
+
+        if ( is_wp_error( $tmp ) ) {
+            Logger::error(
+                'Job',
+                'download_url failed',
+                array(
+                    'build_uuid' => $build_uuid,
+                    'error'      => $tmp->get_error_message(),
+                )
+            );
+        } elseif ( is_string( $tmp ) && $tmp !== '' && file_exists( $tmp ) ) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlinkunlink
+            @unlink( $tmp );
+        }
+
+        return $this->fetch_generated_image_bytes_fallback( $url, $build_uuid, $timeout );
+    }
+
+    /**
+     * Second attempt: wp_remote_get with explicit headers (some hosts behave differently than download_url).
+     *
+     * @param string $url        Image URL.
+     * @param string $build_uuid Build UUID.
+     * @param int    $timeout    Request timeout in seconds.
+     * @return string|false
+     */
+    private function fetch_generated_image_bytes_fallback( $url, $build_uuid, $timeout ) {
+        $ver = defined( 'WC_AICC_VERSION' ) ? \WC_AICC_VERSION : '1';
+
+        $args = apply_filters(
+            'wc_aicc_download_generated_image_args',
+            array(
+                'timeout'     => max( 60, $timeout ),
+                'redirection' => 10,
+                'headers'     => array(
+                    'Accept' => 'image/webp,image/apng,image/png,image/jpeg,image/*,*/*;q=0.8',
+                ),
+                'user-agent'  => sprintf( 'WC-AICC/%s; %s', $ver, home_url( '/' ) ),
+                'sslverify'   => true,
+            ),
+            $build_uuid,
+            $url
+        );
+
+        add_filter( 'http_request_host_is_external', array( $this, 'filter_allow_replicate_hosts' ), 10, 2 );
+
+        $response = wp_remote_get( $url, $args );
+
+        remove_filter( 'http_request_host_is_external', array( $this, 'filter_allow_replicate_hosts' ), 10 );
+
+        if ( is_wp_error( $response ) ) {
+            Logger::error(
+                'Job',
+                'wp_remote_get fallback failed',
+                array(
+                    'build_uuid' => $build_uuid,
+                    'wp_error'   => $response->get_error_message(),
+                )
+            );
+            return false;
+        }
+
+        $http_code = (int) wp_remote_retrieve_response_code( $response );
+        $body      = wp_remote_retrieve_body( $response );
+
+        if ( $http_code !== 200 || $body === '' ) {
+            Logger::error(
+                'Job',
+                'wp_remote_get fallback bad response',
+                array(
+                    'build_uuid' => $build_uuid,
+                    'http_code'  => $http_code,
+                    'body_len'   => strlen( (string) $body ),
+                    'snippet'    => Logger::truncate( substr( (string) $body, 0, 400 ), 600 ),
+                )
+            );
+            return false;
+        }
+
+        Logger::info(
+            'Job',
+            'Generated image fetched via wp_remote_get',
+            array(
+                'build_uuid' => $build_uuid,
+                'bytes'      => strlen( $body ),
+            )
+        );
+
+        return $body;
     }
 
     /**
