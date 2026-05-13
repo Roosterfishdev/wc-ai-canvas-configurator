@@ -263,9 +263,18 @@ class Job_Handler {
             // Base64 encoded data
             $image_data = base64_decode( $result['image_data'] );
         } elseif ( ! empty( $result['image_url'] ) ) {
-            // Download from URL
-            $response = wp_remote_get( $result['image_url'], array( 'timeout' => 60 ) );
-            
+            // Download from Replicate output URL (often replicate.delivery — different host than api.replicate.com).
+            $remote_args = apply_filters(
+                'wc_aicc_download_generated_image_args',
+                array(
+                    'timeout' => 90,
+                    'redirection' => 5,
+                ),
+                $build->build_uuid,
+                $result['image_url']
+            );
+            $response    = wp_remote_get( $result['image_url'], $remote_args );
+
             if ( is_wp_error( $response ) ) {
                 Logger::error(
                     'Job',
@@ -273,12 +282,28 @@ class Job_Handler {
                     array(
                         'build_uuid' => $build->build_uuid,
                         'wp_error'   => $response->get_error_message(),
+                        'url_hint'   => Logger::summarize_url( $result['image_url'] ),
                     )
                 );
                 return false;
             }
-            
+
+            $http_code = (int) wp_remote_retrieve_response_code( $response );
             $image_data = wp_remote_retrieve_body( $response );
+
+            if ( $http_code !== 200 || $image_data === '' ) {
+                Logger::error(
+                    'Job',
+                    'Download generated image bad response',
+                    array(
+                        'build_uuid' => $build->build_uuid,
+                        'http_code'  => $http_code,
+                        'body_len'   => strlen( (string) $image_data ),
+                        'url_hint'   => Logger::summarize_url( $result['image_url'] ),
+                    )
+                );
+                return false;
+            }
         }
 
         if ( empty( $image_data ) ) {
