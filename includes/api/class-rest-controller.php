@@ -538,12 +538,14 @@ class REST_Controller {
             );
         }
 
-        // Update build with customization options
+        // Update build with customization options; set cropped_key now (crop step is stub: same as original).
+        // Lets clients see cropped URL immediately and survives slow/missed cron until AI runs — worker still overwrites safely.
         $repository->update_by_uuid(
             $build_uuid,
             array(
                 'customization_options' => $customization_options,
                 'status'                 => Build::STATUS_PROCESSING,
+                'cropped_key'            => $build->original_key,
             )
         );
 
@@ -557,7 +559,7 @@ class REST_Controller {
 
         // Enqueue Action Scheduler job
         if ( function_exists( 'as_enqueue_async_action' ) ) {
-            as_enqueue_async_action(
+            $action_id = as_enqueue_async_action(
                 'wc_aicc_process_build',
                 array( 'build_uuid' => $build_uuid ),
                 'wc-aicc'
@@ -565,8 +567,15 @@ class REST_Controller {
             Logger::info(
                 'REST',
                 'Queued wc_aicc_process_build (Action Scheduler)',
-                array( 'build_uuid' => $build_uuid )
+                array(
+                    'build_uuid' => $build_uuid,
+                    'action_id'  => $action_id,
+                )
             );
+            // Prompt WP to run cron soon (helps hosts where Action Scheduler backlog sits until wp-cron.php).
+            if ( function_exists( 'spawn_cron' ) ) {
+                spawn_cron();
+            }
         } else {
             // Fallback: process immediately (not recommended for production)
             Logger::warning(
@@ -638,6 +647,9 @@ class REST_Controller {
         $rest->header( 'Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0' );
         $rest->header( 'CDN-Cache-Control', 'private, no-store' );
         $rest->header( 'Vary', 'Cookie' );
+        // Debug/support: mirrors JSON without opening the response body in DevTools.
+        $rest->header( 'X-WC-AICC-Build-Status', sanitize_key( $build->status ) );
+        $rest->header( 'X-WC-AICC-Build-Updated', sanitize_text_field( (string) $build->updated_at ) );
 
         return $rest;
     }

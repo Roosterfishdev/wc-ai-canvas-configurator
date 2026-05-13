@@ -169,6 +169,16 @@ class Job_Handler {
     private function step_crop( $build ) {
         Logger::info( 'Job', 'Step: crop', array( 'build_uuid' => $build->build_uuid ) );
 
+        // REST may already set cropped_key (= original stub) before the worker runs; skip duplicate work.
+        if ( ! empty( $build->cropped_key ) ) {
+            Logger::info(
+                'Job',
+                'Crop skipped (already set)',
+                array( 'build_uuid' => $build->build_uuid )
+            );
+            return $build->cropped_key;
+        }
+
         // TODO: Implement actual cropping based on aspect_ratio
         // For now, just return the original key as cropped
         
