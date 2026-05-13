@@ -582,7 +582,11 @@ class REST_Controller {
                 'build_uuid' => $build_uuid,
                 'status'     => Build::STATUS_PROCESSING,
             ),
-            200
+            200,
+            array(
+                'Cache-Control'     => 'no-store, no-cache, must-revalidate, max-age=0',
+                'CDN-Cache-Control' => 'no-store',
+            )
         );
     }
 
@@ -609,7 +613,7 @@ class REST_Controller {
 
         // Build response with URLs
         $storage  = R2_Storage::instance();
-        $response = array(
+        $payload = array(
             'build_uuid'           => $build->build_uuid,
             'product_id'           => $build->product_id,
             'variation_id'         => $build->variation_id,
@@ -629,7 +633,13 @@ class REST_Controller {
             ),
         );
 
-        return new \WP_REST_Response( $response, 200 );
+        $rest = new \WP_REST_Response( $payload, 200 );
+        // Critical: intermediaries must not cache this (CDN often caches REST GET unless forced).
+        $rest->header( 'Cache-Control', 'private, no-cache, no-store, must-revalidate, max-age=0' );
+        $rest->header( 'CDN-Cache-Control', 'private, no-store' );
+        $rest->header( 'Vary', 'Cookie' );
+
+        return $rest;
     }
 
     /**

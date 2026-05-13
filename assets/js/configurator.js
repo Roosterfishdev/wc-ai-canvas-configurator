@@ -359,6 +359,8 @@
         const pollOnce = async () => {
             try {
                 const response = await fetch(`${restUrl}/builds/${state.buildUuid}`, {
+                    credentials: 'same-origin',
+                    cache: 'no-store',
                     headers: {
                         'X-WP-Nonce': nonce
                     }
