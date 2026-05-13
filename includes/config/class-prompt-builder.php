@@ -48,56 +48,36 @@ class Prompt_Builder {
      * @var array
      */
     const STYLE_DEFINITIONS = array(
-        'impasto' => array(
+        'warhol_grid' => array(
             'core' => array(
-                '(masterpiece:1.3), (impasto oil painting:1.4)',
-                'thick textured oil paint, palette knife strokes',
+                '(masterpiece:1.2), Andy Warhol iconic pop art screen-print portrait',
+                'high-end pop art poster design',
                 'the same subject from the input image',
                 'preserve facial structure and markings, coat pattern and proportions from the reference',
-                'translate coat texture into painterly brush texture',
-                'close-up head and chest portrait',
-                'expressive eyes',
-                'heavy layered oil paint, raised ridges, visible brush direction',
-                'fine art museum quality',
+                'translate fur or coat into bold graphic shapes and flat color fills',
+                'four-panel grid composition in the style of Warhol Marilyn / Queen Elizabeth repeats',
+                'four square panels in a two-by-two grid, same portrait repeated',
+                'each quadrant with distinct saturated colorways and silkscreen separation',
+                'flat ink blocks with slight imperfect registration cues',
+                'high contrast palettes, acetone or litho pop texture optional',
+                'bold contours, celebrity portrait billboard energy',
+                'close-up head and upper chest readable in each panel',
+                'playful iconic mass-media attitude',
+                'minimal noise inside panels',
             ),
-            'composition' => 'balanced portrait-friendly composition',
+            'composition' => 'four equal quadrants, aligned subject placement in each panel',
             'negative_extra' => array(
-                'no text, no watermark, no logo',
+                'no text, no watermark, no logo, no magazine masthead',
                 'no extra animals',
-                'no human features',
-                'no breed or species change from the reference',
-                'no exaggerated anatomy',
-            ),
-        ),
-        'pixar' => array(
-            'core' => array(
-                '(masterpiece:1.2), (pixar style 3D animation:1.4)',
-                'high-end animated film character render',
-                'the same subject from the input image',
-                'preserve facial structure and markings, coat pattern and proportions from the reference',
-                'translate real coat into stylized soft animated fur or surface',
-                'cute stylized character design',
-                'large expressive eyes, soft rounded facial features',
-                'clean cinematic lighting',
-                'smooth detailed fur or coat shading',
-                '3D animated film quality rendering',
-                'close-up head and chest portrait',
-                'warm friendly personality expression',
-                'ultra polished animation studio quality',
-                'Pixar style character design, modern animated film aesthetic',
-                'simple clean studio background',
-            ),
-            'composition' => 'clear readable pose, portrait-friendly framing',
-            'negative_extra' => array(
-                'no text, no watermark, no logo',
-                'no extra animals',
-                'no human features',
-                'no breed or species change from the reference',
+                'no human figure replacement for the pet subject unless present in reference',
                 'no exaggerated anatomy',
                 'no distorted faces',
                 'no deformed eyes',
                 'no low quality render',
-                'no blurry details',
+                'no photoreal candid photo',
+                'no watercolor or oil painterly brush chaos',
+                'no single lonely panel unless grid implied',
+                'no 3D CGI look',
             ),
         ),
         'watercolor' => array(
@@ -146,7 +126,7 @@ class Prompt_Builder {
                 'bold outlines and strong graphic contrast',
                 'vibrant saturated colors',
                 'clean vector-like illustration style',
-                'Andy Warhol inspired pop art aesthetic',
+                'bold commercial illustration poster energy',
                 'close-up head and chest portrait',
                 'playful and energetic personality expression',
                 'high contrast color blocking',
@@ -169,26 +149,25 @@ class Prompt_Builder {
                 'no 3D render',
             ),
         ),
-        'van_gogh' => array(
+        'pixar' => array(
             'core' => array(
-                '(masterpiece:1.2), (Van Gogh style oil painting:1.4)',
-                'high-end post-impressionist painting',
+                '(masterpiece:1.2), (pixar style 3D animation:1.4)',
+                'high-end animated film character render',
                 'the same subject from the input image',
                 'preserve facial structure and markings, coat pattern and proportions from the reference',
-                'translate real coat into expressive painterly brush strokes',
-                'Vincent van Gogh inspired artistic interpretation',
-                'expressive eyes, soft rounded facial features',
-                'thick impasto brush strokes',
-                'dynamic swirling paint texture',
-                'rich oil paint texture on canvas',
-                'vivid expressive color palette',
+                'translate real coat into stylized soft animated fur or surface',
+                'cute stylized character design',
+                'large expressive eyes, soft rounded facial features',
+                'clean cinematic lighting',
+                'smooth detailed fur or coat shading',
+                '3D animated film quality rendering',
                 'close-up head and chest portrait',
                 'warm friendly personality expression',
-                'museum-quality oil painting aesthetic',
-                'post-impressionist style character portrait',
-                'simple painterly background with swirling brush textures',
+                'ultra polished animation studio quality',
+                'Pixar style character design, modern animated film aesthetic',
+                'simple clean studio background',
             ),
-            'composition' => 'dynamic portrait composition',
+            'composition' => 'clear readable pose, portrait-friendly framing',
             'negative_extra' => array(
                 'no text, no watermark, no logo',
                 'no extra animals',
@@ -199,47 +178,27 @@ class Prompt_Builder {
                 'no deformed eyes',
                 'no low quality render',
                 'no blurry details',
-                'no pop art style',
-                'no watercolor style',
-                'no 3D render',
             ),
         ),
-        'warhol_grid' => array(
+        'impasto' => array(
             'core' => array(
-                '(masterpiece:1.2), (Andy Warhol pop art grid:1.4)',
-                'high-end pop art poster design',
+                '(masterpiece:1.3), (impasto oil painting:1.4)',
+                'thick textured oil paint, palette knife strokes',
                 'the same subject from the input image',
                 'preserve facial structure and markings, coat pattern and proportions from the reference',
-                'translate real coat into bold graphic shapes and simplified color areas',
-                'Andy Warhol inspired pop art portrait',
-                '4-panel grid composition',
-                'four square panels arranged in a 2x2 grid',
-                'each panel showing the same subject portrait',
-                'each panel using different vibrant contrasting color palettes',
-                'bold black outlines and flat color blocks',
-                'high contrast neon pop colors',
-                'clean vector-like graphic style',
+                'translate coat texture into painterly brush texture',
                 'close-up head and chest portrait',
-                'playful expressive personality',
-                'retro pop art poster aesthetic',
-                'simple graphic background inside each panel',
+                'expressive eyes',
+                'heavy layered oil paint, raised ridges, visible brush direction',
+                'fine art museum quality',
             ),
-            'composition' => 'four equal quadrants, consistent subject placement in each',
+            'composition' => 'balanced portrait-friendly composition',
             'negative_extra' => array(
                 'no text, no watermark, no logo',
                 'no extra animals',
                 'no human features',
                 'no breed or species change from the reference',
                 'no exaggerated anatomy',
-                'no distorted faces',
-                'no deformed eyes',
-                'no low quality render',
-                'no blurry details',
-                'no photorealism',
-                'no watercolor style',
-                'no oil painting style',
-                'no 3D render',
-                'no single-panel layout only',
             ),
         ),
         'american_traditional_tattoo' => array(
@@ -274,37 +233,134 @@ class Prompt_Builder {
                 'no blurry details',
             ),
         ),
-        'royal_legacy' => array(
+        'magazine_dogue' => array(
             'core' => array(
-                'majestic royal portrait legacy style',
-                'rich fabrics, ornate details, dignified lighting',
-                'old master oil or regal court painting influence',
+                '(masterpiece:1.2), glossy high-fashion Magazine Dogue pet editorial portrait',
+                'the same subject from the input image',
+                'preserve facial structure, breed traits, fur markings and proportions',
+                'glossy fashion-magazine cover lighting and polish without literal logo text',
+                'high-end editorial retouch vibe, sculpted rim light',
+                'subject wears oversized cream vintage sunglasses',
+                'pink floral scarf under chin with delicate white daisy pattern',
+                'clean bright cyan or powder blue seamless backdrop option',
+                'mid-century playful chic personality',
+                'flat-painted illustration polish mixed with luminous studio sheen',
+                'simplified shapes, matte color blocks with soft gradients',
+                'symmetrical balanced framing, portrait orientation',
+                'close-up head and upper chest emphasis',
+                'contemporary pop illustration couture energy',
             ),
-            'composition' => 'formal portrait composition, stately presence',
-        ),
-        'magazine' => array(
-            'core' => array(
-                'glossy editorial magazine photography look',
-                'polished lighting, high-end retouching feel, fashion editorial clarity',
+            'composition' => 'editorial cover hero composition, generous negative space for imaginary masthead',
+            'negative_extra' => array(
+                'no text, no watermark, no logo, no readable masthead',
+                'no extra animals',
+                'no humans',
+                'no hyper-real candid snapshot',
+                'no cluttered props',
+                'no distorted anatomy',
+                'no deformed eyes',
+                'no gritty newsprint ONLY treatment',
+                'no low quality',
+                'no glitch artifacts',
+                'no cheesy HDR',
             ),
-            'composition' => 'editorial cover-ready framing',
         ),
         'newspaper' => array(
             'core' => array(
-                'vintage newspaper print illustration',
-                'halftone dot texture, muted ink blacks, newsprint grain',
-                'graphic editorial print feel',
+                '(masterpiece:1.2), vintage newspaper halftone printed portrait illustration',
+                'the same subject from the input image',
+                'preserve likeness, markings, silhouette weight from reference',
+                'large halftone dot screens, tactile newsprint fibers',
+                'muted ink blacks, warm paper stock cream',
+                'graphic editorial caricature-lite clarity without text blocks',
+                'front-page centerpiece illustration pacing',
+                'close-up readable head bust',
+                'subtle imperfect ink trapping',
             ),
-            'composition' => 'front-page illustration style layout',
+            'composition' => 'column illustration layout cues with breathing room resembling broadsheet centerpiece',
+            'negative_extra' => array(
+                'no headlines, captions, watermark, barcode',
+                'no glossy RGB magazine finish',
+                'no rainbow pop palette',
+                'no low resolution mush',
+            ),
+        ),
+        'royal_legacy' => array(
+            'core' => array(
+                '(masterpiece:1.2), majestic royal ancestral portrait mural',
+                'the same subject from the input image',
+                'preserve heraldic likeness, coat markings, stature from reference',
+                'dramatic Baroque or Tudor court illumination',
+                'sumptuous ermine trims, embroidered silk robes optional',
+                'ornate gilt frame vignette without literal heraldic typography',
+                'old master glazing, subtle craquelure',
+                'warm candlelit key with cool shadow fill balance',
+                'close-up ceremonial bust presentation',
+                'noble restrained expression grandeur',
+                'museum oil or tempera grandeur',
+                'rich gemstone color accents subdued',
+                'velvet drapery cascade background suggestion',
+                'storybook heirloom gravitas',
+            ),
+            'composition' => 'formal symmetrical crest-like portrait presence',
+            'negative_extra' => array(
+                'no text, watermark, coat-of-arms lettering',
+                'no modern office props',
+                'no flat pop vector look',
+                'no snapshot flash lighting',
+                'no exaggerated grotesque features',
+                'no grayscale unless palette chosen later',
+                'no cluttered contemporary UI',
+                'no muddy texture soup',
+                'no distorted anatomy',
+            ),
         ),
         'black_white' => array(
             'core' => array(
-                'striking black and white artwork',
-                'strong tonal range, careful contrast, no color',
-                'timeless monochrome fine art or photo finish',
+                '(masterpiece:1.25), luminous black and white fine art monochrome portrait',
+                'the same subject from the input image',
+                'preserve texture direction in fur or coat as tonal rhythm',
+                'extended gray-scale latitude, deep rich blacks, controlled specular highlights',
+                'timeless silver-gelatin or platinum print atmosphere',
+                'close-up head and chest sculptural clarity',
+                'subtle atmospheric vignette optional',
+                'museum-grade tonal separation',
             ),
-            'composition' => 'monochrome portrait composition',
-            'negative_extra' => array( 'no color' ),
+            'composition' => 'monochrome portrait composition with deliberate negative space',
+            'negative_extra' => array(
+                'no color chroma, no sepia unless requested elsewhere',
+                'no low contrast flat gray soup',
+                'no heavy digital noise',
+                'no text or watermark',
+            ),
+        ),
+        'whiskey_office' => array(
+            'core' => array(
+                '(masterpiece:1.2), cinematic executive whiskey office portrait illustration',
+                'the same subject from the input image',
+                'preserve facial structure, markings, coat pattern and proportions from reference',
+                'opulent wood-paneled study, leather club chair suggestion',
+                'warm tungsten practicals, soft window fill',
+                'polished walnut desk edge, brass lamp highlights',
+                'optional subtle cut-crystal whiskey glass prop with amber liquid catchlight',
+                'smoke-tinged atmosphere very light, tasteful',
+                'rich tobacco, cognac, espresso palette',
+                'close-up head and shoulders hero framing',
+                'powerful yet relaxed charisma',
+                'high-end Netflix drama key art finish',
+                'shallow depth-of-field suggestion without bokeh chaos',
+            ),
+            'composition' => 'executive portrait weighting with desk leading lines toward subject',
+            'negative_extra' => array(
+                'no text, watermark, stock photo UI',
+                'no neon cyberpunk palette',
+                'no cluttered paperwork legible',
+                'no extreme fish-eye distortion',
+                'no multiple duplicate subjects',
+                'no grotesque drunken caricature',
+                'no modern open-plan bright white office',
+                'no low quality render',
+            ),
         ),
     );
 
@@ -333,13 +389,6 @@ class Prompt_Builder {
                 'clear negative space or layout rhythm suitable for a masthead',
             ),
             'composition_priority' => 'editorial magazine cover layout with intentional headline space',
-        ),
-        'whiskey_office' => array(
-            'lines' => array(
-                'sophisticated office portrait context',
-                'leather chair, wood desk, warm lamp light, whiskey glass subtle prop optional',
-                'executive character study, cinematic warmth',
-            ),
         ),
         'cowboy' => array(
             'lines' => array(
@@ -373,7 +422,7 @@ class Prompt_Builder {
      * @var array
      */
     const DEFAULTS = array(
-        'style'              => 'impasto',
+        'style'              => 'warhol_grid',
         'situation'          => 'neutral',
         'background_color'   => 'natural',
         'situation_custom'   => '',
@@ -390,6 +439,13 @@ class Prompt_Builder {
      * @var array
      */
     const CUSTOMIZE_OPTION_ORDER = array( 'style', 'situation', 'background_color' );
+
+    /**
+     * Subdirectory under wp-content/uploads for style card thumbnails.
+     *
+     * Use files named {slug}.webp (or jpg/png), e.g. warhol_grid.webp.
+     */
+    const STYLE_EXAMPLES_UPLOAD_SUBDIR = 'wc-aicc-style-examples';
 
     /**
      * Customize step order (filterable for extra steps)
@@ -433,49 +489,49 @@ class Prompt_Builder {
                 'step_title' => __( 'Select style', 'wc-aicc' ),
                 'type'       => 'cards',
                 'choices'    => array(
-                    'impasto' => array(
-                        'label' => __( 'Impasto', 'wc-aicc' ),
-                        'hint'  => __( 'Thick textured oil paint', 'wc-aicc' ),
-                    ),
-                    'pixar' => array(
-                        'label' => __( 'Pixar', 'wc-aicc' ),
-                        'hint'  => __( '3D animated film look', 'wc-aicc' ),
+                    'warhol_grid' => array(
+                        'label' => __( 'Warhol Grid', 'wc-aicc' ),
+                        'hint'  => __( 'Four-panel Andy Warhol style', 'wc-aicc' ),
                     ),
                     'watercolor' => array(
-                        'label' => __( 'Watercolor', 'wc-aicc' ),
+                        'label' => __( 'Water Color', 'wc-aicc' ),
                         'hint'  => __( 'Soft washes on paper', 'wc-aicc' ),
                     ),
                     'pop_art' => array(
                         'label' => __( 'Pop Art', 'wc-aicc' ),
                         'hint'  => __( 'Bold graphic color blocks', 'wc-aicc' ),
                     ),
-                    'van_gogh' => array(
-                        'label' => __( 'Van Gogh', 'wc-aicc' ),
-                        'hint'  => __( 'Swirling expressive strokes', 'wc-aicc' ),
+                    'pixar' => array(
+                        'label' => __( 'Pixar', 'wc-aicc' ),
+                        'hint'  => __( '3D animated film look', 'wc-aicc' ),
                     ),
-                    'warhol_grid' => array(
-                        'label' => __( 'Warhol Grid Pop Art', 'wc-aicc' ),
-                        'hint'  => __( 'Four-panel Andy Warhol style', 'wc-aicc' ),
+                    'impasto' => array(
+                        'label' => __( 'Impasto', 'wc-aicc' ),
+                        'hint'  => __( 'Thick textured oil paint', 'wc-aicc' ),
                     ),
                     'american_traditional_tattoo' => array(
-                        'label' => __( 'American Traditional Tattoo', 'wc-aicc' ),
-                        'hint'  => __( 'Bold outlines, classic flash', 'wc-aicc' ),
+                        'label' => __( 'American Tradi', 'wc-aicc' ),
+                        'hint'  => __( 'Traditional tattoo flash', 'wc-aicc' ),
                     ),
-                    'royal_legacy' => array(
-                        'label' => __( 'Royal Legacy', 'wc-aicc' ),
-                        'hint'  => __( 'Regal old-master portrait', 'wc-aicc' ),
-                    ),
-                    'magazine' => array(
-                        'label' => __( 'Magazine', 'wc-aicc' ),
-                        'hint'  => __( 'Glossy editorial photo', 'wc-aicc' ),
+                    'magazine_dogue' => array(
+                        'label' => __( 'Magazine (Dogue)', 'wc-aicc' ),
+                        'hint'  => __( 'Fashion editorial chic', 'wc-aicc' ),
                     ),
                     'newspaper' => array(
                         'label' => __( 'Newspaper', 'wc-aicc' ),
                         'hint'  => __( 'Newsprint halftone', 'wc-aicc' ),
                     ),
+                    'royal_legacy' => array(
+                        'label' => __( 'Royal Legacy', 'wc-aicc' ),
+                        'hint'  => __( 'Regal old-master portrait', 'wc-aicc' ),
+                    ),
                     'black_white' => array(
-                        'label' => __( 'Black & White', 'wc-aicc' ),
+                        'label' => __( 'Black and White', 'wc-aicc' ),
                         'hint'  => __( 'Monochrome artwork', 'wc-aicc' ),
+                    ),
+                    'whiskey_office' => array(
+                        'label' => __( 'Whiskey Office', 'wc-aicc' ),
+                        'hint'  => __( 'Executive office mood', 'wc-aicc' ),
                     ),
                 ),
             ),
@@ -496,10 +552,6 @@ class Prompt_Builder {
                     'magazine_cover' => array(
                         'label' => __( 'Magazine Cover', 'wc-aicc' ),
                         'hint'  => __( 'Cover-style layout & space', 'wc-aicc' ),
-                    ),
-                    'whiskey_office' => array(
-                        'label' => __( 'Whiskey Office', 'wc-aicc' ),
-                        'hint'  => __( 'Executive office mood', 'wc-aicc' ),
                     ),
                     'cowboy' => array(
                         'label' => __( 'Cowboy', 'wc-aicc' ),
@@ -563,6 +615,61 @@ class Prompt_Builder {
          * @param array $config Options config.
          */
         return apply_filters( 'wc_aicc_prompt_builder_options_config', $config );
+    }
+
+    /**
+     * Public URL for a style preview image (step 3.1 cards).
+     *
+     * Resolution order:
+     * 1. wp-content/uploads/wc-aicc-style-examples/{slug}.(webp|jpg|jpeg|png)
+     * 2. Plugin bundle: assets/images/style-examples/{slug}.(webp|jpg|jpeg|png)
+     *
+     * @param string $style_slug Style choice key (e.g. warhol_grid, watercolor).
+     * @return string URL or empty if no file exists.
+     */
+    public static function resolve_style_example_image_url( $style_slug ) {
+        $slug = preg_replace( '/[^a-z0-9_-]/i', '', (string) $style_slug );
+        if ( $slug === '' || ! defined( 'WC_AICC_PLUGIN_DIR' ) || ! defined( 'WC_AICC_PLUGIN_URL' ) ) {
+            return '';
+        }
+
+        $extensions = array( 'webp', 'jpg', 'jpeg', 'png' );
+
+        if ( function_exists( 'wp_upload_dir' ) ) {
+            $upload = wp_upload_dir();
+            if ( empty( $upload['error'] ) && ! empty( $upload['basedir'] ) && ! empty( $upload['baseurl'] ) ) {
+                $upload_style_dir = trailingslashit( $upload['basedir'] ) . self::STYLE_EXAMPLES_UPLOAD_SUBDIR;
+                if ( function_exists( 'wp_mkdir_p' ) && ! is_dir( $upload_style_dir ) ) {
+                    wp_mkdir_p( $upload_style_dir );
+                }
+                if ( is_dir( $upload_style_dir ) && ! file_exists( $upload_style_dir . '/index.php' ) ) {
+                    // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+                    @file_put_contents( $upload_style_dir . '/index.php', "<?php\n// Silence is golden.\n" );
+                }
+                $upload_style_url = trailingslashit( $upload['baseurl'] ) . self::STYLE_EXAMPLES_UPLOAD_SUBDIR;
+                foreach ( $extensions as $ext ) {
+                    $file = trailingslashit( $upload_style_dir ) . $slug . '.' . $ext;
+                    if ( file_exists( $file ) && is_readable( $file ) ) {
+                        $url = trailingslashit( $upload_style_url ) . $slug . '.' . $ext;
+                        return (string) apply_filters( 'wc_aicc_style_example_image_url', $url, $slug, $file );
+                    }
+                }
+            }
+        }
+
+        $subdir = 'assets/images/style-examples/';
+        $dir    = WC_AICC_PLUGIN_DIR . $subdir;
+        $base   = WC_AICC_PLUGIN_URL . $subdir;
+
+        foreach ( $extensions as $ext ) {
+            $file = $dir . $slug . '.' . $ext;
+            if ( file_exists( $file ) && is_readable( $file ) ) {
+                $url = $base . $slug . '.' . $ext;
+                return (string) apply_filters( 'wc_aicc_style_example_image_url', $url, $slug, $file );
+            }
+        }
+
+        return (string) apply_filters( 'wc_aicc_style_example_image_url', '', $slug, '' );
     }
 
     /**
@@ -654,7 +761,7 @@ class Prompt_Builder {
         $situations = apply_filters( 'wc_aicc_prompt_situation_definitions', self::SITUATION_DEFINITIONS );
         $bg_map     = apply_filters( 'wc_aicc_prompt_background_phrases', self::BACKGROUND_PHRASES );
 
-        $style_def = $styles[ $style_key ] ?? $styles['impasto'];
+        $style_def = $styles[ $style_key ] ?? $styles['warhol_grid'];
         $sit_def   = $situations[ $situation_key ] ?? $situations['neutral'];
 
         $prompt_parts = array();
