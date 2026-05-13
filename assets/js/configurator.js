@@ -356,7 +356,7 @@
         state.pollEpoch = (state.pollEpoch || 0) + 1;
         const sessionEpoch = state.pollEpoch;
 
-        state.pollInterval = setInterval(async () => {
+        const pollOnce = async () => {
             try {
                 const response = await fetch(`${restUrl}/builds/${state.buildUuid}`, {
                     headers: {
@@ -398,7 +398,10 @@
                 console.error('Polling error:', error);
                 // Don't stop polling on transient errors
             }
-        }, 2000);
+        };
+
+        pollOnce();
+        state.pollInterval = setInterval(pollOnce, 2000);
     }
 
     /**
@@ -776,8 +779,8 @@
             finalArtImg.src = state.finalArtUrl;
         }
 
-        if (mockupImg && state.mockupUrl) {
-            mockupImg.src = state.mockupUrl;
+        if (mockupImg && (state.mockupUrl || state.finalArtUrl)) {
+            mockupImg.src = state.mockupUrl || state.finalArtUrl;
         }
     }
 
@@ -826,8 +829,8 @@
             priceEl.innerHTML = state.selectedVariation.price_html;
         }
 
-        if (cartPreviewImg && state.mockupUrl) {
-            cartPreviewImg.src = state.mockupUrl;
+        if (cartPreviewImg && (state.mockupUrl || state.finalArtUrl)) {
+            cartPreviewImg.src = state.mockupUrl || state.finalArtUrl;
         }
     }
 

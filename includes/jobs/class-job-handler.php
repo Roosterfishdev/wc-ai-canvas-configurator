@@ -102,22 +102,41 @@ class Job_Handler {
                 throw new \Exception( __( 'AI generation failed.', 'wc-aicc' ) );
             }
 
-            // Update build with final art key
-            $repository->update_by_uuid( $build_uuid, array( 'final_art_key' => $final_art_key ) );
-            $build->final_art_key = $final_art_key;
-
-            // Step 3: Mockup generation (throws on failure with a detailed message)
-            $mockup_key = $this->step_mockup_generate( $build );
-
-            // Update build with mockup key and set status to ready
+            // Persist final artwork and mark READY so the frontend can advance as soon as Replicate succeeds.
+            // Mockup runs afterward; failures there must not block the customer preview (fixes "stuck on processing").
             $repository->update_by_uuid(
                 $build_uuid,
                 array(
-                    'mockup_key'    => $mockup_key,
+                    'final_art_key' => $final_art_key,
                     'status'        => Build::STATUS_READY,
                     'error_message' => '',
                 )
             );
+            $build->final_art_key = $final_art_key;
+
+            Logger::info(
+                'Job',
+                'Build marked ready after AI generation',
+                array( 'build_uuid' => $build_uuid )
+            );
+
+            try {
+                $mockup_key = $this->step_mockup_generate( $build );
+                $repository->update_by_uuid(
+                    $build_uuid,
+                    array( 'mockup_key' => $mockup_key )
+                );
+                Logger::info( 'Job', 'Mockup completed', array( 'build_uuid' => $build_uuid, 'mockup_key' => $mockup_key ) );
+            } catch ( \Exception $mockup_ex ) {
+                Logger::warning(
+                    'Job',
+                    'Mockup failed; build stays ready without mockup',
+                    array(
+                        'build_uuid' => $build_uuid,
+                        'message'    => $mockup_ex->getMessage(),
+                    )
+                );
+            }
 
             Logger::info( 'Job', 'Build completed successfully', array( 'build_uuid' => $build_uuid ) );
 
