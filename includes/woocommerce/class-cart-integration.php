@@ -207,10 +207,10 @@ class Cart_Integration {
             return $thumbnail;
         }
 
-        return sprintf(
-            '<img src="%s" alt="%s" class="wc-aicc-cart-thumbnail" />',
-            esc_url( $mockup_url ),
-            esc_attr__( 'Custom artwork preview', 'wc-aicc' )
+        return \WC_AICC\Config\Preview_Watermark::wrap_image_html(
+            $mockup_url,
+            __( 'Custom artwork preview', 'wc-aicc' ),
+            'wc-aicc-cart-thumbnail'
         );
     }
 

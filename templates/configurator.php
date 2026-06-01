@@ -276,7 +276,10 @@ if ( ! defined( 'ABSPATH' ) ) {
             <div class="wc-aicc-preview-grid">
                 <div class="wc-aicc-preview-item">
                     <h4><?php esc_html_e( 'Final Artwork', 'wc-aicc' ); ?></h4>
-                    <img id="wc-aicc-final-art-preview" src="" alt="<?php esc_attr_e( 'Final artwork', 'wc-aicc' ); ?>" />
+                    <?php echo \WC_AICC\Config\Preview_Watermark::open_wrapper(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                    <img id="wc-aicc-final-art-preview" class="wc-aicc-art-preview__image" src="" alt="<?php esc_attr_e( 'Final artwork', 'wc-aicc' ); ?>" draggable="false" />
+                    <?php echo \WC_AICC\Config\Preview_Watermark::render_overlay_markup(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                    <?php echo \WC_AICC\Config\Preview_Watermark::close_wrapper(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </div>
                 <div class="wc-aicc-preview-item">
                     <h4><?php esc_html_e( 'Room Mockup', 'wc-aicc' ); ?></h4>
@@ -320,8 +323,11 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </div>
             </div>
 
-            <div class="wc-aicc-preview-item" style="text-align: center; margin-bottom: 24px;">
-                <img id="wc-aicc-cart-preview" src="" alt="<?php esc_attr_e( 'Your artwork', 'wc-aicc' ); ?>" style="max-width: 300px;" />
+            <div class="wc-aicc-preview-item wc-aicc-preview-item--cart" style="text-align: center; margin-bottom: 24px;">
+                <?php echo \WC_AICC\Config\Preview_Watermark::open_wrapper(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                <img id="wc-aicc-cart-preview" class="wc-aicc-art-preview__image" src="" alt="<?php esc_attr_e( 'Your artwork', 'wc-aicc' ); ?>" style="max-width: 300px;" draggable="false" />
+                <?php echo \WC_AICC\Config\Preview_Watermark::render_overlay_markup(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                <?php echo \WC_AICC\Config\Preview_Watermark::close_wrapper(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
             </div>
 
             <div class="wc-aicc-btn-row">
