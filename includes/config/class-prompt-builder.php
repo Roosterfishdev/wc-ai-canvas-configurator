@@ -465,6 +465,17 @@ class Prompt_Builder {
     const STYLE_EXAMPLES_UPLOAD_SUBDIR = 'wc-aicc-style-examples';
 
     /**
+     * Alternate filenames for style preview images (legacy or human-readable names).
+     *
+     * @var array<string, string[]>
+     */
+    private const STYLE_EXAMPLE_ALIASES = array(
+        'black_studio'   => array( 'black_white', 'Black Studio' ),
+        'magazine_dogue' => array( 'dogue', 'Dogue Cover' ),
+        'royal_legacy'   => array( 'Royal Legacy' ),
+    );
+
+    /**
      * Customize step order (filterable for extra steps)
      *
      * @return array
@@ -676,6 +687,7 @@ class Prompt_Builder {
      * Resolution order:
      * 1. wp-content/uploads/wc-aicc-style-examples/{slug}.(webp|jpg|jpeg|png)
      * 2. Plugin bundle: assets/images/style-examples/{slug}.(webp|jpg|jpeg|png)
+     * 3. Known aliases and normalized filename scan in those directories
      *
      * @param string $style_slug Style choice key (e.g. warhol_grid, watercolor).
      * @return string URL or empty if no file exists.
@@ -686,7 +698,8 @@ class Prompt_Builder {
             return '';
         }
 
-        $extensions = array( 'webp', 'jpg', 'jpeg', 'png' );
+        $extensions  = array( 'webp', 'jpg', 'jpeg', 'png' );
+        $candidates  = self::style_example_file_candidates( $slug );
 
         if ( function_exists( 'wp_upload_dir' ) ) {
             $upload = wp_upload_dir();
@@ -699,13 +712,11 @@ class Prompt_Builder {
                     // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
                     @file_put_contents( $upload_style_dir . '/index.php', "<?php\n// Silence is golden.\n" );
                 }
-                $upload_style_url = trailingslashit( $upload['baseurl'] ) . self::STYLE_EXAMPLES_UPLOAD_SUBDIR;
-                foreach ( $extensions as $ext ) {
-                    $file = trailingslashit( $upload_style_dir ) . $slug . '.' . $ext;
-                    if ( file_exists( $file ) && is_readable( $file ) ) {
-                        $url = trailingslashit( $upload_style_url ) . $slug . '.' . $ext;
-                        return (string) apply_filters( 'wc_aicc_style_example_image_url', $url, $slug, $file );
-                    }
+                $found = self::find_style_example_asset( $upload_style_dir, $candidates, $extensions );
+                if ( $found ) {
+                    $upload_style_url = trailingslashit( $upload['baseurl'] ) . self::STYLE_EXAMPLES_UPLOAD_SUBDIR;
+                    $url              = self::style_example_url_from_file( $upload_style_url, $found );
+                    return (string) apply_filters( 'wc_aicc_style_example_image_url', $url, $slug, $found );
                 }
             }
         }
@@ -714,30 +725,123 @@ class Prompt_Builder {
         $dir    = WC_AICC_PLUGIN_DIR . $subdir;
         $base   = WC_AICC_PLUGIN_URL . $subdir;
 
-        foreach ( $extensions as $ext ) {
-            $file = $dir . $slug . '.' . $ext;
-            if ( file_exists( $file ) && is_readable( $file ) ) {
-                $url = $base . $slug . '.' . $ext;
-                return (string) apply_filters( 'wc_aicc_style_example_image_url', $url, $slug, $file );
-            }
+        $found = self::find_style_example_asset( $dir, $candidates, $extensions );
+        if ( $found ) {
+            $url = self::style_example_url_from_file( $base, $found );
+            return (string) apply_filters( 'wc_aicc_style_example_image_url', $url, $slug, $found );
         }
 
-        $fallback_slugs = array(
-            'black_studio' => array( 'black_white' ),
-        );
-        if ( isset( $fallback_slugs[ $slug ] ) ) {
-            foreach ( $fallback_slugs[ $slug ] as $alt_slug ) {
-                foreach ( $extensions as $ext ) {
-                    $file = $dir . $alt_slug . '.' . $ext;
-                    if ( file_exists( $file ) && is_readable( $file ) ) {
-                        $url = $base . $alt_slug . '.' . $ext;
-                        return (string) apply_filters( 'wc_aicc_style_example_image_url', $url, $slug, $file );
-                    }
+        return (string) apply_filters( 'wc_aicc_style_example_image_url', '', $slug, '' );
+    }
+
+    /**
+     * Style slugs that have no bundled/upload preview image.
+     *
+     * @return string[]
+     */
+    public static function get_style_slugs_missing_example_images() {
+        $missing = array();
+        foreach ( self::get_choice_keys( 'style' ) as $slug ) {
+            if ( self::resolve_style_example_image_url( $slug ) === '' ) {
+                $missing[] = $slug;
+            }
+        }
+        return $missing;
+    }
+
+    /**
+     * @param string $slug Style slug.
+     * @return string[]
+     */
+    private static function style_example_file_candidates( $slug ) {
+        $candidates = array( $slug );
+        if ( isset( self::STYLE_EXAMPLE_ALIASES[ $slug ] ) ) {
+            $candidates = array_merge( $candidates, self::STYLE_EXAMPLE_ALIASES[ $slug ] );
+        }
+        return array_values( array_unique( $candidates ) );
+    }
+
+    /**
+     * @param string $name Basename or label.
+     * @return string
+     */
+    private static function normalize_style_example_key( $name ) {
+        $name = strtolower( (string) $name );
+        $name = preg_replace( '/[\s_-]+/', '_', $name );
+        return (string) preg_replace( '/[^a-z0-9_]/', '', $name );
+    }
+
+    /**
+     * @param string   $dir         Directory to search.
+     * @param string[] $candidates  Basename candidates (without extension).
+     * @param string[] $extensions  Allowed extensions.
+     * @return string Absolute file path or empty string.
+     */
+    private static function find_style_example_asset( $dir, $candidates, $extensions ) {
+        if ( ! is_dir( $dir ) ) {
+            return '';
+        }
+
+        foreach ( $candidates as $base ) {
+            foreach ( $extensions as $ext ) {
+                $file = trailingslashit( $dir ) . $base . '.' . $ext;
+                if ( file_exists( $file ) && is_readable( $file ) ) {
+                    return $file;
                 }
             }
         }
 
-        return (string) apply_filters( 'wc_aicc_style_example_image_url', '', $slug, '' );
+        $normalized_want = array();
+        foreach ( $candidates as $base ) {
+            $norm = self::normalize_style_example_key( $base );
+            if ( $norm !== '' ) {
+                $normalized_want[ $norm ] = true;
+            }
+        }
+        if ( empty( $normalized_want ) ) {
+            return '';
+        }
+
+        $entries = scandir( $dir );
+        if ( ! is_array( $entries ) ) {
+            return '';
+        }
+
+        foreach ( $entries as $entry ) {
+            if ( $entry === '.' || $entry === '..' || $entry === 'index.php' ) {
+                continue;
+            }
+            $path = trailingslashit( $dir ) . $entry;
+            if ( ! is_file( $path ) || ! is_readable( $path ) ) {
+                continue;
+            }
+            $info = pathinfo( $entry );
+            $ext  = strtolower( (string) ( $info['extension'] ?? '' ) );
+            if ( ! in_array( $ext, $extensions, true ) ) {
+                continue;
+            }
+            $norm = self::normalize_style_example_key( (string) ( $info['filename'] ?? '' ) );
+            if ( $norm !== '' && isset( $normalized_want[ $norm ] ) ) {
+                return $path;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @param string $url_base Public URL base (with trailing slash).
+     * @param string $file     Absolute filesystem path.
+     * @return string
+     */
+    private static function style_example_url_from_file( $url_base, $file ) {
+        $filename = basename( $file );
+        $url      = trailingslashit( $url_base ) . rawurlencode( $filename );
+        $mtime    = @filemtime( $file );
+        if ( $mtime ) {
+            $url .= '?v=' . (int) $mtime;
+        }
+        return $url;
     }
 
     /**
