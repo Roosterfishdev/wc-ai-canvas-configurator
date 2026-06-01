@@ -9,7 +9,7 @@
 
     // Configuration from WordPress
     const config = window.wcAiccConfig || {};
-    const { productId, variations, options, optionDefaults, customizeFlow, restUrl, nonce, i18n } = config;
+    const { productId, variations, options, optionDefaults, customizeFlow, sizingGuide, restUrl, nonce, i18n } = config;
 
     const CUSTOMIZE_SUBSTEP_TOTAL = (customizeFlow && customizeFlow.length) ? customizeFlow.length : 3;
 
@@ -58,9 +58,128 @@
 
         // Set up event listeners
         setupEventListeners();
+        setupSizingGuide();
+        setupSizeCardKeyboard();
 
         // Render initial step
         renderCurrentStep();
+    }
+
+    /**
+     * Build sizing guide panel markup from localized data.
+     */
+    function setupSizingGuide() {
+        const root = document.getElementById('wc-aicc-sizing-guide');
+        if (!root || !sizingGuide) {
+            return;
+        }
+
+        const body = root.querySelector('.wc-aicc-sizing-guide__body');
+        const titleEl = root.querySelector('#wc-aicc-sizing-guide-title');
+        if (!body) {
+            return;
+        }
+
+        if (titleEl && sizingGuide.title) {
+            titleEl.textContent = sizingGuide.title;
+        }
+
+        let html = '';
+        if (sizingGuide.intro) {
+            html += `<p class="wc-aicc-sizing-guide__intro">${escapeHtml(sizingGuide.intro)}</p>`;
+        }
+        if (sizingGuide.grid_image) {
+            html += `<img class="wc-aicc-sizing-guide__grid-image" src="${escapeAttr(sizingGuide.grid_image)}" alt="${escapeAttr(sizingGuide.title || 'Sizing guide')}" loading="lazy" />`;
+        }
+
+        const entries = Array.isArray(sizingGuide.entries) ? sizingGuide.entries : [];
+        if (entries.length) {
+            html += '<div class="wc-aicc-sizing-guide__entries">';
+            entries.forEach(function(entry) {
+                html += '<div class="wc-aicc-sizing-guide__entry">';
+                if (entry.image) {
+                    html += `<img class="wc-aicc-sizing-guide__entry-img" src="${escapeAttr(entry.image)}" alt="${escapeAttr(entry.inches || entry.label || '')}" loading="lazy" />`;
+                }
+                if (entry.label) {
+                    html += `<span class="wc-aicc-sizing-guide__entry-label">${escapeHtml(entry.label)}</span>`;
+                }
+                if (entry.inches) {
+                    html += `<span class="wc-aicc-sizing-guide__entry-inches">${escapeHtml(entry.inches)}</span>`;
+                }
+                if (entry.cm) {
+                    html += `<span class="wc-aicc-sizing-guide__entry-cm">${escapeHtml(entry.cm)}</span>`;
+                }
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+
+        body.innerHTML = html;
+
+        root.querySelectorAll('.wc-aicc-sizing-guide__close, .wc-aicc-sizing-guide__backdrop').forEach(function(el) {
+            el.addEventListener('click', closeSizingGuide);
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && root.getAttribute('aria-hidden') === 'false') {
+                closeSizingGuide();
+            }
+        });
+    }
+
+    function openSizingGuide() {
+        const root = document.getElementById('wc-aicc-sizing-guide');
+        if (!root) {
+            return;
+        }
+        root.hidden = false;
+        root.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('wc-aicc-sizing-guide-open');
+        const closeBtn = root.querySelector('.wc-aicc-sizing-guide__close');
+        if (closeBtn) {
+            closeBtn.focus();
+        }
+    }
+
+    function closeSizingGuide() {
+        const root = document.getElementById('wc-aicc-sizing-guide');
+        if (!root) {
+            return;
+        }
+        root.hidden = true;
+        root.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('wc-aicc-sizing-guide-open');
+    }
+
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+        return escapeHtml(str);
+    }
+
+    function setupSizeCardKeyboard() {
+        container.addEventListener('keydown', function(e) {
+            const frame = e.target.closest('.wc-aicc-size-card__frame');
+            if (!frame || (e.key !== 'Enter' && e.key !== ' ')) {
+                return;
+            }
+            e.preventDefault();
+            highlightSizeCard(parseInt(frame.dataset.variationId, 10));
+        });
+    }
+
+    function highlightSizeCard(variationId) {
+        container.querySelectorAll('.wc-aicc-size-card').forEach(function(card) {
+            const frame = card.querySelector('.wc-aicc-size-card__frame');
+            const match = frame && parseInt(frame.dataset.variationId, 10) === variationId;
+            card.classList.toggle('wc-aicc-size-card--selected', !!match);
+        });
     }
 
     /**
@@ -69,6 +188,24 @@
     function setupEventListeners() {
         // Variation selection
         container.addEventListener('click', function(e) {
+            const sizeSelectBtn = e.target.closest('.wc-aicc-size-select-btn');
+            if (sizeSelectBtn) {
+                handleSizeSelect(sizeSelectBtn);
+                return;
+            }
+
+            const sizeFrame = e.target.closest('.wc-aicc-size-card__frame');
+            if (sizeFrame) {
+                highlightSizeCard(parseInt(sizeFrame.dataset.variationId, 10));
+                return;
+            }
+
+            const guideOpen = e.target.closest('.wc-aicc-sizing-guide-open');
+            if (guideOpen) {
+                openSizingGuide();
+                return;
+            }
+
             const variationBtn = e.target.closest('.wc-aicc-variation-btn');
             if (variationBtn) {
                 handleVariationSelect(variationBtn);
@@ -169,7 +306,24 @@
     }
 
     /**
-     * Handle variation selection
+     * Handle size Select button (step 1).
+     */
+    function handleSizeSelect(btn) {
+        if (btn.disabled) {
+            return;
+        }
+        const variationId = parseInt(btn.dataset.variationId, 10);
+        const variation = variations.find(function(v) { return v.id === variationId; });
+        if (!variation) {
+            return;
+        }
+        highlightSizeCard(variationId);
+        state.selectedVariation = variation;
+        createBuild();
+    }
+
+    /**
+     * Handle variation selection (legacy buttons)
      */
     function handleVariationSelect(btn) {
         const variationId = parseInt(btn.dataset.variationId);
@@ -796,7 +950,9 @@
         const cartPreviewImg = document.getElementById('wc-aicc-cart-preview');
 
         if (sizeEl && state.selectedVariation) {
-            sizeEl.textContent = state.selectedVariation.size_label;
+            sizeEl.textContent = state.selectedVariation.size_inches
+                ? state.selectedVariation.size_inches + (state.selectedVariation.size_cm ? ' ' + state.selectedVariation.size_cm : '')
+                : state.selectedVariation.size_label;
         }
 
         if (optionsEl && options) {

@@ -12,6 +12,8 @@ namespace WC_AICC\WooCommerce;
 
 use WC_AICC\Admin\Settings;
 use WC_AICC\Config\Size_Aspect_Map;
+use WC_AICC\Config\Size_Display;
+use WC_AICC\Config\Sizing_Guide;
 
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
@@ -268,13 +270,15 @@ class Product_Integration {
                 $aspect_ratio = $this->calculate_aspect_ratio( $size_label );
             }
 
-            $variations[] = array(
-                'id'           => $variation_id,
-                'size_label'   => $size_label,
-                'aspect_ratio' => $aspect_ratio,
-                'price'        => $variation->get_price(),
-                'price_html'   => $variation->get_price_html(),
-                'in_stock'     => $variation->is_in_stock(),
+            $variations[] = Size_Display::enrich_variation(
+                array(
+                    'id'           => $variation_id,
+                    'size_label'   => $size_label,
+                    'aspect_ratio' => $aspect_ratio,
+                    'price'        => $variation->get_price(),
+                    'price_html'   => $variation->get_price_html(),
+                    'in_stock'     => $variation->is_in_stock(),
+                )
             );
         }
 
@@ -354,6 +358,7 @@ class Product_Integration {
                 'options'     => $options,
                 'optionDefaults' => \WC_AICC\Config\Prompt_Builder::DEFAULTS,
                 'customizeFlow' => \WC_AICC\Config\Prompt_Builder::get_customize_flow_meta(),
+                'sizingGuide'   => Sizing_Guide::get_panel_data(),
                 'restUrl'     => rest_url( 'wc-aicc/v1' ),
                 'nonce'       => wp_create_nonce( 'wp_rest' ),
                 'addToCartUrl' => wc_get_cart_url(),
@@ -377,6 +382,10 @@ class Product_Integration {
                     'next'             => __( 'Next', 'wc-aicc' ),
                     'retry'            => __( 'Retry', 'wc-aicc' ),
                     'notes_placeholder' => __( 'Optional: Add notes for the AI (e.g., "make it more vibrant")', 'wc-aicc' ),
+                    'select'           => __( 'Select', 'wc-aicc' ),
+                    'sizingGuide'      => __( 'Sizing Guide', 'wc-aicc' ),
+                    'close'            => __( 'Close', 'wc-aicc' ),
+                    'outOfStock'       => __( 'Out of stock', 'wc-aicc' ),
                 ),
             )
         );

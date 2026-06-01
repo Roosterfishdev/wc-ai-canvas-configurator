@@ -51,28 +51,47 @@ if ( ! defined( 'ABSPATH' ) ) {
         
         <!-- Step 1: Size Selection -->
         <div class="wc-aicc-step wc-aicc-step-1" data-step="1" style="display: block;">
-            <div class="wc-aicc-step-header">
+            <div class="wc-aicc-step-header wc-aicc-step-header--size">
                 <h3><?php esc_html_e( 'Choose Your Canvas Size', 'wc-aicc' ); ?></h3>
-                <p><?php esc_html_e( 'Select the size that best fits your space.', 'wc-aicc' ); ?></p>
             </div>
 
-            <div class="wc-aicc-variations">
+            <div class="wc-aicc-size-grid">
                 <?php foreach ( $variations as $variation ) : ?>
-                    <button type="button" 
-                            class="wc-aicc-variation-btn <?php echo ! $variation['in_stock'] ? 'wc-aicc-variation-btn--out-of-stock' : ''; ?>"
-                            data-variation-id="<?php echo esc_attr( $variation['id'] ); ?>"
-                            data-size-label="<?php echo esc_attr( $variation['size_label'] ); ?>"
-                            data-aspect-ratio="<?php echo esc_attr( $variation['aspect_ratio'] ); ?>"
-                            <?php echo ! $variation['in_stock'] ? 'disabled' : ''; ?>>
-                        <span class="size-label"><?php echo esc_html( $variation['size_label'] ); ?></span>
-                        <span class="price"><?php echo wp_kses_post( $variation['price_html'] ); ?></span>
-                        <span class="aspect-ratio"><?php echo esc_html( $variation['aspect_ratio'] ); ?></span>
+                    <?php
+                    $inches = ! empty( $variation['size_inches'] ) ? $variation['size_inches'] : $variation['size_label'];
+                    $cm     = ! empty( $variation['size_cm'] ) ? $variation['size_cm'] : '';
+                    ?>
+                    <div class="wc-aicc-size-card <?php echo ! $variation['in_stock'] ? 'wc-aicc-size-card--out-of-stock' : ''; ?>">
+                        <div class="wc-aicc-size-card__frame"
+                             role="button"
+                             tabindex="0"
+                             data-variation-id="<?php echo esc_attr( $variation['id'] ); ?>"
+                             aria-label="<?php echo esc_attr( sprintf( __( 'Size %s', 'wc-aicc' ), $inches ) ); ?>">
+                            <span class="wc-aicc-size-card__arrow wc-aicc-size-card__arrow--tl" aria-hidden="true"></span>
+                            <span class="wc-aicc-size-card__arrow wc-aicc-size-card__arrow--br" aria-hidden="true"></span>
+                            <span class="wc-aicc-size-card__inches"><?php echo esc_html( $inches ); ?></span>
+                            <?php if ( $cm !== '' ) : ?>
+                                <span class="wc-aicc-size-card__cm"><?php echo esc_html( $cm ); ?></span>
+                            <?php endif; ?>
+                        </div>
                         <?php if ( ! $variation['in_stock'] ) : ?>
-                            <span class="out-of-stock"><?php esc_html_e( 'Out of stock', 'wc-aicc' ); ?></span>
+                            <p class="wc-aicc-size-card__stock"><?php esc_html_e( 'Out of stock', 'wc-aicc' ); ?></p>
+                        <?php else : ?>
+                            <button type="button"
+                                    class="wc-aicc-size-select-btn"
+                                    data-variation-id="<?php echo esc_attr( $variation['id'] ); ?>">
+                                <?php esc_html_e( 'Select', 'wc-aicc' ); ?>
+                            </button>
                         <?php endif; ?>
-                    </button>
+                    </div>
                 <?php endforeach; ?>
             </div>
+
+            <p class="wc-aicc-size-guide-link-wrap">
+                <button type="button" class="wc-aicc-sizing-guide-open" aria-haspopup="dialog">
+                    <?php esc_html_e( 'Sizing Guide', 'wc-aicc' ); ?>
+                </button>
+            </p>
         </div>
 
         <!-- Step 2: Image Upload -->
@@ -285,5 +304,17 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
         </div>
 
+    </div>
+
+    <!-- Sizing guide slide-in (content filled by JS) -->
+    <div class="wc-aicc-sizing-guide" id="wc-aicc-sizing-guide" hidden aria-hidden="true">
+        <button type="button" class="wc-aicc-sizing-guide__backdrop" aria-label="<?php esc_attr_e( 'Close sizing guide', 'wc-aicc' ); ?>"></button>
+        <aside class="wc-aicc-sizing-guide__panel" role="dialog" aria-modal="true" aria-labelledby="wc-aicc-sizing-guide-title">
+            <header class="wc-aicc-sizing-guide__header">
+                <h4 id="wc-aicc-sizing-guide-title"><?php esc_html_e( 'Sizing Guide', 'wc-aicc' ); ?></h4>
+                <button type="button" class="wc-aicc-sizing-guide__close" aria-label="<?php esc_attr_e( 'Close', 'wc-aicc' ); ?>">&times;</button>
+            </header>
+            <div class="wc-aicc-sizing-guide__body"></div>
+        </aside>
     </div>
 </div>
