@@ -10,7 +10,6 @@
 namespace WC_AICC\Jobs;
 
 use WC_AICC\Logger;
-use WC_AICC\Image\Final_Art_Watermarker;
 use WC_AICC\Models\Build;
 use WC_AICC\Repository\Build_Repository;
 use WC_AICC\Storage\R2_Storage;
@@ -362,18 +361,6 @@ class Job_Handler {
         if ( empty( $image_data ) ) {
             Logger::error( 'Job', 'No image data from AI provider', array( 'build_uuid' => $build->build_uuid ) );
             return false;
-        }
-
-        $image_data = Final_Art_Watermarker::apply( $image_data );
-        if ( $image_data === false || $image_data === '' ) {
-            Logger::error(
-                'Job',
-                'Failed to encode or watermark final artwork',
-                array( 'build_uuid' => $build->build_uuid )
-            );
-            throw new \Exception(
-                __( 'Could not prepare preview watermarked artwork. Check that Imagick or GD with WebP is available.', 'wc-aicc' )
-            );
         }
 
         // Upload to R2
