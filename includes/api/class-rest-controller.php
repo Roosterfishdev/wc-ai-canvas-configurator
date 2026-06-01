@@ -622,6 +622,9 @@ class REST_Controller {
 
         // Build response with URLs
         $storage  = R2_Storage::instance();
+        $is_ready = ( $build->status === Build::STATUS_READY )
+            || ( ! empty( $build->final_art_key ) && $build->status !== Build::STATUS_FAILED );
+
         $payload = array(
             'build_uuid'           => $build->build_uuid,
             'product_id'           => $build->product_id,
@@ -630,6 +633,7 @@ class REST_Controller {
             'aspect_ratio'         => $build->aspect_ratio,
             'customization_options'=> $build->customization_options,
             'status'               => $build->status,
+            'is_ready'             => $is_ready,
             'regen_count'   => $build->regen_count,
             'error_message' => $build->error_message,
             'created_at'    => $build->created_at,
@@ -648,7 +652,7 @@ class REST_Controller {
         $rest->header( 'CDN-Cache-Control', 'private, no-store' );
         $rest->header( 'Vary', 'Cookie' );
         // Debug/support: mirrors JSON without opening the response body in DevTools.
-        $rest->header( 'X-WC-AICC-Build-Status', sanitize_key( $build->status ) );
+        $rest->header( 'X-WC-AICC-Build-Status', sanitize_key( $is_ready ? Build::STATUS_READY : $build->status ) );
         $rest->header( 'X-WC-AICC-Build-Updated', sanitize_text_field( (string) $build->updated_at ) );
 
         return $rest;

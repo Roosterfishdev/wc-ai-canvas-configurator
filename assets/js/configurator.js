@@ -27,8 +27,72 @@
         errorMessage: null,
         pollInterval: null,
         /** Incremented when starting a new poll session so late/stale HTTP responses are ignored */
-        pollEpoch: 0
+        pollEpoch: 0,
+        /** Session key returned by API (sent as header when cookies are unreliable) */
+        sessionKey: null,
+        pollFailureCount: 0
     };
+
+    /**
+     * Headers for authenticated REST calls.
+     *
+     * @param {Object} extra Extra headers.
+     * @return {Object}
+     */
+    function buildApiHeaders(extra) {
+        const headers = Object.assign({}, extra || {}, {
+            'X-WP-Nonce': nonce
+        });
+        if (state.sessionKey) {
+            headers['X-WC-AICC-Session'] = state.sessionKey;
+        }
+        return headers;
+    }
+
+    /**
+     * Ensure a guest session exists before create/upload/generate.
+     */
+    async function ensureSession() {
+        if (state.sessionKey || !restUrl) {
+            return;
+        }
+        try {
+            const response = await fetch(`${restUrl}/session`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: buildApiHeaders()
+            });
+            const data = await response.json();
+            if (response.ok && data.session_key) {
+                state.sessionKey = data.session_key;
+            }
+        } catch (err) {
+            console.warn('WC AICC: session bootstrap failed', err);
+        }
+    }
+
+    /**
+     * @param {Object} data Build poll payload.
+     * @return {boolean}
+     */
+    function isBuildReady(data) {
+        if (!data || typeof data !== 'object') {
+            return false;
+        }
+        if (data.status === 'ready' || data.is_ready === true) {
+            return true;
+        }
+        return !!(data.urls && data.urls.final_art);
+    }
+
+    /**
+     * @param {Object} data Build poll payload.
+     * @return {boolean}
+     */
+    function isBuildFailed(data) {
+        return !!(data && data.status === 'failed');
+    }
 
     // DOM Elements
     let container = null;
@@ -60,6 +124,7 @@
         setupEventListeners();
         setupSizingGuide();
         setupSizeCardKeyboard();
+        ensureSession();
 
         // Render initial step
         renderCurrentStep();
@@ -371,13 +436,14 @@
     async function createBuild() {
         if (!state.selectedVariation) return;
 
+        await ensureSession();
+
         try {
             const response = await fetch(`${restUrl}/builds`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-WP-Nonce': nonce
-                },
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: buildApiHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({
                     product_id: productId,
                     variation_id: state.selectedVariation.id,
@@ -393,6 +459,9 @@
             }
 
             state.buildUuid = data.build_uuid;
+            if (data.session_key) {
+                state.sessionKey = data.session_key;
+            }
             
             // Move to next step
             goToNextStep();
@@ -421,9 +490,9 @@
 
             const response = await fetch(`${restUrl}/builds/${state.buildUuid}/upload`, {
                 method: 'POST',
-                headers: {
-                    'X-WP-Nonce': nonce
-                },
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: buildApiHeaders(),
                 body: formData
             });
 
@@ -471,15 +540,17 @@
 
         state.status = 'processing';
         state.errorMessage = null;
+        state.pollFailureCount = 0;
         updateGenerateUI();
+
+        await ensureSession();
 
         try {
             const response = await fetch(`${restUrl}/builds/${state.buildUuid}/generate`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-WP-Nonce': nonce
-                },
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: buildApiHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({
                     customization_options: state.customizationOptions
                 })
@@ -503,27 +574,69 @@
     }
 
     /**
+     * Apply a successful build status poll.
+     *
+     * @param {Object} data REST payload.
+     */
+    function handleBuildPollSuccess(data) {
+        if (isBuildFailed(data)) {
+            stopPolling();
+            state.status = 'failed';
+            state.errorMessage = data.error_message || (i18n && i18n.generateError) || 'Generation failed';
+            updateGenerateUI();
+            return;
+        }
+
+        if (!isBuildReady(data)) {
+            return;
+        }
+
+        stopPolling();
+        state.status = 'ready';
+        state.pollFailureCount = 0;
+        state.finalArtUrl = (data.urls && data.urls.final_art) ? data.urls.final_art : null;
+        state.mockupUrl = (data.urls && data.urls.mockup) ? data.urls.mockup : null;
+        updateGenerateUI();
+
+        if (state.currentStep === 3) {
+            goToNextStep();
+        } else if (state.currentStep === 4) {
+            updatePreviewImages();
+        }
+    }
+
+    /**
      * Start polling for build status
      */
     function startPolling() {
         stopPolling();
         state.pollEpoch = (state.pollEpoch || 0) + 1;
+        state.pollFailureCount = 0;
         const sessionEpoch = state.pollEpoch;
 
         const pollOnce = async () => {
+            if (!state.buildUuid) {
+                return;
+            }
+
             try {
-                const response = await fetch(`${restUrl}/builds/${state.buildUuid}`, {
+                const pollUrl = `${restUrl}/builds/${state.buildUuid}?_=${Date.now()}`;
+                const response = await fetch(pollUrl, {
                     credentials: 'same-origin',
                     cache: 'no-store',
-                    headers: {
-                        'X-WP-Nonce': nonce
-                    }
+                    headers: buildApiHeaders()
                 });
 
-                const data = await response.json();
+                let data = null;
+                const raw = await response.text();
+                try {
+                    data = raw ? JSON.parse(raw) : null;
+                } catch (parseErr) {
+                    throw new Error('Invalid status response from server');
+                }
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Failed to get status');
+                    throw new Error((data && data.message) ? data.message : 'Failed to get status');
                 }
 
                 // Ignore responses from a previous generate session or after a newer poll started
@@ -531,28 +644,31 @@
                     return;
                 }
 
-                if (data.status === 'ready') {
-                    stopPolling();
-                    state.status = 'ready';
-                    state.finalArtUrl = data.urls.final_art;
-                    state.mockupUrl = data.urls.mockup;
-                    updateGenerateUI();
-                    // Only auto-advance once from the customize step. Concurrent poll ticks used to each call
-                    // goToNextStep() (3→4→5). Late responses also fired goToNextStep from step 4 (e.g. after Back).
-                    if (state.currentStep === 3) {
-                        goToNextStep();
+                state.pollFailureCount = 0;
+
+                // Fallback if JSON body is stale but response headers were refreshed (CDN edge cases).
+                const headerStatus = response.headers.get('X-WC-AICC-Build-Status');
+                if (headerStatus && data && data.status !== headerStatus) {
+                    data.status = headerStatus;
+                    if (headerStatus === 'ready') {
+                        data.is_ready = true;
                     }
-                } else if (data.status === 'failed') {
-                    stopPolling();
-                    state.status = 'failed';
-                    state.errorMessage = data.error_message || (i18n && i18n.generateError) || 'Generation failed';
-                    updateGenerateUI();
                 }
-                // Continue polling if still processing
+
+                handleBuildPollSuccess(data);
 
             } catch (error) {
                 console.error('Polling error:', error);
-                // Don't stop polling on transient errors
+                if (sessionEpoch !== state.pollEpoch) {
+                    return;
+                }
+                state.pollFailureCount = (state.pollFailureCount || 0) + 1;
+                if (state.pollFailureCount >= 20) {
+                    stopPolling();
+                    state.status = 'failed';
+                    state.errorMessage = error.message || 'Could not reach the server to check generation status. Please refresh and try again.';
+                    updateGenerateUI();
+                }
             }
         };
 
@@ -635,6 +751,7 @@
             }
             renderCurrentStep();
             updateStepIndicators();
+            updateGenerateUI();
 
             // Update previews when entering step 4 or 5
             if (state.currentStep === 4) {

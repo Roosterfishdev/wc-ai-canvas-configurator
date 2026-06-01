@@ -232,6 +232,9 @@
 }
 
 .wc-aicc-size-select-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     padding: 14px 20px;
     border: none;
@@ -239,9 +242,15 @@
     background: #EB662C;
     color: #fff;
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 1.0625rem;
     font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
     cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    box-sizing: border-box;
     transition: background 0.2s ease, transform 0.15s ease;
 }
 
