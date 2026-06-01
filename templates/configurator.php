@@ -188,7 +188,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                         data-value="<?php echo esc_attr( $value ); ?>">
                                     <?php if ( $thumb ) : ?>
                                         <span class="wc-aicc-choice-card__thumb">
-                                            <img src="<?php echo esc_url( $thumb ); ?>" alt="" loading="lazy" decoding="async" width="200" height="120" />
+                                            <img src="<?php echo esc_url( $thumb ); ?>" alt="" loading="lazy" decoding="async" width="200" height="240" />
                                         </span>
                                     <?php endif; ?>
                                     <span class="wc-aicc-choice-card__label"><?php echo esc_html( $label ); ?></span>

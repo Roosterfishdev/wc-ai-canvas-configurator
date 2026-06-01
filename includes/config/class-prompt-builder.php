@@ -836,7 +836,7 @@ class Prompt_Builder {
      */
     private static function style_example_url_from_file( $url_base, $file ) {
         $filename = basename( $file );
-        $url      = trailingslashit( $url_base ) . rawurlencode( $filename );
+        $url      = trailingslashit( $url_base ) . $filename;
         $mtime    = @filemtime( $file );
         if ( $mtime ) {
             $url .= '?v=' . (int) $mtime;
