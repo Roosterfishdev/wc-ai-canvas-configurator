@@ -37,6 +37,24 @@
         return styleKey === 'black_studio';
     }
 
+    function styleSkipsSituationStep(styleKey) {
+        return styleKey === 'magazine_dogue'
+            || styleKey === 'black_studio'
+            || styleKey === 'royal_legacy'
+            || styleKey === 'whiskey_office';
+    }
+
+    function applyStyleFlowDefaults(styleKey) {
+        if (styleKey === 'black_studio' || styleKey === 'royal_legacy' || styleKey === 'whiskey_office') {
+            state.customizationOptions.situation = 'neutral';
+            state.customizationOptions.background_color = 'natural';
+            state.customizationOptions.situation_custom = '';
+        } else if (styleKey === 'magazine_dogue') {
+            state.customizationOptions.situation = 'neutral';
+            state.customizationOptions.situation_custom = '';
+        }
+    }
+
     // State
     let state = {
         currentStep: 1,
@@ -852,11 +870,7 @@
         }
         state.customizationOptions[key] = value;
         if (key === 'style') {
-            if (value === 'black_studio') {
-                state.customizationOptions.situation = 'neutral';
-                state.customizationOptions.background_color = 'natural';
-                state.customizationOptions.situation_custom = '';
-            }
+            applyStyleFlowDefaults(value);
             const flow = getCustomizeFlow();
             if (state.customizeSubStep > flow.length) {
                 state.customizeSubStep = flow.length;
@@ -883,17 +897,27 @@
         const activeStep = flow[state.customizeSubStep - 1];
         const activeKey = activeStep ? activeStep.key : 'style';
 
+        const isLastStep = state.customizeSubStep >= total;
+
         container.querySelectorAll('.wc-aicc-customize-panel').forEach(function(panel) {
             const panelKey = panel.dataset.customizeKey || '';
-            panel.style.display = panelKey === activeKey ? 'block' : 'none';
+            const isActive = panelKey === activeKey;
+            panel.style.display = isActive ? 'block' : 'none';
 
             const badge = panel.querySelector('.wc-aicc-customize-badge--dynamic');
             const meta = panel.querySelector('.wc-aicc-customize-panel__meta--dynamic');
             if (badge) {
                 badge.textContent = '3.' + state.customizeSubStep;
             }
-            if (meta && activeStep && panelKey === activeKey) {
+            if (meta && activeStep && isActive) {
                 meta.textContent = ((i18n && i18n.step) ? i18n.step : 'Step') + ' ' + state.customizeSubStep + ' of ' + total;
+            }
+
+            const nextBtn = panel.querySelector('.wc-aicc-customize-next-btn');
+            const genBtn = panel.querySelector('.wc-aicc-generate-btn');
+            if (isActive && nextBtn && genBtn) {
+                nextBtn.style.display = isLastStep ? 'none' : '';
+                genBtn.style.display = isLastStep ? '' : 'none';
             }
         });
     }
@@ -1068,21 +1092,20 @@
      * Update generate button state
      */
     function updateGenerateButton() {
-        const generateBtn = container.querySelector('.wc-aicc-generate-btn');
-        if (generateBtn) {
+        container.querySelectorAll('.wc-aicc-generate-btn').forEach(function(generateBtn) {
             generateBtn.disabled = false;
-        }
+        });
     }
 
     /**
      * Update generate UI
      */
     function updateGenerateUI() {
-        const generateBtn = container.querySelector('.wc-aicc-generate-btn');
+        const generateBtns = container.querySelectorAll('.wc-aicc-generate-btn');
         const statusEl = container.querySelector('.wc-aicc-generate-status');
         const errorEl = container.querySelector('.wc-aicc-error-message');
 
-        if (generateBtn) {
+        generateBtns.forEach(function(generateBtn) {
             if (state.status === 'processing') {
                 generateBtn.disabled = true;
                 generateBtn.textContent = i18n.generating;
@@ -1090,7 +1113,7 @@
                 generateBtn.disabled = false;
                 generateBtn.textContent = i18n.generatePreview;
             }
-        }
+        });
 
         if (statusEl) {
             if (state.status === 'processing') {
@@ -1189,7 +1212,7 @@
                 }
             });
             const sc = (state.customizationOptions.situation_custom || '').trim();
-            if (sc && !styleRequiresPetName(state.customizationOptions.style)) {
+            if (sc && !styleRequiresPetName(state.customizationOptions.style) && !styleSkipsSituationStep(state.customizationOptions.style)) {
                 const prefix = (i18n && i18n.summaryCustomDirection) ? i18n.summaryCustomDirection : 'Custom direction';
                 const short = sc.length > 80 ? sc.slice(0, 80) + '…' : sc;
                 parts.push(prefix + ': ' + short);

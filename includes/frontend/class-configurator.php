@@ -178,7 +178,7 @@ class Configurator {
             }
 
             if ( empty( $aspect_ratio ) ) {
-                $aspect_ratio = $this->calculate_aspect_ratio( $size_label );
+                $aspect_ratio = Size_Aspect_Map::resolve_for_label( $size_label );
             }
 
             $variations[] = Size_Display::enrich_variation(

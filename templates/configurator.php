@@ -219,15 +219,12 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <button type="button" class="wc-aicc-customize-back-btn">
                                 <?php esc_html_e( '← Back', 'wc-aicc' ); ?>
                             </button>
-                            <?php if ( $is_last ) : ?>
-                                <button type="button" class="wc-aicc-generate-btn">
-                                    <?php esc_html_e( 'Generate Preview', 'wc-aicc' ); ?>
-                                </button>
-                            <?php else : ?>
-                                <button type="button" class="wc-aicc-customize-next-btn">
-                                    <?php esc_html_e( 'Continue', 'wc-aicc' ); ?>
-                                </button>
-                            <?php endif; ?>
+                            <button type="button" class="wc-aicc-customize-next-btn"<?php echo $is_last ? ' style="display: none;"' : ''; ?>>
+                                <?php esc_html_e( 'Continue', 'wc-aicc' ); ?>
+                            </button>
+                            <button type="button" class="wc-aicc-generate-btn"<?php echo $is_last ? '' : ' style="display: none;"'; ?>>
+                                <?php esc_html_e( 'Generate Preview', 'wc-aicc' ); ?>
+                            </button>
                         </div>
                     </div>
                 <?php endforeach; ?>

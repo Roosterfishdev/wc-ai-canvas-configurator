@@ -236,16 +236,16 @@ class Prompt_Builder {
         'magazine_dogue' => array(
             'skip_identity_lines'    => true,
             'skip_situation'         => true,
-            'skip_background_option' => true,
             'allows_cover_text'      => true,
             'core'                   => array(
                 'using the uploaded dog photo as the exact facial reference, fur coloration, head shape, ear shape, nose, eyes, expression, and breed characteristics',
                 'luxury fashion magazine cover portrait featuring this dog as an elegant high-fashion icon',
-                'vertical magazine cover format 4:5, dog centered, head and upper chest only, tight editorial crop',
-                'facing slightly off-camera, large masthead at the top reading DOGUE, no additional headlines or cover text, clean negative space',
+                'vertical portrait magazine cover matching the canvas aspect ratio, dog centered, head and upper chest',
+                'generous top margin reserved for masthead, large DOGUE masthead fully visible at top with complete uncropped lettering',
+                'facing slightly off-camera, no additional headlines or cover text, clean negative space below masthead',
                 'oversized black cat-eye sunglasses, elegant silk headscarf tied under the chin, pearl necklace',
                 'vintage European luxury styling, sophisticated fashion-editorial aesthetic, confident timeless attitude',
-                'solid warm beige background, flat color backdrop, no props, no texture, minimalist composition',
+                'flat color backdrop, no props, no texture, minimalist composition',
                 'this is NOT a photograph',
                 'premium editorial illustration with the appearance of a hand-painted digital portrait',
                 'stylized luxury illustration, soft painterly brushwork, visible brushstroke texture',
@@ -260,8 +260,9 @@ class Prompt_Builder {
                 'in the style of luxury Vogue editorials, contemporary fashion illustration, digital oil painting',
                 'luxury pet portrait artwork, modern editorial design, painted magazine cover, premium gallery print, minimalist luxury branding',
             ),
-            'composition' => 'vertical 4:5 magazine cover, DOGUE masthead top, dog centered head and upper chest, warm beige field, editorial negative space',
+            'composition' => 'portrait magazine cover, full DOGUE masthead visible with top safe margin, dog centered head and upper chest below masthead',
             'negative_extra' => array(
+                'no cropped masthead, no cut-off or clipped DOGUE lettering at top edge',
                 'no headlines, captions, or cover lines except the single DOGUE masthead',
                 'no watermark, barcode, issue date, or extra typography',
                 'no photograph, photoreal snapshot, or camera realism',
@@ -272,6 +273,8 @@ class Prompt_Builder {
             ),
         ),
         'royal_legacy' => array(
+            'skip_situation'         => true,
+            'skip_background_option' => true,
             'core' => array(
                 '(masterpiece:1.2), majestic royal ancestral portrait mural',
                 'the same subject from the input image',
@@ -334,6 +337,8 @@ class Prompt_Builder {
             ),
         ),
         'whiskey_office' => array(
+            'skip_situation'         => true,
+            'skip_background_option' => true,
             'core' => array(
                 '(masterpiece:1.25), hyper-realistic cinematic portrait',
                 'use the uploaded dog as the exact character reference',
@@ -510,15 +515,38 @@ class Prompt_Builder {
      * @return array<string, array<int, array{key: string, title: string}>>
      */
     public static function get_style_customize_flows() {
+        $cfg   = self::get_options_config();
         $flows = array(
             'black_studio' => array(
                 array(
                     'key'   => 'style',
-                    'title' => __( 'Select style', 'wc-aicc' ),
+                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
                 ),
                 array(
                     'key'   => 'pet_name',
                     'title' => __( 'Pet name', 'wc-aicc' ),
+                ),
+            ),
+            'magazine_dogue' => array(
+                array(
+                    'key'   => 'style',
+                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
+                ),
+                array(
+                    'key'   => 'background_color',
+                    'title' => $cfg['background_color']['step_title'] ?? __( 'Select background color', 'wc-aicc' ),
+                ),
+            ),
+            'royal_legacy' => array(
+                array(
+                    'key'   => 'style',
+                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
+                ),
+            ),
+            'whiskey_office' => array(
+                array(
+                    'key'   => 'style',
+                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
                 ),
             ),
         );
@@ -925,10 +953,12 @@ class Prompt_Builder {
      * Build prompt arrays from user customization options
      *
      * @param array $options User selections.
+     * @param array $context Optional context (e.g. aspect_ratio from build).
      * @return array { prompt: string, negative_prompt: string }
      */
-    public static function build( $options = array() ) {
+    public static function build( $options = array(), $context = array() ) {
         $options = self::sanitize_options( is_array( $options ) ? $options : array() );
+        $context = is_array( $context ) ? $context : array();
 
         $style_key     = $options['style'];
         $situation_key = $options['situation'];
@@ -945,6 +975,11 @@ class Prompt_Builder {
         $skip_bg        = ! empty( $style_def['skip_background_option'] );
 
         $prompt_parts = array();
+
+        $aspect_ratio = isset( $context['aspect_ratio'] ) ? self::sanitize_aspect_ratio( $context['aspect_ratio'] ) : '';
+        if ( $aspect_ratio !== '' ) {
+            $prompt_parts[] = 'output aspect ratio ' . $aspect_ratio . ', portrait vertical canvas, compose the full artwork within frame bounds including all typography';
+        }
 
         // Reference + identity (some styles ship their own likeness lines).
         if ( empty( $style_def['skip_identity_lines'] ) ) {
@@ -1062,6 +1097,20 @@ class Prompt_Builder {
         $result['pet_name']         = self::sanitize_pet_name( $raw['pet_name'] ?? '' );
 
         return wp_parse_args( $result, self::DEFAULTS );
+    }
+
+    /**
+     * Sanitize canvas aspect ratio for prompt injection.
+     *
+     * @param mixed $raw Raw value.
+     * @return string e.g. "4:5" or empty.
+     */
+    public static function sanitize_aspect_ratio( $raw ) {
+        $t = strtolower( preg_replace( '/\s+/', '', (string) $raw ) );
+        if ( preg_match( '/^\d+:\d+$/', $t ) ) {
+            return $t;
+        }
+        return '';
     }
 
     /**

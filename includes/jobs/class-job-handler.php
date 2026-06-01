@@ -16,6 +16,7 @@ use WC_AICC\Storage\R2_Storage;
 use WC_AICC\Providers\AI_Provider_Factory;
 use WC_AICC\Mockup\Mockup_Generator_Factory;
 use WC_AICC\Config\Prompt_Builder;
+use WC_AICC\Config\Size_Aspect_Map;
 
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
@@ -272,6 +273,11 @@ class Job_Handler {
             )
         );
 
+        $aspect_ratio = $build->aspect_ratio;
+        if ( empty( $aspect_ratio ) && ! empty( $build->size_label ) ) {
+            $aspect_ratio = Size_Aspect_Map::resolve_for_label( (string) $build->size_label );
+        }
+
         // Get cropped image URL
         $cropped_url = $this->get_asset_url( $build->cropped_key, $storage );
 
@@ -282,7 +288,10 @@ class Job_Handler {
 
         // Build prompt from customization options
         $options  = $build->customization_options;
-        $built    = Prompt_Builder::build( is_array( $options ) ? $options : array() );
+        $built    = Prompt_Builder::build(
+            is_array( $options ) ? $options : array(),
+            array( 'aspect_ratio' => $aspect_ratio )
+        );
         $prompt   = $built['prompt'];
         $negative = $built['negative_prompt'] ?? '';
 
@@ -301,7 +310,7 @@ class Job_Handler {
         $result = $provider->generate(
             $cropped_url,
             $prompt,
-            $build->aspect_ratio,
+            $aspect_ratio,
             $negative
         );
 

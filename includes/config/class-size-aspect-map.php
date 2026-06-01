@@ -88,4 +88,60 @@ class Size_Aspect_Map {
 
         return isset( $map[ $key ] ) ? $map[ $key ] : null;
     }
+
+    /**
+     * Resolve aspect ratio for AI generation, with portrait canvas fallbacks.
+     *
+     * @param string $size_label Human-readable or attribute size label.
+     * @param string $default    Default when label cannot be parsed (portrait canvases).
+     * @return string Ratio like "4:5".
+     */
+    public static function resolve_for_label( $size_label, $default = '2:3' ) {
+        $resolved = self::resolve( $size_label );
+        if ( ! empty( $resolved ) ) {
+            return $resolved;
+        }
+
+        if ( empty( $size_label ) || ! is_string( $size_label ) ) {
+            return $default;
+        }
+
+        if ( ! preg_match( '/(\d+)\s*[x×]\s*(\d+)/i', $size_label, $matches ) ) {
+            return $default;
+        }
+
+        $w = (int) $matches[1];
+        $h = (int) $matches[2];
+        if ( $w < 1 || $h < 1 ) {
+            return $default;
+        }
+
+        $map = self::get_map();
+        foreach ( array( $w . '|' . $h, $h . '|' . $w ) as $key ) {
+            if ( isset( $map[ $key ] ) ) {
+                return $map[ $key ];
+            }
+        }
+
+        $gcd = self::gcd( $w, $h );
+        if ( $gcd < 1 ) {
+            return $default;
+        }
+
+        return ( $w / $gcd ) . ':' . ( $h / $gcd );
+    }
+
+    /**
+     * @param int $a First number.
+     * @param int $b Second number.
+     * @return int
+     */
+    private static function gcd( $a, $b ) {
+        while ( $b !== 0 ) {
+            $t = $b;
+            $b = $a % $b;
+            $a = $t;
+        }
+        return (int) $a;
+    }
 }
