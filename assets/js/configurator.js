@@ -9,9 +9,33 @@
 
     // Configuration from WordPress
     const config = window.wcAiccConfig || {};
-    const { productId, variations, options, optionDefaults, customizeFlow, sizingGuide, restUrl, nonce, i18n } = config;
+    const { productId, variations, options, optionDefaults, customizeFlow, styleCustomizeFlows, sizingGuide, restUrl, nonce, i18n } = config;
 
-    const CUSTOMIZE_SUBSTEP_TOTAL = (customizeFlow && customizeFlow.length) ? customizeFlow.length : 3;
+    /**
+     * @return {Array<{key: string, title: string}>}
+     */
+    function getCustomizeFlow() {
+        const style = (state.customizationOptions && state.customizationOptions.style) || '';
+        if (style && styleCustomizeFlows && styleCustomizeFlows[style] && styleCustomizeFlows[style].length) {
+            return styleCustomizeFlows[style];
+        }
+        if (customizeFlow && customizeFlow.length) {
+            return customizeFlow;
+        }
+        return [
+            { key: 'style', title: '' },
+            { key: 'situation', title: '' },
+            { key: 'background_color', title: '' }
+        ];
+    }
+
+    function getCustomizeSubstepTotal() {
+        return getCustomizeFlow().length;
+    }
+
+    function styleRequiresPetName(styleKey) {
+        return styleKey === 'black_studio';
+    }
 
     // State
     let state = {
@@ -324,6 +348,9 @@
             if (e.target && e.target.classList && e.target.classList.contains('wc-aicc-situation-custom-input')) {
                 syncSituationCustomFromDom();
             }
+            if (e.target && e.target.classList && e.target.classList.contains('wc-aicc-pet-name-input')) {
+                syncPetNameFromDom();
+            }
         });
 
         // File upload
@@ -537,6 +564,21 @@
         }
 
         syncCustomizeSelectionsFromState();
+
+        if (styleRequiresPetName(state.customizationOptions.style)) {
+            syncPetNameFromDom();
+            const name = (state.customizationOptions.pet_name || '').trim();
+            if (!name) {
+                showError((i18n && i18n.petNameRequired) ? i18n.petNameRequired : 'Please enter your pet\'s name.');
+                const flow = getCustomizeFlow();
+                const petIdx = flow.findIndex(function(step) { return step.key === 'pet_name'; });
+                if (petIdx >= 0) {
+                    state.customizeSubStep = petIdx + 1;
+                    renderCustomizeSubstep();
+                }
+                return;
+            }
+        }
 
         state.status = 'processing';
         state.errorMessage = null;
@@ -792,7 +834,7 @@
      * Customize sub-step: continue
      */
     function handleCustomizeNext() {
-        if (state.customizeSubStep >= CUSTOMIZE_SUBSTEP_TOTAL) {
+        if (state.customizeSubStep >= getCustomizeSubstepTotal()) {
             return;
         }
         state.customizeSubStep++;
@@ -809,6 +851,18 @@
             return;
         }
         state.customizationOptions[key] = value;
+        if (key === 'style') {
+            if (value === 'black_studio') {
+                state.customizationOptions.situation = 'neutral';
+                state.customizationOptions.background_color = 'natural';
+                state.customizationOptions.situation_custom = '';
+            }
+            const flow = getCustomizeFlow();
+            if (state.customizeSubStep > flow.length) {
+                state.customizeSubStep = flow.length;
+            }
+            renderCustomizeSubstep();
+        }
         const panel = card.closest('.wc-aicc-customize-panel');
         if (panel) {
             panel.querySelectorAll('.wc-aicc-choice-card[data-option-key="' + key + '"]').forEach(c => {
@@ -824,9 +878,23 @@
         if (!container) {
             return;
         }
-        container.querySelectorAll('.wc-aicc-customize-panel').forEach(panel => {
-            const n = parseInt(panel.dataset.customizeSubstep, 10);
-            panel.style.display = n === state.customizeSubStep ? 'block' : 'none';
+        const flow = getCustomizeFlow();
+        const total = flow.length;
+        const activeStep = flow[state.customizeSubStep - 1];
+        const activeKey = activeStep ? activeStep.key : 'style';
+
+        container.querySelectorAll('.wc-aicc-customize-panel').forEach(function(panel) {
+            const panelKey = panel.dataset.customizeKey || '';
+            panel.style.display = panelKey === activeKey ? 'block' : 'none';
+
+            const badge = panel.querySelector('.wc-aicc-customize-badge--dynamic');
+            const meta = panel.querySelector('.wc-aicc-customize-panel__meta--dynamic');
+            if (badge) {
+                badge.textContent = '3.' + state.customizeSubStep;
+            }
+            if (meta && activeStep && panelKey === activeKey) {
+                meta.textContent = ((i18n && i18n.step) ? i18n.step : 'Step') + ' ' + state.customizeSubStep + ' of ' + total;
+            }
         });
     }
 
@@ -845,6 +913,28 @@
             });
         });
         syncSituationCustomToDom();
+        syncPetNameToDom();
+    }
+
+    function syncPetNameFromDom() {
+        const input = container.querySelector('.wc-aicc-pet-name-input');
+        if (!input) {
+            return;
+        }
+        let v = (input.value || '').slice(0, 40);
+        if (input.value && input.value.length > 40) {
+            input.value = v;
+        }
+        state.customizationOptions.pet_name = v;
+    }
+
+    function syncPetNameToDom() {
+        const input = container.querySelector('.wc-aicc-pet-name-input');
+        if (!input) {
+            return;
+        }
+        const v = state.customizationOptions.pet_name;
+        input.value = v != null ? String(v) : '';
     }
 
     /**
@@ -920,6 +1010,7 @@
      */
     function syncCustomizeSelectionsFromState() {
         syncSituationCustomFromDom();
+        syncPetNameFromDom();
         syncChoiceCardsFromState();
     }
 
@@ -1073,12 +1164,18 @@
         }
 
         if (optionsEl && options) {
-            const order = (customizeFlow && customizeFlow.length)
-                ? customizeFlow.map(f => f.key).filter(Boolean)
-                : ['style', 'situation', 'background_color'];
-            const keys = order.length ? order : Object.keys(state.customizationOptions || {});
+            const flow = getCustomizeFlow();
             const parts = [];
-            keys.forEach(key => {
+            flow.forEach(function(step) {
+                const key = step.key;
+                if (key === 'pet_name') {
+                    const pn = (state.customizationOptions.pet_name || '').trim();
+                    if (pn) {
+                        const prefix = (i18n && i18n.petNameLabel) ? i18n.petNameLabel : 'Pet name';
+                        parts.push(prefix + ': ' + pn);
+                    }
+                    return;
+                }
                 const val = state.customizationOptions[key];
                 if (!val) {
                     return;
@@ -1092,7 +1189,7 @@
                 }
             });
             const sc = (state.customizationOptions.situation_custom || '').trim();
-            if (sc) {
+            if (sc && !styleRequiresPetName(state.customizationOptions.style)) {
                 const prefix = (i18n && i18n.summaryCustomDirection) ? i18n.summaryCustomDirection : 'Custom direction';
                 const short = sc.length > 80 ? sc.slice(0, 80) + '…' : sc;
                 parts.push(prefix + ': ' + short);

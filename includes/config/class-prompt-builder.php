@@ -234,55 +234,41 @@ class Prompt_Builder {
             ),
         ),
         'magazine_dogue' => array(
-            'core' => array(
-                '(masterpiece:1.2), glossy high-fashion Magazine Dogue pet editorial portrait',
-                'the same subject from the input image',
-                'preserve facial structure, breed traits, fur markings and proportions',
-                'glossy fashion-magazine cover lighting and polish without literal logo text',
-                'high-end editorial retouch vibe, sculpted rim light',
-                'subject wears oversized cream vintage sunglasses',
-                'pink floral scarf under chin with delicate white daisy pattern',
-                'clean bright cyan or powder blue seamless backdrop option',
-                'mid-century playful chic personality',
-                'flat-painted illustration polish mixed with luminous studio sheen',
-                'simplified shapes, matte color blocks with soft gradients',
-                'symmetrical balanced framing, portrait orientation',
-                'close-up head and upper chest emphasis',
-                'contemporary pop illustration couture energy',
+            'skip_identity_lines'    => true,
+            'skip_situation'         => true,
+            'skip_background_option' => true,
+            'allows_cover_text'      => true,
+            'core'                   => array(
+                'using the uploaded dog photo as the exact facial reference, fur coloration, head shape, ear shape, nose, eyes, expression, and breed characteristics',
+                'luxury fashion magazine cover portrait featuring this dog as an elegant high-fashion icon',
+                'vertical magazine cover format 4:5, dog centered, head and upper chest only, tight editorial crop',
+                'facing slightly off-camera, large masthead at the top reading DOGUE, no additional headlines or cover text, clean negative space',
+                'oversized black cat-eye sunglasses, elegant silk headscarf tied under the chin, pearl necklace',
+                'vintage European luxury styling, sophisticated fashion-editorial aesthetic, confident timeless attitude',
+                'solid warm beige background, flat color backdrop, no props, no texture, minimalist composition',
+                'this is NOT a photograph',
+                'premium editorial illustration with the appearance of a hand-painted digital portrait',
+                'stylized luxury illustration, soft painterly brushwork, visible brushstroke texture',
+                'smooth painted fur rendering, simplified editorial shapes, refined color blocking',
+                'high-end fashion illustration, minimal realism, premium poster aesthetic, contemporary gallery artwork',
+                'clean edges, elegant painted finish',
+                'soft studio-inspired lighting, gentle shadows, warm highlights, luxury color grading, minimal contrast, sophisticated editorial mood',
+                'preserve exact appearance of the uploaded dog, fur color, facial proportions, eye shape, nose shape, ear shape, breed characteristics',
+                'do not humanize facial features',
+                'luxury fashion illustration, museum-quality pet portrait, high-end editorial artwork, premium print quality',
+                'modern minimalist design, fashion campaign aesthetic',
+                'in the style of luxury Vogue editorials, contemporary fashion illustration, digital oil painting',
+                'luxury pet portrait artwork, modern editorial design, painted magazine cover, premium gallery print, minimalist luxury branding',
             ),
-            'composition' => 'editorial cover hero composition, generous negative space for imaginary masthead',
+            'composition' => 'vertical 4:5 magazine cover, DOGUE masthead top, dog centered head and upper chest, warm beige field, editorial negative space',
             'negative_extra' => array(
-                'no text, no watermark, no logo, no readable masthead',
-                'no extra animals',
-                'no humans',
-                'no hyper-real candid snapshot',
-                'no cluttered props',
-                'no distorted anatomy',
-                'no deformed eyes',
-                'no gritty newsprint ONLY treatment',
-                'no low quality',
-                'no glitch artifacts',
-                'no cheesy HDR',
-            ),
-        ),
-        'newspaper' => array(
-            'core' => array(
-                '(masterpiece:1.2), vintage newspaper halftone printed portrait illustration',
-                'the same subject from the input image',
-                'preserve likeness, markings, silhouette weight from reference',
-                'large halftone dot screens, tactile newsprint fibers',
-                'muted ink blacks, warm paper stock cream',
-                'graphic editorial caricature-lite clarity without text blocks',
-                'front-page centerpiece illustration pacing',
-                'close-up readable head bust',
-                'subtle imperfect ink trapping',
-            ),
-            'composition' => 'column illustration layout cues with breathing room resembling broadsheet centerpiece',
-            'negative_extra' => array(
-                'no headlines, captions, watermark, barcode',
-                'no glossy RGB magazine finish',
-                'no rainbow pop palette',
-                'no low resolution mush',
+                'no headlines, captions, or cover lines except the single DOGUE masthead',
+                'no watermark, barcode, issue date, or extra typography',
+                'no photograph, photoreal snapshot, or camera realism',
+                'no extra animals or humans',
+                'no cluttered props, scenery, or textured background',
+                'no distorted anatomy, deformed eyes, or humanized facial features',
+                'no low quality, glitch artifacts, or cheesy HDR',
             ),
         ),
         'royal_legacy' => array(
@@ -315,23 +301,36 @@ class Prompt_Builder {
                 'no distorted anatomy',
             ),
         ),
-        'black_white' => array(
-            'core' => array(
-                '(masterpiece:1.25), luminous black and white fine art monochrome portrait',
-                'the same subject from the input image',
-                'preserve texture direction in fur or coat as tonal rhythm',
-                'extended gray-scale latitude, deep rich blacks, controlled specular highlights',
-                'timeless silver-gelatin or platinum print atmosphere',
-                'close-up head and chest sculptural clarity',
-                'subtle atmospheric vignette optional',
-                'museum-grade tonal separation',
+        'black_studio' => array(
+            'skip_identity_lines'    => true,
+            'skip_situation'         => true,
+            'skip_background_option' => true,
+            'requires_pet_name'      => true,
+            'core'                   => array(
+                'premium minimalist pet portrait poster using the uploaded pet photo as the exact facial structure, expression, fur color, markings, eye shape, nose shape, and overall likeness reference',
+                'hand-painted digital illustration, Procreate-style artwork',
+                'luxury pet portrait aesthetic, soft painterly brushwork, clean edge rendering',
+                'realistic fur interpretation rather than photorealism, high-end wall art, contemporary gallery poster design',
+                'vertical poster layout 2:3 ratio, pet centered horizontally',
+                'only head and upper chest visible, pet occupies approximately 30-40% of total canvas height',
+                'large negative space above the pet, portrait in lower third of canvas, symmetrical composition, no tilt',
+                'solid matte charcoal black background #1A1A1A, no gradients, no textures, no patterns, no scenery, no shadows on background',
+                'soft professional studio lighting, subtle highlights in eyes, gentle nose highlights, natural depth',
+                'no dramatic contrast, natural golden fur coloration preserved',
+                'luxury custom pet portrait brands, modern Scandinavian poster design, premium Etsy pet portrait aesthetic',
+                'Procreate digital painting, minimalist gallery wall artwork, clean contemporary illustration',
+                'ultra clean, print-ready, elegant, sophisticated, minimal, premium, museum-quality poster appearance',
+                'professionally commissioned Procreate painting not a photograph',
+                'highly recognizable pet from reference while simplifying fur into refined painterly brush strokes',
             ),
-            'composition' => 'monochrome portrait composition with deliberate negative space',
+            'composition' => 'vertical 2:3 poster, pet head and upper chest in lower third, wide negative space above for name typography',
             'negative_extra' => array(
-                'no color chroma, no sepia unless requested elsewhere',
-                'no low contrast flat gray soup',
-                'no heavy digital noise',
-                'no text or watermark',
+                'no collars, bandanas, accessories, clothing',
+                'no frames, borders, watermarks, decorative elements, background objects',
+                'no extra text beyond the pet name typography',
+                'no photographic effects, no 3D rendering',
+                'no gradients or textures on background',
+                'no scenery, no props',
             ),
         ),
         'whiskey_office' => array(
@@ -438,7 +437,13 @@ class Prompt_Builder {
         'situation'          => 'neutral',
         'background_color'   => 'natural',
         'situation_custom'   => '',
+        'pet_name'           => '',
     );
+
+    /**
+     * Max length for pet name (Black Studio and similar styles).
+     */
+    const PET_NAME_MAX_LEN = 40;
 
     /**
      * Max length for free-text situation / character notes (after sanitization).
@@ -489,6 +494,46 @@ class Prompt_Builder {
     }
 
     /**
+     * Per-style customize sub-step flows (override default style → situation → background).
+     *
+     * @return array<string, array<int, array{key: string, title: string}>>
+     */
+    public static function get_style_customize_flows() {
+        $flows = array(
+            'black_studio' => array(
+                array(
+                    'key'   => 'style',
+                    'title' => __( 'Select style', 'wc-aicc' ),
+                ),
+                array(
+                    'key'   => 'pet_name',
+                    'title' => __( 'Pet name', 'wc-aicc' ),
+                ),
+            ),
+        );
+
+        /**
+         * @param array<string, array> $flows Style slug => ordered step definitions.
+         */
+        return apply_filters( 'wc_aicc_style_customize_flows', $flows );
+    }
+
+    /**
+     * Customize flow for a given style selection.
+     *
+     * @param string $style_key Style slug.
+     * @return array<int, array{key: string, title: string}>
+     */
+    public static function get_customize_flow_for_style( $style_key ) {
+        $style_key = sanitize_key( (string) $style_key );
+        $flows     = self::get_style_customize_flows();
+        if ( isset( $flows[ $style_key ] ) && is_array( $flows[ $style_key ] ) ) {
+            return $flows[ $style_key ];
+        }
+        return self::get_customize_flow_meta();
+    }
+
+    /**
      * Options for UI (extensible via filter)
      *
      * @return array
@@ -526,20 +571,16 @@ class Prompt_Builder {
                         'hint'  => __( 'Traditional tattoo flash', 'wc-aicc' ),
                     ),
                     'magazine_dogue' => array(
-                        'label' => __( 'Magazine (Dogue)', 'wc-aicc' ),
-                        'hint'  => __( 'Fashion editorial chic', 'wc-aicc' ),
-                    ),
-                    'newspaper' => array(
-                        'label' => __( 'Newspaper', 'wc-aicc' ),
-                        'hint'  => __( 'Newsprint halftone', 'wc-aicc' ),
+                        'label' => __( 'Dogue Cover', 'wc-aicc' ),
+                        'hint'  => __( 'Luxury fashion magazine illustration', 'wc-aicc' ),
                     ),
                     'royal_legacy' => array(
                         'label' => __( 'Royal Legacy', 'wc-aicc' ),
                         'hint'  => __( 'Regal old-master portrait', 'wc-aicc' ),
                     ),
-                    'black_white' => array(
-                        'label' => __( 'Black and White', 'wc-aicc' ),
-                        'hint'  => __( 'Monochrome artwork', 'wc-aicc' ),
+                    'black_studio' => array(
+                        'label' => __( 'Black Studio', 'wc-aicc' ),
+                        'hint'  => __( 'Minimal charcoal poster with pet name', 'wc-aicc' ),
                     ),
                     'whiskey_office' => array(
                         'label' => __( 'Whiskey Office', 'wc-aicc' ),
@@ -681,6 +722,21 @@ class Prompt_Builder {
             }
         }
 
+        $fallback_slugs = array(
+            'black_studio' => array( 'black_white' ),
+        );
+        if ( isset( $fallback_slugs[ $slug ] ) ) {
+            foreach ( $fallback_slugs[ $slug ] as $alt_slug ) {
+                foreach ( $extensions as $ext ) {
+                    $file = $dir . $alt_slug . '.' . $ext;
+                    if ( file_exists( $file ) && is_readable( $file ) ) {
+                        $url = $base . $alt_slug . '.' . $ext;
+                        return (string) apply_filters( 'wc_aicc_style_example_image_url', $url, $slug, $file );
+                    }
+                }
+            }
+        }
+
         return (string) apply_filters( 'wc_aicc_style_example_image_url', '', $slug, '' );
     }
 
@@ -753,6 +809,11 @@ class Prompt_Builder {
             $parts[] = __( 'Custom direction', 'wc-aicc' ) . ': ' . $short;
         }
 
+        $pet_name = isset( $options['pet_name'] ) ? trim( (string) $options['pet_name'] ) : '';
+        if ( $pet_name !== '' ) {
+            $parts[] = __( 'Pet name', 'wc-aicc' ) . ': ' . $pet_name;
+        }
+
         return $parts;
     }
 
@@ -776,37 +837,54 @@ class Prompt_Builder {
         $style_def = $styles[ $style_key ] ?? $styles['warhol_grid'];
         $sit_def   = $situations[ $situation_key ] ?? $situations['neutral'];
 
+        $skip_situation = ! empty( $style_def['skip_situation'] );
+        $skip_bg        = ! empty( $style_def['skip_background_option'] );
+
         $prompt_parts = array();
 
-        // Reference + identity
-        $prompt_parts = array_merge( $prompt_parts, self::IDENTITY_LINES );
+        // Reference + identity (some styles ship their own likeness lines).
+        if ( empty( $style_def['skip_identity_lines'] ) ) {
+            $prompt_parts = array_merge( $prompt_parts, self::IDENTITY_LINES );
+        }
 
         // Style core
         if ( ! empty( $style_def['core'] ) && is_array( $style_def['core'] ) ) {
             $prompt_parts = array_merge( $prompt_parts, $style_def['core'] );
         }
 
-        // Situation context (neutral adds “minimal transformation” lines from definitions)
-        if ( ! empty( $sit_def['lines'] ) && is_array( $sit_def['lines'] ) ) {
+        // Pet name typography (Black Studio).
+        if ( ! empty( $style_def['requires_pet_name'] ) ) {
+            $pet_name = self::sanitize_pet_name( $options['pet_name'] ?? '' );
+            if ( $pet_name !== '' ) {
+                $prompt_parts[] = 'Pet name: "' . $pet_name . '" centered above the pet, modern minimalist sans-serif font, all uppercase, white text, wide letter spacing, small size relative to canvas, luxury editorial aesthetic';
+            }
+        }
+
+        // Situation context (skipped for minimal poster styles).
+        if ( ! $skip_situation && ! empty( $sit_def['lines'] ) && is_array( $sit_def['lines'] ) ) {
             $prompt_parts = array_merge( $prompt_parts, $sit_def['lines'] );
         }
 
-        $situation_custom = isset( $options['situation_custom'] ) ? trim( (string) $options['situation_custom'] ) : '';
-        if ( $situation_custom !== '' ) {
-            $prompt_parts[] = 'additional character / situation direction from customer: ' . $situation_custom;
+        if ( ! $skip_situation ) {
+            $situation_custom = isset( $options['situation_custom'] ) ? trim( (string) $options['situation_custom'] ) : '';
+            if ( $situation_custom !== '' ) {
+                $prompt_parts[] = 'additional character / situation direction from customer: ' . $situation_custom;
+            }
         }
 
         // Composition: situation override wins; neutral skips default style framing to avoid fighting the source crop
-        if ( ! empty( $sit_def['composition_priority'] ) ) {
+        if ( ! $skip_situation && ! empty( $sit_def['composition_priority'] ) ) {
             $prompt_parts[] = 'composition priority: ' . $sit_def['composition_priority'];
-        } elseif ( empty( $sit_def['minimal_transform'] ) && ! empty( $style_def['composition'] ) ) {
+        } elseif ( ( $skip_situation || empty( $sit_def['minimal_transform'] ) ) && ! empty( $style_def['composition'] ) ) {
             $prompt_parts[] = $style_def['composition'];
         }
 
-        // Background color (skip natural)
-        $bg_phrase = $bg_map[ $bg_key ] ?? '';
-        if ( $bg_phrase !== '' ) {
-            $prompt_parts[] = $bg_phrase;
+        // Background color (skip for fixed-background styles).
+        if ( ! $skip_bg ) {
+            $bg_phrase = $bg_map[ $bg_key ] ?? '';
+            if ( $bg_phrase !== '' ) {
+                $prompt_parts[] = $bg_phrase;
+            }
         }
 
         /**
@@ -820,6 +898,16 @@ class Prompt_Builder {
         $prompt = implode( ', ', array_filter( array_map( 'trim', $prompt_parts ) ) );
 
         $negative = self::CONSTRAINTS;
+        if ( ! empty( $style_def['requires_pet_name'] ) || ! empty( $style_def['allows_cover_text'] ) ) {
+            $negative = array_values(
+                array_filter(
+                    $negative,
+                    static function ( $line ) {
+                        return stripos( (string) $line, 'no text' ) === false;
+                    }
+                )
+            );
+        }
         if ( ! empty( $style_def['negative_extra'] ) && is_array( $style_def['negative_extra'] ) ) {
             $negative = array_merge( $negative, $style_def['negative_extra'] );
         }
@@ -847,7 +935,12 @@ class Prompt_Builder {
      * @return array Sanitized options.
      */
     public static function sanitize_options( $raw ) {
-        $raw     = is_array( $raw ) ? $raw : array();
+        $raw = is_array( $raw ) ? $raw : array();
+
+        if ( isset( $raw['style'] ) && 'black_white' === $raw['style'] ) {
+            $raw['style'] = 'black_studio';
+        }
+
         $config  = self::get_options_config();
         $result  = array();
 
@@ -862,8 +955,36 @@ class Prompt_Builder {
         }
 
         $result['situation_custom'] = self::sanitize_situation_custom( $raw['situation_custom'] ?? '' );
+        $result['pet_name']         = self::sanitize_pet_name( $raw['pet_name'] ?? '' );
 
         return wp_parse_args( $result, self::DEFAULTS );
+    }
+
+    /**
+     * Sanitize pet name for poster typography.
+     *
+     * @param mixed $raw Raw value.
+     * @return string Uppercase ASCII-safe name for prompt injection.
+     */
+    public static function sanitize_pet_name( $raw ) {
+        $t = sanitize_text_field( is_string( $raw ) ? $raw : '' );
+        $t = wp_strip_all_tags( $t );
+        $t = preg_replace( '/[^\p{L}\p{N}\s\'\-]/u', '', $t );
+        $t = preg_replace( '/\s+/u', ' ', $t );
+        $t = trim( $t );
+        $max = (int) self::PET_NAME_MAX_LEN;
+        if ( $max < 1 ) {
+            return '';
+        }
+        if ( function_exists( 'mb_strlen' ) && mb_strlen( $t ) > $max ) {
+            $t = mb_substr( $t, 0, $max );
+        } elseif ( strlen( $t ) > $max ) {
+            $t = substr( $t, 0, $max );
+        }
+        if ( function_exists( 'mb_strtoupper' ) ) {
+            return mb_strtoupper( $t, 'UTF-8' );
+        }
+        return strtoupper( $t );
     }
 
     /**

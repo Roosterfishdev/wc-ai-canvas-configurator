@@ -159,7 +159,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     $default   = $defaults[ $option_key ] ?? '';
                     $is_last   = ( $idx === $total_sub - 1 );
                     ?>
-                    <div class="wc-aicc-customize-panel" data-customize-substep="<?php echo esc_attr( (string) $sub_index ); ?>" <?php echo 1 === $sub_index ? '' : 'style="display: none;"'; ?>>
+                    <div class="wc-aicc-customize-panel" data-customize-key="<?php echo esc_attr( $option_key ); ?>" data-customize-substep="<?php echo esc_attr( (string) $sub_index ); ?>" <?php echo 1 === $sub_index ? '' : 'style="display: none;"'; ?>>
                         <div class="wc-aicc-customize-panel__intro">
                             <span class="wc-aicc-customize-badge" aria-hidden="true"><?php echo esc_html( sprintf( '3.%d', $sub_index ) ); ?></span>
                             <h4 class="wc-aicc-customize-panel__title"><?php echo esc_html( $option['step_title'] ?? $option['label'] ); ?></h4>
@@ -231,6 +231,39 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </div>
                     </div>
                 <?php endforeach; ?>
+
+                <div class="wc-aicc-customize-panel" data-customize-key="pet_name" style="display: none;">
+                    <div class="wc-aicc-customize-panel__intro">
+                        <span class="wc-aicc-customize-badge wc-aicc-customize-badge--dynamic" aria-hidden="true">3.2</span>
+                        <h4 class="wc-aicc-customize-panel__title"><?php esc_html_e( 'Pet name', 'wc-aicc' ); ?></h4>
+                        <p class="wc-aicc-customize-panel__meta wc-aicc-customize-panel__meta--dynamic"><?php esc_html_e( 'Step 2 of 2', 'wc-aicc' ); ?></p>
+                        <p class="wc-aicc-customize-panel__hint"><?php esc_html_e( 'This name appears centered above your pet on the charcoal poster.', 'wc-aicc' ); ?></p>
+                    </div>
+
+                    <div class="wc-aicc-pet-name-wrap">
+                        <label for="wc-aicc-pet-name" class="wc-aicc-pet-name-label">
+                            <?php esc_html_e( 'Pet name', 'wc-aicc' ); ?>
+                        </label>
+                        <input
+                            type="text"
+                            id="wc-aicc-pet-name"
+                            class="wc-aicc-pet-name-input"
+                            name="wc_aicc_pet_name"
+                            maxlength="40"
+                            autocomplete="off"
+                            placeholder="<?php esc_attr_e( 'e.g. LUNA', 'wc-aicc' ); ?>"
+                        />
+                    </div>
+
+                    <div class="wc-aicc-btn-row wc-aicc-customize-actions">
+                        <button type="button" class="wc-aicc-customize-back-btn">
+                            <?php esc_html_e( '← Back', 'wc-aicc' ); ?>
+                        </button>
+                        <button type="button" class="wc-aicc-generate-btn">
+                            <?php esc_html_e( 'Generate Preview', 'wc-aicc' ); ?>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="wc-aicc-generate-status"></div>

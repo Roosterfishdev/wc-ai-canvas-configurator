@@ -756,6 +756,56 @@
     box-shadow: 0 0 0 3px rgba(34, 113, 177, 0.15);
 }
 
+.wc-aicc-customize-panel__hint {
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.45;
+}
+
+.wc-aicc-pet-name-wrap {
+    margin-top: 18px;
+    margin-bottom: 4px;
+}
+
+.wc-aicc-pet-name-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.wc-aicc-pet-name-input {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    border: 2px solid #e8e8e8;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wc-aicc-pet-name-input::placeholder {
+    color: #999;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.wc-aicc-pet-name-input:focus {
+    outline: none;
+    border-color: #EB662C;
+    box-shadow: 0 0 0 3px rgba(235, 102, 44, 0.15);
+}
+
 .wc-aicc-customize-actions {
     margin-top: 20px;
 }

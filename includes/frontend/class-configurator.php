@@ -268,6 +268,7 @@ class Configurator {
                 'options'      => $options,
                 'optionDefaults' => \WC_AICC\Config\Prompt_Builder::DEFAULTS,
                 'customizeFlow' => \WC_AICC\Config\Prompt_Builder::get_customize_flow_meta(),
+                'styleCustomizeFlows' => \WC_AICC\Config\Prompt_Builder::get_style_customize_flows(),
                 'sizingGuide'   => Sizing_Guide::get_panel_data(),
                 'restUrl'      => rest_url( 'wc-aicc/v1' ),
                 'nonce'        => wp_create_nonce( 'wp_rest' ),
@@ -296,6 +297,8 @@ class Configurator {
                     'sizingGuide'      => __( 'Sizing Guide', 'wc-aicc' ),
                     'close'            => __( 'Close', 'wc-aicc' ),
                     'outOfStock'       => __( 'Out of stock', 'wc-aicc' ),
+                    'petNameRequired'  => __( 'Please enter your pet\'s name to continue.', 'wc-aicc' ),
+                    'petNameLabel'     => __( 'Pet name', 'wc-aicc' ),
                 ),
             )
         );
