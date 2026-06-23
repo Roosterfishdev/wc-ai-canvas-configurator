@@ -360,7 +360,8 @@ class Replicate_AI_Provider implements AI_Provider_Interface {
         $raw_body = wp_remote_retrieve_body( $response );
         $data     = json_decode( $raw_body, true );
 
-        if ( $code !== 201 && $code !== 200 ) {
+        // 202 = accepted (async); body includes prediction id — poll until complete.
+        if ( ! in_array( (int) $code, array( 200, 201, 202 ), true ) ) {
             $this->last_create_prediction_error = $this->format_replicate_api_failure_message( $code, $data, $raw_body );
             $detail                               = is_array( $data ) && isset( $data['detail'] ) ? $data['detail'] : $raw_body;
             if ( is_array( $detail ) ) {

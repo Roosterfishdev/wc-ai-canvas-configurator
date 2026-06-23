@@ -118,6 +118,7 @@
     grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
     gap: 20px 16px;
     margin-bottom: 28px;
+    justify-items: center;
 }
 
 .wc-aicc-size-card {
@@ -125,6 +126,8 @@
     flex-direction: column;
     align-items: stretch;
     gap: 14px;
+    width: 100%;
+    max-width: 200px;
 }
 
 .wc-aicc-size-card__frame {
@@ -133,14 +136,17 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 140px;
-    padding: 28px 16px 22px;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    min-height: 0;
+    padding: 20px 12px 16px;
     background: #fff;
     border: 3px solid #1B4332;
     border-radius: 14px;
     cursor: pointer;
     transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
     text-align: center;
+    box-sizing: border-box;
 }
 
 .wc-aicc-size-card__frame:hover,
@@ -395,7 +401,7 @@
     width: 100%;
     height: auto;
     border-radius: 10px;
-    margin-bottom: 24px;
+    margin: 0;
     display: block;
 }
 
@@ -1122,8 +1128,8 @@
         grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
     }
 
-    .wc-aicc-sizing-guide__entries {
-        grid-template-columns: 1fr;
+    .wc-aicc-size-card {
+        max-width: 180px;
     }
 
     .wc-aicc-variations {
@@ -1161,6 +1167,10 @@ body.wc-aicc-sizing-guide-open {
 
 @media (max-width: 480px) {
     .wc-aicc-size-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
+    }
+
+    .wc-aicc-size-card {
+        max-width: none;
     }
 }

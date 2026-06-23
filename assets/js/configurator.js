@@ -220,33 +220,8 @@
         }
 
         let html = '';
-        if (sizingGuide.intro) {
-            html += `<p class="wc-aicc-sizing-guide__intro">${escapeHtml(sizingGuide.intro)}</p>`;
-        }
-        if (sizingGuide.grid_image) {
+        if ( sizingGuide.grid_image ) {
             html += `<img class="wc-aicc-sizing-guide__grid-image" src="${escapeAttr(sizingGuide.grid_image)}" alt="${escapeAttr(sizingGuide.title || 'Sizing guide')}" loading="lazy" />`;
-        }
-
-        const entries = Array.isArray(sizingGuide.entries) ? sizingGuide.entries : [];
-        if (entries.length) {
-            html += '<div class="wc-aicc-sizing-guide__entries">';
-            entries.forEach(function(entry) {
-                html += '<div class="wc-aicc-sizing-guide__entry">';
-                if (entry.image) {
-                    html += `<img class="wc-aicc-sizing-guide__entry-img" src="${escapeAttr(entry.image)}" alt="${escapeAttr(entry.inches || entry.label || '')}" loading="lazy" />`;
-                }
-                if (entry.label) {
-                    html += `<span class="wc-aicc-sizing-guide__entry-label">${escapeHtml(entry.label)}</span>`;
-                }
-                if (entry.inches) {
-                    html += `<span class="wc-aicc-sizing-guide__entry-inches">${escapeHtml(entry.inches)}</span>`;
-                }
-                if (entry.cm) {
-                    html += `<span class="wc-aicc-sizing-guide__entry-cm">${escapeHtml(entry.cm)}</span>`;
-                }
-                html += '</div>';
-            });
-            html += '</div>';
         }
 
         body.innerHTML = html;
