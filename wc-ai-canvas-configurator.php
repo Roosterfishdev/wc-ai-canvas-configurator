@@ -3,7 +3,7 @@
  * Plugin Name: WC AI Canvas Configurator
  * Plugin URI: https://example.com/wc-ai-canvas-configurator
  * Description: A step-based custom canvas configurator for WooCommerce with AI-powered artwork generation.
- * Version: 1.2.13
+ * Version: 1.2.15
  * Author: RoosterFishDev
  * Author URI: https://roosterfish.dev
  * License: GPL-2.0+
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-define( 'WC_AICC_VERSION', '1.2.13' );
+define( 'WC_AICC_VERSION', '1.2.15' );
 define( 'WC_AICC_PLUGIN_FILE', __FILE__ );
 define( 'WC_AICC_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_AICC_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

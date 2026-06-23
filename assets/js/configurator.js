@@ -72,7 +72,9 @@
         pollEpoch: 0,
         /** Session key returned by API (sent as header when cookies are unreliable) */
         sessionKey: null,
-        pollFailureCount: 0
+        pollFailureCount: 0,
+        /** Prevents duplicate createBuild() calls from skipping multiple steps */
+        createBuildInFlight: false
     };
 
     /**
@@ -292,6 +294,12 @@
         });
     }
 
+    function setSizeSelectButtonsDisabled(disabled) {
+        container.querySelectorAll('.wc-aicc-size-select-btn').forEach(function(btn) {
+            btn.disabled = disabled;
+        });
+    }
+
     /**
      * Set up event listeners
      */
@@ -422,7 +430,7 @@
      * Handle size Select button (step 1).
      */
     function handleSizeSelect(btn) {
-        if (btn.disabled) {
+        if (btn.disabled || state.createBuildInFlight) {
             return;
         }
         const variationId = parseInt(btn.dataset.variationId, 10);
@@ -482,11 +490,16 @@
      * Create a new build
      */
     async function createBuild() {
-        if (!state.selectedVariation) return;
+        if (!state.selectedVariation || state.createBuildInFlight) {
+            return;
+        }
 
-        await ensureSession();
+        state.createBuildInFlight = true;
+        setSizeSelectButtonsDisabled(true);
 
         try {
+            await ensureSession();
+
             const response = await fetch(`${restUrl}/builds`, {
                 method: 'POST',
                 credentials: 'same-origin',
@@ -510,13 +523,14 @@
             if (data.session_key) {
                 state.sessionKey = data.session_key;
             }
-            
-            // Move to next step
-            goToNextStep();
 
+            goToNextStep();
         } catch (error) {
             console.error('Create build error:', error);
             showError(error.message);
+            setSizeSelectButtonsDisabled(false);
+        } finally {
+            state.createBuildInFlight = false;
         }
     }
 
