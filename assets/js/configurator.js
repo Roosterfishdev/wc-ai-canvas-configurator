@@ -122,10 +122,38 @@
         if (!data || typeof data !== 'object') {
             return false;
         }
+        if (data.status === 'processing' || data.status === 'draft') {
+            return false;
+        }
         if (data.status === 'ready' || data.is_ready === true) {
             return true;
         }
         return !!(data.urls && data.urls.final_art);
+    }
+
+    /**
+     * @param {string} url Asset URL.
+     * @param {string|number} token Cache-bust token (regen_count or timestamp).
+     * @return {string}
+     */
+    function withAssetCacheBuster(url, token) {
+        if (!url) {
+            return '';
+        }
+        const sep = url.indexOf('?') >= 0 ? '&' : '?';
+        return url + sep + 'v=' + encodeURIComponent(String(token != null ? token : Date.now()));
+    }
+
+    /**
+     * Clear preview image elements (e.g. before regeneration).
+     */
+    function clearPreviewImages() {
+        ['wc-aicc-final-art-preview', 'wc-aicc-mockup-preview', 'wc-aicc-cart-preview'].forEach(function(id) {
+            const img = document.getElementById(id);
+            if (img) {
+                img.removeAttribute('src');
+            }
+        });
     }
 
     /**
@@ -601,6 +629,9 @@
         state.status = 'processing';
         state.errorMessage = null;
         state.pollFailureCount = 0;
+        state.finalArtUrl = null;
+        state.mockupUrl = null;
+        clearPreviewImages();
         updateGenerateUI();
 
         await ensureSession();
@@ -654,8 +685,13 @@
         stopPolling();
         state.status = 'ready';
         state.pollFailureCount = 0;
-        state.finalArtUrl = (data.urls && data.urls.final_art) ? data.urls.final_art : null;
-        state.mockupUrl = (data.urls && data.urls.mockup) ? data.urls.mockup : null;
+        const cacheToken = data.regen_count != null ? data.regen_count : (data.updated_at || Date.now());
+        state.finalArtUrl = (data.urls && data.urls.final_art)
+            ? withAssetCacheBuster(data.urls.final_art, cacheToken)
+            : null;
+        state.mockupUrl = (data.urls && data.urls.mockup)
+            ? withAssetCacheBuster(data.urls.mockup, cacheToken)
+            : null;
         updateGenerateUI();
 
         if (state.currentStep === 3) {
@@ -827,6 +863,14 @@
      */
     function goToPreviousStep() {
         if (state.currentStep > 1) {
+            if (state.currentStep === 4) {
+                stopPolling();
+                state.status = 'idle';
+                state.finalArtUrl = null;
+                state.mockupUrl = null;
+                clearPreviewImages();
+                updateGenerateUI();
+            }
             state.currentStep--;
             if (state.currentStep === 3) {
                 state.customizeSubStep = 1;

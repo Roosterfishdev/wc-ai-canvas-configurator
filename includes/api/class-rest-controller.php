@@ -543,14 +543,16 @@ class REST_Controller {
             );
         }
 
-        // Update build with customization options; set cropped_key now (crop step is stub: same as original).
-        // Lets clients see cropped URL immediately and survives slow/missed cron until AI runs — worker still overwrites safely.
+        // Update build with customization options; clear prior outputs so polls cannot treat stale art as ready.
         $repository->update_by_uuid(
             $build_uuid,
             array(
                 'customization_options' => $customization_options,
-                'status'                 => Build::STATUS_PROCESSING,
-                'cropped_key'            => $build->original_key,
+                'status'                => Build::STATUS_PROCESSING,
+                'cropped_key'           => $build->original_key,
+                'final_art_key'         => '',
+                'mockup_key'            => '',
+                'error_message'         => '',
             )
         );
 
@@ -627,8 +629,7 @@ class REST_Controller {
 
         // Build response with URLs
         $storage  = R2_Storage::instance();
-        $is_ready = ( $build->status === Build::STATUS_READY )
-            || ( ! empty( $build->final_art_key ) && $build->status !== Build::STATUS_FAILED );
+        $is_ready = ( $build->status === Build::STATUS_READY );
 
         $payload = array(
             'build_uuid'           => $build->build_uuid,

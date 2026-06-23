@@ -283,7 +283,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </div>
                 <div class="wc-aicc-preview-item">
                     <h4><?php esc_html_e( 'Room Mockup', 'wc-aicc' ); ?></h4>
-                    <img id="wc-aicc-mockup-preview" src="" alt="<?php esc_attr_e( 'Room mockup', 'wc-aicc' ); ?>" />
+                    <?php echo \WC_AICC\Config\Preview_Watermark::open_wrapper(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                    <img id="wc-aicc-mockup-preview" class="wc-aicc-art-preview__image" src="" alt="<?php esc_attr_e( 'Room mockup', 'wc-aicc' ); ?>" draggable="false" />
+                    <?php echo \WC_AICC\Config\Preview_Watermark::render_overlay_markup(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                    <?php echo \WC_AICC\Config\Preview_Watermark::close_wrapper(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </div>
             </div>
 
