@@ -929,14 +929,15 @@
 
 /* Step 4: equal-sized preview frames (portrait canvas ratio; mockup letterboxed inside) */
 .wc-aicc-step-4 .wc-aicc-preview-grid {
-    max-width: 932px;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
 }
 
 .wc-aicc-step-4 .wc-aicc-preview-item .wc-aicc-art-preview {
     display: block;
-    width: min(100%, 450px);
+    width: 100%;
+    max-width: none;
     aspect-ratio: 4 / 5;
     margin: 0 auto;
     background: #f3ede4;
@@ -989,12 +990,19 @@
     width: 100%;
 }
 
-.woocommerce .wc-aicc-art-preview {
+/* Step 4 previews must not inherit WooCommerce cart thumbnail sizing (max-width: 120px) */
+.wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-art-preview {
+    max-width: none;
+    vertical-align: initial;
+}
+
+/* Cart / checkout line-item thumbnails only */
+.woocommerce table.shop_table .wc-aicc-art-preview {
     max-width: 120px;
     vertical-align: middle;
 }
 
-.woocommerce .wc-aicc-art-preview__image {
+.woocommerce table.shop_table .wc-aicc-art-preview__image {
     width: 100%;
     height: auto;
 }
