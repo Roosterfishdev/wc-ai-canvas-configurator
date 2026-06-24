@@ -1195,6 +1195,14 @@
         const finalArtImg = document.getElementById('wc-aicc-final-art-preview');
         const mockupImg = document.getElementById('wc-aicc-mockup-preview');
 
+        [finalArtImg, mockupImg].forEach(function(img) {
+            if (!img) {
+                return;
+            }
+            img.removeAttribute('width');
+            img.removeAttribute('height');
+        });
+
         if (finalArtImg && state.finalArtUrl) {
             finalArtImg.src = state.finalArtUrl;
         }

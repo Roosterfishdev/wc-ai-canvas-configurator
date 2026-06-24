@@ -277,14 +277,14 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <div class="wc-aicc-preview-item">
                     <h4><?php esc_html_e( 'Final Artwork', 'wc-aicc' ); ?></h4>
                     <?php echo \WC_AICC\Config\Preview_Watermark::open_wrapper(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                    <img id="wc-aicc-final-art-preview" class="wc-aicc-art-preview__image" src="" alt="<?php esc_attr_e( 'Final artwork', 'wc-aicc' ); ?>" draggable="false" />
+                    <img id="wc-aicc-final-art-preview" class="wc-aicc-art-preview__image" src="" alt="<?php esc_attr_e( 'Final artwork', 'wc-aicc' ); ?>" draggable="false" style="width:100%;max-width:none;height:auto;display:block;" />
                     <?php echo \WC_AICC\Config\Preview_Watermark::render_overlay_markup(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     <?php echo \WC_AICC\Config\Preview_Watermark::close_wrapper(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </div>
                 <div class="wc-aicc-preview-item">
                     <h4><?php esc_html_e( 'Room Mockup', 'wc-aicc' ); ?></h4>
                     <?php echo \WC_AICC\Config\Preview_Watermark::open_wrapper(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                    <img id="wc-aicc-mockup-preview" class="wc-aicc-art-preview__image" src="" alt="<?php esc_attr_e( 'Room mockup', 'wc-aicc' ); ?>" draggable="false" />
+                    <img id="wc-aicc-mockup-preview" class="wc-aicc-art-preview__image" src="" alt="<?php esc_attr_e( 'Room mockup', 'wc-aicc' ); ?>" draggable="false" style="width:100%;max-width:none;height:auto;display:block;" />
                     <?php echo \WC_AICC\Config\Preview_Watermark::render_overlay_markup(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     <?php echo \WC_AICC\Config\Preview_Watermark::close_wrapper(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </div>

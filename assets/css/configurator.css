@@ -927,26 +927,35 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Step 4: full-width previews (same display as stub mockup era — image drives frame size) */
-.wc-aicc-step-4 .wc-aicc-preview-grid {
+/* Step 4 previews — full column width; beat WooCommerce/theme product img rules */
+.woocommerce #wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-preview-grid,
+#wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-preview-grid {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
 }
 
-.wc-aicc-step-4 .wc-aicc-preview-item .wc-aicc-art-preview {
-    display: block;
+.woocommerce #wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-preview-item,
+#wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-preview-item {
     width: 100%;
-    max-width: none;
-    margin: 0 auto;
+    min-width: 0;
 }
 
-.wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-art-preview__image {
-    position: static;
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
+.woocommerce #wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-art-preview,
+#wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-art-preview {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 auto;
+    vertical-align: initial;
+}
+
+.woocommerce #wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-art-preview__image,
+#wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-art-preview__image {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
 }
 
 .wc-aicc-preview-item > img {
@@ -984,12 +993,6 @@
 
 .wc-aicc-preview-item--cart .wc-aicc-art-preview__image {
     width: 100%;
-}
-
-/* Step 4 previews must not inherit WooCommerce cart thumbnail sizing (max-width: 120px) */
-.wc-aicc-configurator .wc-aicc-step-4 .wc-aicc-art-preview {
-    max-width: none;
-    vertical-align: initial;
 }
 
 /* Cart / checkout line-item thumbnails only */
