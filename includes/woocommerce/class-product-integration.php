@@ -13,6 +13,7 @@ namespace WC_AICC\WooCommerce;
 use WC_AICC\Admin\Settings;
 use WC_AICC\Config\Size_Aspect_Map;
 use WC_AICC\Config\Size_Display;
+use WC_AICC\Config\Photo_Guidelines;
 use WC_AICC\Config\Sizing_Guide;
 
 // Prevent direct access
@@ -360,6 +361,7 @@ class Product_Integration {
                 'customizeFlow' => \WC_AICC\Config\Prompt_Builder::get_customize_flow_meta(),
                 'styleCustomizeFlows' => \WC_AICC\Config\Prompt_Builder::get_style_customize_flows(),
                 'sizingGuide'         => Sizing_Guide::get_panel_data(),
+                'photoGuidelines'     => Photo_Guidelines::get_panel_data(),
                 'previewWatermark'    => \WC_AICC\Config\Preview_Watermark::is_enabled(),
                 'restUrl'     => rest_url( 'wc-aicc/v1' ),
                 'nonce'       => wp_create_nonce( 'wp_rest' ),

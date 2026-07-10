@@ -2,8 +2,7 @@
 /**
  * Prompt Builder
  *
- * Builds normalized prompts from style + character/situation + background color.
- * Merges layers intelligently (neutral minimizes change; some situations override composition).
+ * Builds normalized prompts from style preset + background color selections.
  *
  * @package WC_AICC\Config
  */
@@ -42,385 +41,30 @@ class Prompt_Builder {
     );
 
     /**
-     * Per-style definition: core prompt fragments + optional composition hint + extra negatives
-     * (Aligned with client style briefs; subject wording generalized from pet-specific lines.)
+     * Style preset definitions (portrait theme cards).
      *
-     * @var array
+     * @return array
      */
-    const STYLE_DEFINITIONS = array(
-        'warhol_grid' => array(
-            'core' => array(
-                '(masterpiece:1.2), Andy Warhol iconic pop art screen-print portrait',
-                'high-end pop art poster design',
-                'the same subject from the input image',
-                'preserve facial structure and markings, coat pattern and proportions from the reference',
-                'translate fur or coat into bold graphic shapes and flat color fills',
-                'four-panel grid composition in the style of Warhol Marilyn / Queen Elizabeth repeats',
-                'four square panels in a two-by-two grid, same portrait repeated',
-                'each quadrant with distinct saturated colorways and silkscreen separation',
-                'flat ink blocks with slight imperfect registration cues',
-                'high contrast palettes, acetone or litho pop texture optional',
-                'bold contours, celebrity portrait billboard energy',
-                'close-up head and upper chest readable in each panel',
-                'playful iconic mass-media attitude',
-                'minimal noise inside panels',
-            ),
-            'composition' => 'four equal quadrants, aligned subject placement in each panel',
-            'negative_extra' => array(
-                'no text, no watermark, no logo, no magazine masthead',
-                'no extra animals',
-                'no human figure replacement for the pet subject unless present in reference',
-                'no exaggerated anatomy',
-                'no distorted faces',
-                'no deformed eyes',
-                'no low quality render',
-                'no photoreal candid photo',
-                'no watercolor or oil painterly brush chaos',
-                'no single lonely panel unless grid implied',
-                'no 3D CGI look',
-            ),
-        ),
-        'watercolor' => array(
-            'core' => array(
-                '(masterpiece:1.2), (watercolor illustration:1.4)',
-                'high-end watercolor painting',
-                'the same subject from the input image',
-                'preserve facial structure and markings, coat pattern and proportions from the reference',
-                'translate real coat into soft watercolor brush textures',
-                'cute stylized watercolor character design',
-                'expressive eyes, soft rounded facial features',
-                'delicate watercolor shading',
-                'fine brush strokes and pigment diffusion',
-                'traditional watercolor painting technique',
-                'subtle color bleeding and layered washes',
-                'close-up head and chest portrait',
-                'warm friendly personality expression',
-                'ultra refined watercolor illustration quality',
-                'storybook watercolor illustration aesthetic',
-                'simple clean watercolor paper background',
-            ),
-            'composition' => 'portrait-oriented composition with breathing room',
-            'negative_extra' => array(
-                'no text, no watermark, no logo',
-                'no extra animals',
-                'no human features',
-                'no breed or species change from the reference',
-                'no exaggerated anatomy',
-                'no distorted faces',
-                'no deformed eyes',
-                'no low quality render',
-                'no blurry details',
-                'no oil painting style',
-                'no digital 3D render',
-            ),
-        ),
-        'pop_art' => array(
-            'core' => array(
-                '(masterpiece:1.2), (pop art illustration:1.4)',
-                'high-end pop art portrait',
-                'the same subject from the input image',
-                'preserve facial structure and markings, coat pattern and proportions from the reference',
-                'translate real coat into bold graphic shapes and flat color areas',
-                'iconic pop art character design',
-                'large expressive eyes, simplified facial features',
-                'bold outlines and strong graphic contrast',
-                'vibrant saturated colors',
-                'clean vector-like illustration style',
-                'bold commercial illustration poster energy',
-                'close-up head and chest portrait',
-                'playful and energetic personality expression',
-                'high contrast color blocking',
-                'modern pop art poster style',
-                'simple bright graphic background with geometric shapes',
-            ),
-            'composition' => 'strong graphic composition, centered subject',
-            'negative_extra' => array(
-                'no text, no watermark, no logo',
-                'no extra animals',
-                'no human features',
-                'no breed or species change from the reference',
-                'no exaggerated anatomy',
-                'no distorted faces',
-                'no deformed eyes',
-                'no low quality render',
-                'no blurry details',
-                'no photorealism',
-                'no watercolor style',
-                'no 3D render',
-            ),
-        ),
-        'pixar' => array(
-            'core' => array(
-                '(masterpiece:1.2), (pixar style 3D animation:1.4)',
-                'high-end animated film character render',
-                'the same subject from the input image',
-                'preserve facial structure and markings, coat pattern and proportions from the reference',
-                'translate real coat into stylized soft animated fur or surface',
-                'cute stylized character design',
-                'large expressive eyes, soft rounded facial features',
-                'clean cinematic lighting',
-                'smooth detailed fur or coat shading',
-                '3D animated film quality rendering',
-                'close-up head and chest portrait',
-                'warm friendly personality expression',
-                'ultra polished animation studio quality',
-                'Pixar style character design, modern animated film aesthetic',
-                'simple clean studio background',
-            ),
-            'composition' => 'clear readable pose, portrait-friendly framing',
-            'negative_extra' => array(
-                'no text, no watermark, no logo',
-                'no extra animals',
-                'no human features',
-                'no breed or species change from the reference',
-                'no exaggerated anatomy',
-                'no distorted faces',
-                'no deformed eyes',
-                'no low quality render',
-                'no blurry details',
-            ),
-        ),
-        'impasto' => array(
-            'core' => array(
-                '(masterpiece:1.3), (impasto oil painting:1.4)',
-                'thick textured oil paint, palette knife strokes',
-                'the same subject from the input image',
-                'preserve facial structure and markings, coat pattern and proportions from the reference',
-                'translate coat texture into painterly brush texture',
-                'close-up head and chest portrait',
-                'expressive eyes',
-                'heavy layered oil paint, raised ridges, visible brush direction',
-                'fine art museum quality',
-            ),
-            'composition' => 'balanced portrait-friendly composition',
-            'negative_extra' => array(
-                'no text, no watermark, no logo',
-                'no extra animals',
-                'no human features',
-                'no breed or species change from the reference',
-                'no exaggerated anatomy',
-            ),
-        ),
-        'american_traditional_tattoo' => array(
-            'core' => array(
-                '(masterpiece:1.2), american traditional tattoo flash illustration',
-                'the same subject from the input image',
-                'preserve facial structure and markings, coat pattern and proportions from the reference',
-                'bold traditional tattoo portrait of the subject head',
-                'side view or three-quarter head portrait',
-                'strong expressive look, optional dramatic attitude',
-                'bold american traditional tattoo style',
-                'thick black outlines',
-                'heavy black linework',
-                'flat color fills',
-                'high contrast shapes',
-                'limited traditional tattoo color palette',
-                'black, red, cream, muted green',
-                'classic tattoo flash sheet aesthetic',
-                'clean vector-like illustration',
-                'minimal shading',
-                'decorative tattoo elements around the head',
-                'spider webs',
-                'spark stars',
-                'lightning bolts',
-                'clean background',
-                'tattoo flash design',
-            ),
-            'composition' => 'strong central subject, tattoo flash clarity',
-            'negative_extra' => array(
-                'no text, no watermark, no logo',
-                'no low quality render',
-                'no blurry details',
-            ),
-        ),
-        'magazine_dogue' => array(
-            'skip_identity_lines'    => true,
-            'skip_situation'         => true,
-            'allows_cover_text'      => true,
-            'core'                   => array(
-                'using the uploaded dog photo as the exact facial reference, fur coloration, head shape, ear shape, nose, eyes, expression, and breed characteristics',
-                'luxury fashion magazine cover portrait featuring this dog as an elegant high-fashion icon',
-                'vertical portrait magazine cover matching the canvas aspect ratio, dog centered, head and upper chest',
-                'generous top margin reserved for masthead, large DOGUE masthead fully visible at top with complete uncropped lettering',
-                'facing slightly off-camera, no additional headlines or cover text, clean negative space below masthead',
-                'oversized black cat-eye sunglasses, elegant silk headscarf tied under the chin, pearl necklace',
-                'vintage European luxury styling, sophisticated fashion-editorial aesthetic, confident timeless attitude',
-                'flat color backdrop, no props, no texture, minimalist composition',
-                'this is NOT a photograph',
-                'premium editorial illustration with the appearance of a hand-painted digital portrait',
-                'stylized luxury illustration, soft painterly brushwork, visible brushstroke texture',
-                'smooth painted fur rendering, simplified editorial shapes, refined color blocking',
-                'high-end fashion illustration, minimal realism, premium poster aesthetic, contemporary gallery artwork',
-                'clean edges, elegant painted finish',
-                'soft studio-inspired lighting, gentle shadows, warm highlights, luxury color grading, minimal contrast, sophisticated editorial mood',
-                'preserve exact appearance of the uploaded dog, fur color, facial proportions, eye shape, nose shape, ear shape, breed characteristics',
-                'do not humanize facial features',
-                'luxury fashion illustration, museum-quality pet portrait, high-end editorial artwork, premium print quality',
-                'modern minimalist design, fashion campaign aesthetic',
-                'in the style of luxury Vogue editorials, contemporary fashion illustration, digital oil painting',
-                'luxury pet portrait artwork, modern editorial design, painted magazine cover, premium gallery print, minimalist luxury branding',
-            ),
-            'composition' => 'portrait magazine cover, full DOGUE masthead visible with top safe margin, dog centered head and upper chest below masthead',
-            'negative_extra' => array(
-                'no cropped masthead, no cut-off or clipped DOGUE lettering at top edge',
-                'no headlines, captions, or cover lines except the single DOGUE masthead',
-                'no watermark, barcode, issue date, or extra typography',
-                'no photograph, photoreal snapshot, or camera realism',
-                'no extra animals or humans',
-                'no cluttered props, scenery, or textured background',
-                'no distorted anatomy, deformed eyes, or humanized facial features',
-                'no low quality, glitch artifacts, or cheesy HDR',
-            ),
-        ),
-        'royal_legacy' => array(
-            'skip_situation'         => true,
-            'skip_background_option' => true,
-            'core' => array(
-                '(masterpiece:1.2), majestic royal ancestral portrait mural',
-                'the same subject from the input image',
-                'preserve heraldic likeness, coat markings, stature from reference',
-                'dramatic Baroque or Tudor court illumination',
-                'sumptuous ermine trims, embroidered silk robes optional',
-                'ornate gilt frame vignette without literal heraldic typography',
-                'old master glazing, subtle craquelure',
-                'warm candlelit key with cool shadow fill balance',
-                'close-up ceremonial bust presentation',
-                'noble restrained expression grandeur',
-                'museum oil or tempera grandeur',
-                'rich gemstone color accents subdued',
-                'velvet drapery cascade background suggestion',
-                'storybook heirloom gravitas',
-            ),
-            'composition' => 'formal symmetrical crest-like portrait presence',
-            'negative_extra' => array(
-                'no text, watermark, coat-of-arms lettering',
-                'no modern office props',
-                'no flat pop vector look',
-                'no snapshot flash lighting',
-                'no exaggerated grotesque features',
-                'no grayscale unless palette chosen later',
-                'no cluttered contemporary UI',
-                'no muddy texture soup',
-                'no distorted anatomy',
-            ),
-        ),
-        'black_studio' => array(
-            'skip_identity_lines'    => true,
-            'skip_situation'         => true,
-            'skip_background_option' => true,
-            'requires_pet_name'      => true,
-            'core'                   => array(
-                'premium minimalist pet portrait poster using the uploaded pet photo as the exact facial structure, expression, fur color, markings, eye shape, nose shape, and overall likeness reference',
-                'hand-painted digital illustration, Procreate-style artwork',
-                'luxury pet portrait aesthetic, soft painterly brushwork, clean edge rendering',
-                'realistic fur interpretation rather than photorealism, high-end wall art, contemporary gallery poster design',
-                'vertical poster layout 2:3 ratio, pet centered horizontally',
-                'only head and upper chest visible, pet occupies approximately 30-40% of total canvas height',
-                'large negative space above the pet, portrait in lower third of canvas, symmetrical composition, no tilt',
-                'solid matte charcoal black background #1A1A1A, no gradients, no textures, no patterns, no scenery, no shadows on background',
-                'soft professional studio lighting, subtle highlights in eyes, gentle nose highlights, natural depth',
-                'no dramatic contrast, natural golden fur coloration preserved',
-                'luxury custom pet portrait brands, modern Scandinavian poster design, premium Etsy pet portrait aesthetic',
-                'Procreate digital painting, minimalist gallery wall artwork, clean contemporary illustration',
-                'ultra clean, print-ready, elegant, sophisticated, minimal, premium, museum-quality poster appearance',
-                'professionally commissioned Procreate painting not a photograph',
-                'highly recognizable pet from reference while simplifying fur into refined painterly brush strokes',
-            ),
-            'composition' => 'vertical 2:3 poster, pet head and upper chest in lower third, wide negative space above for name typography',
-            'negative_extra' => array(
-                'no collars, bandanas, accessories, clothing',
-                'no frames, borders, watermarks, decorative elements, background objects',
-                'no extra text beyond the pet name typography',
-                'no photographic effects, no 3D rendering',
-                'no gradients or textures on background',
-                'no scenery, no props',
-            ),
-        ),
-        'whiskey_office' => array(
-            'skip_situation'         => true,
-            'skip_background_option' => true,
-            'core' => array(
-                '(masterpiece:1.25), hyper-realistic cinematic portrait',
-                'use the uploaded dog as the exact character reference',
-                'preserve the dog facial features, fur color, proportions, expression, and identity',
-                'the dog portrayed as a powerful mob boss sitting behind a large executive desk in a luxurious private office',
-                'dark wood-paneled office',
-                'leather executive chair',
-                'crystal whiskey glass on the desk',
-                'vintage desk lamp',
-                'expensive watch',
-                'documents and cigar box on the desk',
-                'floor-to-ceiling windows with city lights outside',
-                'tailored three-piece Italian suit',
-                'white dress shirt, silk tie, gold watch, pocket square',
-                'warm cinematic lighting, moody shadows, Godfather-inspired atmosphere',
-                'soft rim light, high-end editorial photography',
-                '85mm lens, shallow depth of field, eye-level perspective',
-                'ultra-detailed fur rendering, professional studio quality',
-                'The Godfather mood, Martin Scorsese crime film atmosphere',
-                'Vanity Fair celebrity portrait polish, luxury lifestyle photography',
-                'confident, powerful, respected, intimidating but charismatic',
-                'ultra-realistic, photorealistic, 8K detail, natural fur texture',
-                'realistic paws, realistic canine anatomy, cinematic color grading',
-            ),
-            'composition' => 'eye-level executive desk portrait, mob boss seated behind desk, desk props and city window backdrop framing the subject',
-            'negative_extra' => array(
-                'no text, watermark, stock photo UI',
-                'no cartoon or flat illustration look',
-                'no human figure replacing the dog subject',
-                'no neon cyberpunk palette',
-                'no cluttered legible paperwork or readable documents',
-                'no extreme fish-eye distortion',
-                'no multiple duplicate subjects',
-                'no grotesque caricature or drunken comedy',
-                'no modern open-plan bright white office',
-                'no low quality render',
-                'no distorted canine anatomy',
-            ),
-        ),
-    );
+    public static function get_style_definitions() {
+        $file = __DIR__ . '/prompt-style-presets.php';
+        $defs = is_readable( $file ) ? include $file : array();
+        if ( ! is_array( $defs ) ) {
+            $defs = array();
+        }
+
+        /**
+         * @param array $defs Style slug => definition.
+         */
+        return apply_filters( 'wc_aicc_prompt_style_definitions', $defs );
+    }
 
     /**
-     * Situation / character context
-     *
-     * @var array
-     */
-    const SITUATION_DEFINITIONS = array(
-        'neutral' => array(
-            'minimal_transform' => true,
-            'lines'             => array(
-                'minimal transformation: keep the original pose, framing, and composition as close as the style allows',
-                'treat the style as a surface treatment over the existing layout, not a full scene rewrite',
-            ),
-        ),
-        'royal' => array(
-            'lines' => array(
-                'regal context: crown or tiara optional, royal robes or ermine-trimmed cloak',
-                'palace or velvet drapery hints, dignified ceremonial portrait',
-            ),
-        ),
-        'magazine_cover' => array(
-            'lines'                 => array(
-                'magazine cover treatment: bold editorial hero portrait',
-                'clear negative space or layout rhythm suitable for a masthead',
-            ),
-            'composition_priority' => 'editorial magazine cover layout with intentional headline space',
-        ),
-        'cowboy' => array(
-            'lines' => array(
-                'western cowboy context: hat, bandana or denim, rustic setting hints',
-                'rugged frontier portrait, golden hour or desert tones where appropriate',
-            ),
-        ),
-    );
-
-    /**
-     * Background color → prompt fragment (merged with style/situation)
+     * Background color → prompt fragment (merged with style preset)
      *
      * @var array
      */
     const BACKGROUND_PHRASES = array(
-        'natural'    => '',
+        'auto'       => '',
         'white'      => 'background: clean white or very light neutral studio backdrop',
         'black'      => 'background: deep black or charcoal seamless backdrop',
         'navy'       => 'background: rich navy and midnight blue tones',
@@ -438,29 +82,16 @@ class Prompt_Builder {
      * @var array
      */
     const DEFAULTS = array(
-        'style'              => 'warhol_grid',
-        'situation'          => 'neutral',
-        'background_color'   => 'natural',
-        'situation_custom'   => '',
-        'pet_name'           => '',
+        'style'            => 'original',
+        'background_color' => 'auto',
     );
-
-    /**
-     * Max length for pet name (Black Studio and similar styles).
-     */
-    const PET_NAME_MAX_LEN = 40;
-
-    /**
-     * Max length for free-text situation / character notes (after sanitization).
-     */
-    const SITUATION_CUSTOM_MAX_LEN = 500;
 
     /**
      * Ordered keys for customize sub-steps (UI + summaries)
      *
      * @var array
      */
-    const CUSTOMIZE_OPTION_ORDER = array( 'style', 'situation', 'background_color' );
+    const CUSTOMIZE_OPTION_ORDER = array( 'style', 'background_color' );
 
     /**
      * Subdirectory under wp-content/uploads for style card thumbnails.
@@ -475,9 +106,29 @@ class Prompt_Builder {
      * @var array<string, string[]>
      */
     private const STYLE_EXAMPLE_ALIASES = array(
-        'black_studio'   => array( 'black_white', 'Black Studio' ),
-        'magazine_dogue' => array( 'dogue', 'Dogue Cover' ),
-        'royal_legacy'   => array( 'Royal Legacy' ),
+        'magazine_cover' => array( 'magazine-cover', 'magazine_dogue', 'dogue', 'Dogue Cover' ),
+        'royal'          => array( 'royal_legacy', 'Royal Legacy' ),
+        'gentleman'      => array( 'whiskey_office', 'Whiskey Office' ),
+        'original'       => array( 'warhol_grid', 'black_studio', 'black_white', 'Black Studio' ),
+    );
+
+    /**
+     * Map legacy stored style keys to current preset slugs.
+     *
+     * @var array<string, string>
+     */
+    private const LEGACY_STYLE_MAP = array(
+        'warhol_grid'                  => 'original',
+        'watercolor'                   => 'original',
+        'pop_art'                      => 'original',
+        'pixar'                        => 'original',
+        'impasto'                      => 'original',
+        'american_traditional_tattoo'  => 'original',
+        'black_studio'                 => 'original',
+        'black_white'                  => 'original',
+        'magazine_dogue'               => 'magazine_cover',
+        'royal_legacy'                 => 'royal',
+        'whiskey_office'               => 'gentleman',
     );
 
     /**
@@ -503,7 +154,7 @@ class Prompt_Builder {
             }
             $out[] = array(
                 'key'   => $key,
-                'title' => $cfg[ $key ]['step_title'] ?? '',
+                'title' => $cfg[ $key ]['section_label'] ?? ( $cfg[ $key ]['label'] ?? '' ),
             );
         }
         return $out;
@@ -515,46 +166,10 @@ class Prompt_Builder {
      * @return array<string, array<int, array{key: string, title: string}>>
      */
     public static function get_style_customize_flows() {
-        $cfg   = self::get_options_config();
-        $flows = array(
-            'black_studio' => array(
-                array(
-                    'key'   => 'style',
-                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
-                ),
-                array(
-                    'key'   => 'pet_name',
-                    'title' => __( 'Pet name', 'wc-aicc' ),
-                ),
-            ),
-            'magazine_dogue' => array(
-                array(
-                    'key'   => 'style',
-                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
-                ),
-                array(
-                    'key'   => 'background_color',
-                    'title' => $cfg['background_color']['step_title'] ?? __( 'Select background color', 'wc-aicc' ),
-                ),
-            ),
-            'royal_legacy' => array(
-                array(
-                    'key'   => 'style',
-                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
-                ),
-            ),
-            'whiskey_office' => array(
-                array(
-                    'key'   => 'style',
-                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
-                ),
-            ),
-        );
-
         /**
          * @param array<string, array> $flows Style slug => ordered step definitions.
          */
-        return apply_filters( 'wc_aicc_style_customize_flows', $flows );
+        return apply_filters( 'wc_aicc_style_customize_flows', array() );
     }
 
     /**
@@ -580,122 +195,98 @@ class Prompt_Builder {
     public static function get_options_config() {
         $config = array(
             'style' => array(
-                'label'      => __( 'Style', 'wc-aicc' ),
-                'step'       => 1,
-                'step_title' => __( 'Select style', 'wc-aicc' ),
-                'type'       => 'cards',
-                'choices'    => array(
-                    'warhol_grid' => array(
-                        'label' => __( 'Warhol Grid', 'wc-aicc' ),
-                        'hint'  => __( 'Four-panel Andy Warhol style', 'wc-aicc' ),
-                    ),
-                    'watercolor' => array(
-                        'label' => __( 'Water Color', 'wc-aicc' ),
-                        'hint'  => __( 'Soft washes on paper', 'wc-aicc' ),
-                    ),
-                    'pop_art' => array(
-                        'label' => __( 'Pop Art', 'wc-aicc' ),
-                        'hint'  => __( 'Bold graphic color blocks', 'wc-aicc' ),
-                    ),
-                    'pixar' => array(
-                        'label' => __( 'Pixar', 'wc-aicc' ),
-                        'hint'  => __( '3D animated film look', 'wc-aicc' ),
-                    ),
-                    'impasto' => array(
-                        'label' => __( 'Impasto', 'wc-aicc' ),
-                        'hint'  => __( 'Thick textured oil paint', 'wc-aicc' ),
-                    ),
-                    'american_traditional_tattoo' => array(
-                        'label' => __( 'American Tradi', 'wc-aicc' ),
-                        'hint'  => __( 'Traditional tattoo flash', 'wc-aicc' ),
-                    ),
-                    'magazine_dogue' => array(
-                        'label' => __( 'Dogue Cover', 'wc-aicc' ),
-                        'hint'  => __( 'Luxury fashion magazine illustration', 'wc-aicc' ),
-                    ),
-                    'royal_legacy' => array(
-                        'label' => __( 'Royal Legacy', 'wc-aicc' ),
-                        'hint'  => __( 'Regal old-master portrait', 'wc-aicc' ),
-                    ),
-                    'black_studio' => array(
-                        'label' => __( 'Black Studio', 'wc-aicc' ),
-                        'hint'  => __( 'Minimal charcoal poster with pet name', 'wc-aicc' ),
-                    ),
-                    'whiskey_office' => array(
-                        'label' => __( 'Whiskey Office', 'wc-aicc' ),
-                        'hint'  => __( 'Mob boss executive portrait', 'wc-aicc' ),
-                    ),
-                ),
-            ),
-            'situation' => array(
-                'label'      => __( 'Character / situation', 'wc-aicc' ),
-                'step'       => 2,
-                'step_title' => __( 'Select character / situation', 'wc-aicc' ),
-                'type'       => 'cards',
-                'choices'    => array(
-                    'neutral' => array(
-                        'label' => __( 'Neutral', 'wc-aicc' ),
-                        'hint'  => __( 'Keeps your original composition', 'wc-aicc' ),
+                'label'          => __( 'Style', 'wc-aicc' ),
+                'section_label'  => __( 'Choose a style', 'wc-aicc' ),
+                'type'           => 'cards',
+                'choices'        => array(
+                    'original' => array(
+                        'label' => __( 'Original', 'wc-aicc' ),
+                        'hint'  => __( 'Stay true to your pet and reference photo.', 'wc-aicc' ),
                     ),
                     'royal' => array(
                         'label' => __( 'Royal', 'wc-aicc' ),
-                        'hint'  => __( 'Regal portrait treatment', 'wc-aicc' ),
+                        'hint'  => __( 'Regal king or queen portrait with elegant attire.', 'wc-aicc' ),
                     ),
                     'magazine_cover' => array(
                         'label' => __( 'Magazine Cover', 'wc-aicc' ),
-                        'hint'  => __( 'Cover-style layout & space', 'wc-aicc' ),
+                        'hint'  => __( 'Editorial-style cover with premium typography.', 'wc-aicc' ),
                     ),
                     'cowboy' => array(
                         'label' => __( 'Cowboy', 'wc-aicc' ),
-                        'hint'  => __( 'Western character context', 'wc-aicc' ),
+                        'hint'  => __( 'Western-inspired outfit and setting.', 'wc-aicc' ),
+                    ),
+                    'firefighter' => array(
+                        'label' => __( 'Firefighter', 'wc-aicc' ),
+                        'hint'  => __( 'Heroic firefighter uniform and dramatic setting.', 'wc-aicc' ),
+                    ),
+                    'astronaut' => array(
+                        'label' => __( 'Astronaut', 'wc-aicc' ),
+                        'hint'  => __( 'Space suit with a cosmic environment.', 'wc-aicc' ),
+                    ),
+                    'pirate' => array(
+                        'label' => __( 'Pirate', 'wc-aicc' ),
+                        'hint'  => __( 'Classic pirate outfit with an ocean or ship setting.', 'wc-aicc' ),
+                    ),
+                    'gentleman' => array(
+                        'label' => __( 'Gentleman', 'wc-aicc' ),
+                        'hint'  => __( 'Sophisticated formal portrait with elegant attire.', 'wc-aicc' ),
                     ),
                 ),
             ),
             'background_color' => array(
-                'label'      => __( 'Background color', 'wc-aicc' ),
-                'step'       => 3,
-                'step_title' => __( 'Select background color', 'wc-aicc' ),
-                'type'       => 'cards',
-                'choices'    => array(
-                    'natural' => array(
-                        'label' => __( 'Natural to style', 'wc-aicc' ),
-                        'hint'  => __( 'Let the AI choose', 'wc-aicc' ),
+                'label'          => __( 'Background', 'wc-aicc' ),
+                'section_label'  => __( 'Choose a background', 'wc-aicc' ),
+                'type'           => 'cards',
+                'choices'        => array(
+                    'auto' => array(
+                        'label'  => __( 'Auto', 'wc-aicc' ),
+                        'hint'   => __( 'AI chooses the best background.', 'wc-aicc' ),
+                        'swatch' => 'auto',
                     ),
                     'white' => array(
-                        'label' => __( 'White', 'wc-aicc' ),
-                        'hint'  => __( 'Clean studio light', 'wc-aicc' ),
+                        'label'  => __( 'White', 'wc-aicc' ),
+                        'hint'   => __( 'Clean studio background.', 'wc-aicc' ),
+                        'swatch' => '#f8f8f8',
                     ),
                     'black' => array(
-                        'label' => __( 'Black', 'wc-aicc' ),
-                        'hint'  => __( 'Deep dramatic backdrop', 'wc-aicc' ),
+                        'label'  => __( 'Black', 'wc-aicc' ),
+                        'hint'   => __( 'Deep dramatic background.', 'wc-aicc' ),
+                        'swatch' => '#1a1a1a',
                     ),
                     'navy' => array(
-                        'label' => __( 'Navy', 'wc-aicc' ),
-                        'hint'  => __( 'Midnight blues', 'wc-aicc' ),
+                        'label'  => __( 'Navy', 'wc-aicc' ),
+                        'hint'   => __( 'Rich midnight-blue background.', 'wc-aicc' ),
+                        'swatch' => '#1e3a5f',
                     ),
                     'cream' => array(
-                        'label' => __( 'Cream', 'wc-aicc' ),
-                        'hint'  => __( 'Warm ivory tones', 'wc-aicc' ),
+                        'label'  => __( 'Cream', 'wc-aicc' ),
+                        'hint'   => __( 'Warm ivory background.', 'wc-aicc' ),
+                        'swatch' => '#f5f0e6',
                     ),
                     'sage' => array(
-                        'label' => __( 'Sage', 'wc-aicc' ),
-                        'hint'  => __( 'Muted green', 'wc-aicc' ),
+                        'label'  => __( 'Sage', 'wc-aicc' ),
+                        'hint'   => __( 'Soft muted-green background.', 'wc-aicc' ),
+                        'swatch' => '#9caf88',
                     ),
                     'gray' => array(
-                        'label' => __( 'Gray', 'wc-aicc' ),
-                        'hint'  => __( 'Cool neutral', 'wc-aicc' ),
+                        'label'  => __( 'Gray', 'wc-aicc' ),
+                        'hint'   => __( 'Clean neutral-gray background.', 'wc-aicc' ),
+                        'swatch' => '#b0b0b0',
                     ),
                     'burgundy' => array(
-                        'label' => __( 'Burgundy', 'wc-aicc' ),
-                        'hint'  => __( 'Rich wine red', 'wc-aicc' ),
+                        'label'  => __( 'Burgundy', 'wc-aicc' ),
+                        'hint'   => __( 'Rich wine-red background.', 'wc-aicc' ),
+                        'swatch' => '#6b2d3e',
                     ),
                     'gold' => array(
-                        'label' => __( 'Gold', 'wc-aicc' ),
-                        'hint'  => __( 'Warm amber glow', 'wc-aicc' ),
+                        'label'  => __( 'Gold', 'wc-aicc' ),
+                        'hint'   => __( 'Warm golden background.', 'wc-aicc' ),
+                        'swatch' => '#c9a227',
                     ),
                     'teal' => array(
-                        'label' => __( 'Teal', 'wc-aicc' ),
-                        'hint'  => __( 'Turquoise depth', 'wc-aicc' ),
+                        'label'  => __( 'Teal', 'wc-aicc' ),
+                        'hint'   => __( 'Deep turquoise background.', 'wc-aicc' ),
+                        'swatch' => '#0d6e6e',
                     ),
                 ),
             ),
@@ -921,29 +512,13 @@ class Prompt_Builder {
             if ( $value === '' || $value === null ) {
                 continue;
             }
-            if ( 'background_color' === $key && 'natural' === $value ) {
+            if ( 'background_color' === $key && 'auto' === $value ) {
                 continue;
             }
             $label = self::get_choice_label( $key, $value );
             if ( $label !== '' ) {
                 $parts[] = $label;
             }
-        }
-
-        $custom = isset( $options['situation_custom'] ) ? trim( (string) $options['situation_custom'] ) : '';
-        if ( $custom !== '' ) {
-            $max   = 80;
-            $short = function_exists( 'mb_substr' ) ? mb_substr( $custom, 0, $max ) : substr( $custom, 0, $max );
-            $len   = function_exists( 'mb_strlen' ) ? mb_strlen( $custom ) : strlen( $custom );
-            if ( $len > $max ) {
-                $short .= '…';
-            }
-            $parts[] = __( 'Custom direction', 'wc-aicc' ) . ': ' . $short;
-        }
-
-        $pet_name = isset( $options['pet_name'] ) ? trim( (string) $options['pet_name'] ) : '';
-        if ( $pet_name !== '' ) {
-            $parts[] = __( 'Pet name', 'wc-aicc' ) . ': ' . $pet_name;
         }
 
         return $parts;
@@ -960,19 +535,15 @@ class Prompt_Builder {
         $options = self::sanitize_options( is_array( $options ) ? $options : array() );
         $context = is_array( $context ) ? $context : array();
 
-        $style_key     = $options['style'];
-        $situation_key = $options['situation'];
-        $bg_key        = $options['background_color'];
+        $style_key = $options['style'];
+        $bg_key    = $options['background_color'];
 
-        $styles     = apply_filters( 'wc_aicc_prompt_style_definitions', self::STYLE_DEFINITIONS );
-        $situations = apply_filters( 'wc_aicc_prompt_situation_definitions', self::SITUATION_DEFINITIONS );
-        $bg_map     = apply_filters( 'wc_aicc_prompt_background_phrases', self::BACKGROUND_PHRASES );
+        $styles = self::get_style_definitions();
+        $bg_map = apply_filters( 'wc_aicc_prompt_background_phrases', self::BACKGROUND_PHRASES );
 
-        $style_def = $styles[ $style_key ] ?? $styles['warhol_grid'];
-        $sit_def   = $situations[ $situation_key ] ?? $situations['neutral'];
-
-        $skip_situation = ! empty( $style_def['skip_situation'] );
-        $skip_bg        = ! empty( $style_def['skip_background_option'] );
+        $fallback  = $styles['original'] ?? ( ! empty( $styles ) ? reset( $styles ) : array() );
+        $style_def = $styles[ $style_key ] ?? $fallback;
+        $skip_bg   = ! empty( $style_def['skip_background_option'] );
 
         $prompt_parts = array();
 
@@ -991,30 +562,7 @@ class Prompt_Builder {
             $prompt_parts = array_merge( $prompt_parts, $style_def['core'] );
         }
 
-        // Pet name typography (Black Studio).
-        if ( ! empty( $style_def['requires_pet_name'] ) ) {
-            $pet_name = self::sanitize_pet_name( $options['pet_name'] ?? '' );
-            if ( $pet_name !== '' ) {
-                $prompt_parts[] = 'Pet name: "' . $pet_name . '" centered above the pet, modern minimalist sans-serif font, all uppercase, white text, wide letter spacing, small size relative to canvas, luxury editorial aesthetic';
-            }
-        }
-
-        // Situation context (skipped for minimal poster styles).
-        if ( ! $skip_situation && ! empty( $sit_def['lines'] ) && is_array( $sit_def['lines'] ) ) {
-            $prompt_parts = array_merge( $prompt_parts, $sit_def['lines'] );
-        }
-
-        if ( ! $skip_situation ) {
-            $situation_custom = isset( $options['situation_custom'] ) ? trim( (string) $options['situation_custom'] ) : '';
-            if ( $situation_custom !== '' ) {
-                $prompt_parts[] = 'additional character / situation direction from customer: ' . $situation_custom;
-            }
-        }
-
-        // Composition: situation override wins; neutral skips default style framing to avoid fighting the source crop
-        if ( ! $skip_situation && ! empty( $sit_def['composition_priority'] ) ) {
-            $prompt_parts[] = 'composition priority: ' . $sit_def['composition_priority'];
-        } elseif ( ( $skip_situation || empty( $sit_def['minimal_transform'] ) ) && ! empty( $style_def['composition'] ) ) {
+        if ( ! empty( $style_def['composition'] ) ) {
             $prompt_parts[] = $style_def['composition'];
         }
 
@@ -1037,7 +585,7 @@ class Prompt_Builder {
         $prompt = implode( ', ', array_filter( array_map( 'trim', $prompt_parts ) ) );
 
         $negative = self::CONSTRAINTS;
-        if ( ! empty( $style_def['requires_pet_name'] ) || ! empty( $style_def['allows_cover_text'] ) ) {
+        if ( ! empty( $style_def['allows_cover_text'] ) ) {
             $negative = array_values(
                 array_filter(
                     $negative,
@@ -1076,12 +624,18 @@ class Prompt_Builder {
     public static function sanitize_options( $raw ) {
         $raw = is_array( $raw ) ? $raw : array();
 
+        if ( isset( $raw['style'] ) && is_string( $raw['style'] ) && isset( self::LEGACY_STYLE_MAP[ $raw['style'] ] ) ) {
+            $raw['style'] = self::LEGACY_STYLE_MAP[ $raw['style'] ];
+        }
         if ( isset( $raw['style'] ) && 'black_white' === $raw['style'] ) {
-            $raw['style'] = 'black_studio';
+            $raw['style'] = 'original';
+        }
+        if ( isset( $raw['background_color'] ) && 'natural' === $raw['background_color'] ) {
+            $raw['background_color'] = 'auto';
         }
 
-        $config  = self::get_options_config();
-        $result  = array();
+        $config = self::get_options_config();
+        $result = array();
 
         foreach ( array_keys( $config ) as $key ) {
             $value   = isset( $raw[ $key ] ) ? sanitize_text_field( $raw[ $key ] ) : '';
@@ -1092,9 +646,6 @@ class Prompt_Builder {
                 $result[ $key ] = self::DEFAULTS[ $key ] ?? '';
             }
         }
-
-        $result['situation_custom'] = self::sanitize_situation_custom( $raw['situation_custom'] ?? '' );
-        $result['pet_name']         = self::sanitize_pet_name( $raw['pet_name'] ?? '' );
 
         return wp_parse_args( $result, self::DEFAULTS );
     }
@@ -1111,55 +662,5 @@ class Prompt_Builder {
             return $t;
         }
         return '';
-    }
-
-    /**
-     * Sanitize pet name for poster typography.
-     *
-     * @param mixed $raw Raw value.
-     * @return string Uppercase ASCII-safe name for prompt injection.
-     */
-    public static function sanitize_pet_name( $raw ) {
-        $t = sanitize_text_field( is_string( $raw ) ? $raw : '' );
-        $t = wp_strip_all_tags( $t );
-        $t = preg_replace( '/[^\p{L}\p{N}\s\'\-]/u', '', $t );
-        $t = preg_replace( '/\s+/u', ' ', $t );
-        $t = trim( $t );
-        $max = (int) self::PET_NAME_MAX_LEN;
-        if ( $max < 1 ) {
-            return '';
-        }
-        if ( function_exists( 'mb_strlen' ) && mb_strlen( $t ) > $max ) {
-            $t = mb_substr( $t, 0, $max );
-        } elseif ( strlen( $t ) > $max ) {
-            $t = substr( $t, 0, $max );
-        }
-        if ( function_exists( 'mb_strtoupper' ) ) {
-            return mb_strtoupper( $t, 'UTF-8' );
-        }
-        return strtoupper( $t );
-    }
-
-    /**
-     * Sanitize free-text character / situation notes from the customer.
-     *
-     * @param mixed $raw Raw value.
-     * @return string
-     */
-    public static function sanitize_situation_custom( $raw ) {
-        $t = sanitize_textarea_field( is_string( $raw ) ? $raw : '' );
-        $t = wp_strip_all_tags( $t );
-        $t = preg_replace( '/\s+/u', ' ', $t );
-        $t = trim( $t );
-        $max = (int) self::SITUATION_CUSTOM_MAX_LEN;
-        if ( $max < 1 ) {
-            return '';
-        }
-        if ( function_exists( 'mb_strlen' ) && mb_strlen( $t ) > $max ) {
-            $t = mb_substr( $t, 0, $max );
-        } elseif ( strlen( $t ) > $max ) {
-            $t = substr( $t, 0, $max );
-        }
-        return $t;
     }
 }

@@ -98,7 +98,12 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div class="wc-aicc-step wc-aicc-step-2" data-step="2" style="display: none;">
             <div class="wc-aicc-step-header">
                 <h3><?php esc_html_e( 'Upload Your Image', 'wc-aicc' ); ?></h3>
-                <p><?php esc_html_e( 'Upload a high-quality photo to transform into art.', 'wc-aicc' ); ?></p>
+                <p class="wc-aicc-upload-subtitle">
+                    <?php esc_html_e( 'Upload a clear, front-facing photo of your pet for the best results.', 'wc-aicc' ); ?>
+                    <button type="button" class="wc-aicc-photo-guidelines-open" aria-haspopup="dialog">
+                        <?php esc_html_e( 'Read full guidelines', 'wc-aicc' ); ?>
+                    </button>
+                </p>
             </div>
 
             <div class="wc-aicc-upload-preview"></div>
@@ -129,18 +134,18 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
         </div>
 
-        <!-- Step 3: Customize (3 sub-steps: style → situation → background) -->
+        <!-- Step 3: Customize (style → background) -->
         <div class="wc-aicc-step wc-aicc-step-3" data-step="3" style="display: none;">
             <div class="wc-aicc-step-header wc-aicc-step-header--customize">
                 <h3><?php esc_html_e( 'Customize your artwork', 'wc-aicc' ); ?></h3>
-                <p><?php esc_html_e( 'Take it one step at a time: style, then context, then background.', 'wc-aicc' ); ?></p>
+                <p><?php esc_html_e( 'Personalize your pet portrait in two quick steps.', 'wc-aicc' ); ?></p>
             </div>
 
             <?php
             $options_config = \WC_AICC\Config\Prompt_Builder::get_options_config();
             $defaults       = \WC_AICC\Config\Prompt_Builder::DEFAULTS;
-            $option_order = \WC_AICC\Config\Prompt_Builder::get_customize_option_order();
-            $panel_keys   = array_values(
+            $option_order   = \WC_AICC\Config\Prompt_Builder::get_customize_option_order();
+            $panel_keys     = array_values(
                 array_filter(
                     $option_order,
                     static function ( $key ) use ( $options_config ) {
@@ -148,25 +153,26 @@ if ( ! defined( 'ABSPATH' ) ) {
                     }
                 )
             );
-            $total_sub    = count( $panel_keys );
+            $total_sub      = count( $panel_keys );
             ?>
 
             <div class="wc-aicc-customize-substeps">
                 <?php
                 foreach ( $panel_keys as $idx => $option_key ) :
-                    $option    = $options_config[ $option_key ];
-                    $sub_index = $idx + 1;
-                    $default   = $defaults[ $option_key ] ?? '';
-                    $is_last   = ( $idx === $total_sub - 1 );
+                    $option         = $options_config[ $option_key ];
+                    $sub_index      = $idx + 1;
+                    $default        = $defaults[ $option_key ] ?? '';
+                    $is_last        = ( $idx === $total_sub - 1 );
+                    $section_label  = $option['section_label'] ?? ( $option['label'] ?? '' );
+                    $is_background  = 'background_color' === $option_key;
+                    $cards_modifier = 'style' === $option_key ? ' wc-aicc-choice-cards--style' : ( $is_background ? ' wc-aicc-choice-cards--background' : '' );
                     ?>
                     <div class="wc-aicc-customize-panel" data-customize-key="<?php echo esc_attr( $option_key ); ?>" data-customize-substep="<?php echo esc_attr( (string) $sub_index ); ?>" <?php echo 1 === $sub_index ? '' : 'style="display: none;"'; ?>>
-                        <div class="wc-aicc-customize-panel__intro">
-                            <span class="wc-aicc-customize-badge" aria-hidden="true"><?php echo esc_html( sprintf( '3.%d', $sub_index ) ); ?></span>
-                            <h4 class="wc-aicc-customize-panel__title"><?php echo esc_html( $option['step_title'] ?? $option['label'] ); ?></h4>
-                            <p class="wc-aicc-customize-panel__meta"><?php echo esc_html( sprintf( __( 'Step %1$d of %2$d', 'wc-aicc' ), $sub_index, $total_sub ) ); ?></p>
-                        </div>
+                        <?php if ( $section_label ) : ?>
+                            <p class="wc-aicc-customize-section-label"><?php echo esc_html( $section_label ); ?></p>
+                        <?php endif; ?>
 
-                        <div class="wc-aicc-choice-cards<?php echo 'style' === $option_key ? ' wc-aicc-choice-cards--style' : ''; ?>" role="group" aria-label="<?php echo esc_attr( $option['label'] ); ?>">
+                        <div class="wc-aicc-choice-cards<?php echo esc_attr( $cards_modifier ); ?>" role="group" aria-label="<?php echo esc_attr( $option['label'] ); ?>">
                             <?php foreach ( $option['choices'] as $value => $choice_meta ) : ?>
                                 <?php
                                 $label = is_array( $choice_meta ) && isset( $choice_meta['label'] ) ? $choice_meta['label'] : (string) $choice_meta;
@@ -180,40 +186,48 @@ if ( ! defined( 'ABSPATH' ) ) {
                                         $thumb = \WC_AICC\Config\Prompt_Builder::resolve_style_example_image_url( (string) $value );
                                     }
                                 }
-                                $card_mod = $thumb ? ' wc-aicc-choice-card--with-thumb' : '';
+                                $swatch = ( is_array( $choice_meta ) && ! empty( $choice_meta['swatch'] ) ) ? (string) $choice_meta['swatch'] : '';
+                                $card_mod = '';
+                                if ( $thumb ) {
+                                    $card_mod .= ' wc-aicc-choice-card--with-thumb';
+                                }
+                                if ( $swatch ) {
+                                    $card_mod .= ' wc-aicc-choice-card--with-swatch';
+                                }
+                                $aria_label = $label;
+                                if ( $hint ) {
+                                    $aria_label .= '. ' . $hint;
+                                }
                                 ?>
                                 <button type="button"
                                         class="wc-aicc-choice-card<?php echo esc_attr( $card_mod . $sel ); ?>"
                                         data-option-key="<?php echo esc_attr( $option_key ); ?>"
-                                        data-value="<?php echo esc_attr( $value ); ?>">
+                                        data-value="<?php echo esc_attr( $value ); ?>"
+                                        aria-pressed="<?php echo $sel ? 'true' : 'false'; ?>"
+                                        aria-label="<?php echo esc_attr( $aria_label ); ?>">
+                                    <?php if ( $swatch ) : ?>
+                                        <span class="wc-aicc-choice-card__swatch<?php echo 'auto' === $swatch ? ' wc-aicc-choice-card__swatch--auto' : ''; ?>"<?php echo 'auto' !== $swatch ? ' style="--wc-aicc-swatch: ' . esc_attr( $swatch ) . ';"' : ''; ?> aria-hidden="true"></span>
+                                    <?php endif; ?>
                                     <?php if ( $thumb ) : ?>
                                         <span class="wc-aicc-choice-card__thumb">
                                             <img src="<?php echo esc_url( $thumb ); ?>" alt="" loading="lazy" decoding="async" width="200" height="240" />
                                         </span>
                                     <?php endif; ?>
-                                    <span class="wc-aicc-choice-card__label"><?php echo esc_html( $label ); ?></span>
-                                    <?php if ( $hint ) : ?>
-                                        <span class="wc-aicc-choice-card__hint"><?php echo esc_html( $hint ); ?></span>
-                                    <?php endif; ?>
+                                    <span class="wc-aicc-choice-card__body">
+                                        <span class="wc-aicc-choice-card__label"><?php echo esc_html( $label ); ?></span>
+                                        <?php if ( $hint ) : ?>
+                                            <span class="wc-aicc-choice-card__hint"><?php echo esc_html( $hint ); ?></span>
+                                        <?php endif; ?>
+                                    </span>
+                                    <span class="wc-aicc-choice-card__check" aria-hidden="true">
+                                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="9" cy="9" r="9" fill="currentColor"/>
+                                            <path d="M5 9.2L7.6 11.8L13 6.4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </span>
                                 </button>
                             <?php endforeach; ?>
                         </div>
-
-                        <?php if ( 'situation' === $option_key ) : ?>
-                            <div class="wc-aicc-situation-custom-wrap">
-                                <label for="wc-aicc-situation-custom" class="wc-aicc-situation-custom-label">
-                                    <?php esc_html_e( 'Describe what you want (optional)', 'wc-aicc' ); ?>
-                                </label>
-                                <textarea
-                                    id="wc-aicc-situation-custom"
-                                    class="wc-aicc-situation-custom-input"
-                                    name="wc_aicc_situation_custom"
-                                    rows="3"
-                                    maxlength="500"
-                                    placeholder="<?php esc_attr_e( 'E.g. sitting on a throne, wearing a crown, playful expression…', 'wc-aicc' ); ?>"
-                                ></textarea>
-                            </div>
-                        <?php endif; ?>
 
                         <div class="wc-aicc-btn-row wc-aicc-customize-actions">
                             <button type="button" class="wc-aicc-customize-back-btn">
@@ -228,39 +242,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </div>
                     </div>
                 <?php endforeach; ?>
-
-                <div class="wc-aicc-customize-panel" data-customize-key="pet_name" style="display: none;">
-                    <div class="wc-aicc-customize-panel__intro">
-                        <span class="wc-aicc-customize-badge wc-aicc-customize-badge--dynamic" aria-hidden="true">3.2</span>
-                        <h4 class="wc-aicc-customize-panel__title"><?php esc_html_e( 'Pet name', 'wc-aicc' ); ?></h4>
-                        <p class="wc-aicc-customize-panel__meta wc-aicc-customize-panel__meta--dynamic"><?php esc_html_e( 'Step 2 of 2', 'wc-aicc' ); ?></p>
-                        <p class="wc-aicc-customize-panel__hint"><?php esc_html_e( 'This name appears centered above your pet on the charcoal poster.', 'wc-aicc' ); ?></p>
-                    </div>
-
-                    <div class="wc-aicc-pet-name-wrap">
-                        <label for="wc-aicc-pet-name" class="wc-aicc-pet-name-label">
-                            <?php esc_html_e( 'Pet name', 'wc-aicc' ); ?>
-                        </label>
-                        <input
-                            type="text"
-                            id="wc-aicc-pet-name"
-                            class="wc-aicc-pet-name-input"
-                            name="wc_aicc_pet_name"
-                            maxlength="40"
-                            autocomplete="off"
-                            placeholder="<?php esc_attr_e( 'e.g. LUNA', 'wc-aicc' ); ?>"
-                        />
-                    </div>
-
-                    <div class="wc-aicc-btn-row wc-aicc-customize-actions">
-                        <button type="button" class="wc-aicc-customize-back-btn">
-                            <?php esc_html_e( '← Back', 'wc-aicc' ); ?>
-                        </button>
-                        <button type="button" class="wc-aicc-generate-btn">
-                            <?php esc_html_e( 'Generate Preview', 'wc-aicc' ); ?>
-                        </button>
-                    </div>
-                </div>
             </div>
 
             <div class="wc-aicc-generate-status"></div>
@@ -343,6 +324,18 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
         </div>
 
+    </div>
+
+    <!-- Photo guidelines modal (content filled by JS) -->
+    <div class="wc-aicc-photo-guidelines" id="wc-aicc-photo-guidelines" hidden aria-hidden="true">
+        <button type="button" class="wc-aicc-photo-guidelines__backdrop" aria-label="<?php esc_attr_e( 'Close photo guidelines', 'wc-aicc' ); ?>"></button>
+        <div class="wc-aicc-photo-guidelines__panel" role="dialog" aria-modal="true" aria-labelledby="wc-aicc-photo-guidelines-title">
+            <header class="wc-aicc-photo-guidelines__header">
+                <h4 id="wc-aicc-photo-guidelines-title"><?php esc_html_e( 'Photo Guidelines', 'wc-aicc' ); ?></h4>
+                <button type="button" class="wc-aicc-photo-guidelines__close" aria-label="<?php esc_attr_e( 'Close', 'wc-aicc' ); ?>">&times;</button>
+            </header>
+            <div class="wc-aicc-photo-guidelines__body"></div>
+        </div>
     </div>
 
     <!-- Sizing guide slide-in (content filled by JS) -->

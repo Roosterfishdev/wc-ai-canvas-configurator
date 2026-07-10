@@ -9,22 +9,17 @@
 
     // Configuration from WordPress
     const config = window.wcAiccConfig || {};
-    const { productId, variations, options, optionDefaults, customizeFlow, styleCustomizeFlows, sizingGuide, restUrl, nonce, i18n } = config;
+    const { productId, variations, options, optionDefaults, customizeFlow, sizingGuide, photoGuidelines, restUrl, nonce, i18n } = config;
 
     /**
      * @return {Array<{key: string, title: string}>}
      */
     function getCustomizeFlow() {
-        const style = (state.customizationOptions && state.customizationOptions.style) || '';
-        if (style && styleCustomizeFlows && styleCustomizeFlows[style] && styleCustomizeFlows[style].length) {
-            return styleCustomizeFlows[style];
-        }
         if (customizeFlow && customizeFlow.length) {
             return customizeFlow;
         }
         return [
             { key: 'style', title: '' },
-            { key: 'situation', title: '' },
             { key: 'background_color', title: '' }
         ];
     }
@@ -33,26 +28,16 @@
         return getCustomizeFlow().length;
     }
 
-    function styleRequiresPetName(styleKey) {
-        return styleKey === 'black_studio';
-    }
-
-    function styleSkipsSituationStep(styleKey) {
-        return styleKey === 'magazine_dogue'
-            || styleKey === 'black_studio'
-            || styleKey === 'royal_legacy'
-            || styleKey === 'whiskey_office';
-    }
-
-    function applyStyleFlowDefaults(styleKey) {
-        if (styleKey === 'black_studio' || styleKey === 'royal_legacy' || styleKey === 'whiskey_office') {
-            state.customizationOptions.situation = 'neutral';
-            state.customizationOptions.background_color = 'natural';
-            state.customizationOptions.situation_custom = '';
-        } else if (styleKey === 'magazine_dogue') {
-            state.customizationOptions.situation = 'neutral';
-            state.customizationOptions.situation_custom = '';
-        }
+    /**
+     * Payload sent to generate endpoint (style + background only).
+     * @return {{style: string, background_color: string}}
+     */
+    function getCustomizationPayload() {
+        const defaults = optionDefaults || {};
+        return {
+            style: state.customizationOptions.style || defaults.style || 'original',
+            background_color: state.customizationOptions.background_color || defaults.background_color || 'auto'
+        };
     }
 
     // State
@@ -195,6 +180,7 @@
         // Set up event listeners
         setupEventListeners();
         setupSizingGuide();
+        setupPhotoGuidelines();
         setupSizeCardKeyboard();
         ensureSession();
 
@@ -263,6 +249,100 @@
         document.body.classList.remove('wc-aicc-sizing-guide-open');
     }
 
+    /**
+     * Build photo guidelines modal markup from localized data.
+     */
+    function setupPhotoGuidelines() {
+        const root = document.getElementById('wc-aicc-photo-guidelines');
+        if (!root || !photoGuidelines) {
+            return;
+        }
+
+        const body = root.querySelector('.wc-aicc-photo-guidelines__body');
+        const titleEl = root.querySelector('#wc-aicc-photo-guidelines-title');
+        if (!body) {
+            return;
+        }
+
+        if (titleEl && photoGuidelines.title) {
+            titleEl.textContent = photoGuidelines.title;
+        }
+
+        let html = '';
+        if (photoGuidelines.intro) {
+            html += `<p class="wc-aicc-photo-guidelines__intro">${escapeHtml(photoGuidelines.intro)}</p>`;
+        }
+
+        if (photoGuidelines.good_image || photoGuidelines.avoid_image) {
+            html += '<div class="wc-aicc-photo-guidelines__examples">';
+            if (photoGuidelines.good_image) {
+                html += `<figure class="wc-aicc-photo-guidelines__example wc-aicc-photo-guidelines__example--good">
+                    <div class="wc-aicc-photo-guidelines__example-frame">
+                        <img src="${escapeAttr(photoGuidelines.good_image)}" alt="${escapeAttr(photoGuidelines.good_label || 'Good photo')}" loading="lazy" decoding="async" />
+                    </div>
+                    <figcaption class="wc-aicc-photo-guidelines__example-label">${escapeHtml(photoGuidelines.good_label || 'Good photo')}</figcaption>
+                </figure>`;
+            }
+            if (photoGuidelines.avoid_image) {
+                html += `<figure class="wc-aicc-photo-guidelines__example wc-aicc-photo-guidelines__example--avoid">
+                    <div class="wc-aicc-photo-guidelines__example-frame">
+                        <img src="${escapeAttr(photoGuidelines.avoid_image)}" alt="${escapeAttr(photoGuidelines.avoid_label || 'Avoid')}" loading="lazy" decoding="async" />
+                    </div>
+                    <figcaption class="wc-aicc-photo-guidelines__example-label">${escapeHtml(photoGuidelines.avoid_label || 'Avoid')}</figcaption>
+                </figure>`;
+            }
+            html += '</div>';
+        }
+
+        if (photoGuidelines.tips && photoGuidelines.tips.length) {
+            html += '<ul class="wc-aicc-photo-guidelines__tips">';
+            photoGuidelines.tips.forEach(function(tip) {
+                html += `<li>${escapeHtml(tip)}</li>`;
+            });
+            html += '</ul>';
+        }
+
+        if (photoGuidelines.footnote) {
+            html += `<p class="wc-aicc-photo-guidelines__footnote">${escapeHtml(photoGuidelines.footnote)}</p>`;
+        }
+
+        body.innerHTML = html;
+
+        root.querySelectorAll('.wc-aicc-photo-guidelines__close, .wc-aicc-photo-guidelines__backdrop').forEach(function(el) {
+            el.addEventListener('click', closePhotoGuidelines);
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && root.getAttribute('aria-hidden') === 'false') {
+                closePhotoGuidelines();
+            }
+        });
+    }
+
+    function openPhotoGuidelines() {
+        const root = document.getElementById('wc-aicc-photo-guidelines');
+        if (!root) {
+            return;
+        }
+        root.hidden = false;
+        root.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('wc-aicc-photo-guidelines-open');
+        const closeBtn = root.querySelector('.wc-aicc-photo-guidelines__close');
+        if (closeBtn) {
+            closeBtn.focus();
+        }
+    }
+
+    function closePhotoGuidelines() {
+        const root = document.getElementById('wc-aicc-photo-guidelines');
+        if (!root) {
+            return;
+        }
+        root.hidden = true;
+        root.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('wc-aicc-photo-guidelines-open');
+    }
+
     function escapeHtml(str) {
         return String(str)
             .replace(/&/g, '&amp;')
@@ -324,6 +404,12 @@
                 return;
             }
 
+            const photoGuideOpen = e.target.closest('.wc-aicc-photo-guidelines-open');
+            if (photoGuideOpen) {
+                openPhotoGuidelines();
+                return;
+            }
+
             const variationBtn = e.target.closest('.wc-aicc-variation-btn');
             if (variationBtn) {
                 handleVariationSelect(variationBtn);
@@ -373,13 +459,8 @@
             }
         });
 
-        container.addEventListener('input', function(e) {
-            if (e.target && e.target.classList && e.target.classList.contains('wc-aicc-situation-custom-input')) {
-                syncSituationCustomFromDom();
-            }
-            if (e.target && e.target.classList && e.target.classList.contains('wc-aicc-pet-name-input')) {
-                syncPetNameFromDom();
-            }
+        container.addEventListener('input', function() {
+            // Reserved for future customize inputs.
         });
 
         // File upload
@@ -600,21 +681,6 @@
 
         syncCustomizeSelectionsFromState();
 
-        if (styleRequiresPetName(state.customizationOptions.style)) {
-            syncPetNameFromDom();
-            const name = (state.customizationOptions.pet_name || '').trim();
-            if (!name) {
-                showError((i18n && i18n.petNameRequired) ? i18n.petNameRequired : 'Please enter your pet\'s name.');
-                const flow = getCustomizeFlow();
-                const petIdx = flow.findIndex(function(step) { return step.key === 'pet_name'; });
-                if (petIdx >= 0) {
-                    state.customizeSubStep = petIdx + 1;
-                    renderCustomizeSubstep();
-                }
-                return;
-            }
-        }
-
         state.status = 'processing';
         state.errorMessage = null;
         state.pollFailureCount = 0;
@@ -632,7 +698,7 @@
                 cache: 'no-store',
                 headers: buildApiHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({
-                    customization_options: state.customizationOptions
+                    customization_options: getCustomizationPayload()
                 })
             });
 
@@ -838,7 +904,6 @@
             updateStepIndicators();
             updateGenerateUI();
 
-            // Update previews when entering step 4 or 5
             if (state.currentStep === 4) {
                 updatePreviewImages();
             } else if (state.currentStep === 5) {
@@ -862,7 +927,7 @@
             }
             state.currentStep--;
             if (state.currentStep === 3) {
-                state.customizeSubStep = 1;
+                state.customizeSubStep = getCustomizeSubstepTotal();
             }
             renderCurrentStep();
             updateStepIndicators();
@@ -893,7 +958,7 @@
     }
 
     /**
-     * Card selection for style / situation / background
+     * Card selection for style / background
      */
     function handleChoiceCardSelect(card) {
         const key = card.dataset.optionKey;
@@ -902,18 +967,12 @@
             return;
         }
         state.customizationOptions[key] = value;
-        if (key === 'style') {
-            applyStyleFlowDefaults(value);
-            const flow = getCustomizeFlow();
-            if (state.customizeSubStep > flow.length) {
-                state.customizeSubStep = flow.length;
-            }
-            renderCustomizeSubstep();
-        }
         const panel = card.closest('.wc-aicc-customize-panel');
         if (panel) {
             panel.querySelectorAll('.wc-aicc-choice-card[data-option-key="' + key + '"]').forEach(c => {
-                c.classList.toggle('wc-aicc-choice-card--selected', c === card);
+                const selected = c === card;
+                c.classList.toggle('wc-aicc-choice-card--selected', selected);
+                c.setAttribute('aria-pressed', selected ? 'true' : 'false');
             });
         }
     }
@@ -937,15 +996,6 @@
             const isActive = panelKey === activeKey;
             panel.style.display = isActive ? 'block' : 'none';
 
-            const badge = panel.querySelector('.wc-aicc-customize-badge--dynamic');
-            const meta = panel.querySelector('.wc-aicc-customize-panel__meta--dynamic');
-            if (badge) {
-                badge.textContent = '3.' + state.customizeSubStep;
-            }
-            if (meta && activeStep && isActive) {
-                meta.textContent = ((i18n && i18n.step) ? i18n.step : 'Step') + ' ' + state.customizeSubStep + ' of ' + total;
-            }
-
             const nextBtn = panel.querySelector('.wc-aicc-customize-next-btn');
             const genBtn = panel.querySelector('.wc-aicc-generate-btn');
             if (isActive && nextBtn && genBtn) {
@@ -967,55 +1017,9 @@
             container.querySelectorAll('.wc-aicc-choice-card[data-option-key="' + key + '"]').forEach(card => {
                 const selected = card.dataset.value === String(value);
                 card.classList.toggle('wc-aicc-choice-card--selected', selected);
+                card.setAttribute('aria-pressed', selected ? 'true' : 'false');
             });
         });
-        syncSituationCustomToDom();
-        syncPetNameToDom();
-    }
-
-    function syncPetNameFromDom() {
-        const input = container.querySelector('.wc-aicc-pet-name-input');
-        if (!input) {
-            return;
-        }
-        let v = (input.value || '').slice(0, 40);
-        if (input.value && input.value.length > 40) {
-            input.value = v;
-        }
-        state.customizationOptions.pet_name = v;
-    }
-
-    function syncPetNameToDom() {
-        const input = container.querySelector('.wc-aicc-pet-name-input');
-        if (!input) {
-            return;
-        }
-        const v = state.customizationOptions.pet_name;
-        input.value = v != null ? String(v) : '';
-    }
-
-    /**
-     * Read optional character / situation free text into state (max 500 client-side).
-     */
-    function syncSituationCustomFromDom() {
-        const ta = container.querySelector('.wc-aicc-situation-custom-input');
-        if (!ta) {
-            return;
-        }
-        let v = (ta.value || '').slice(0, 500);
-        if (ta.value && ta.value.length > 500) {
-            ta.value = v;
-        }
-        state.customizationOptions.situation_custom = v;
-    }
-
-    function syncSituationCustomToDom() {
-        const ta = container.querySelector('.wc-aicc-situation-custom-input');
-        if (!ta) {
-            return;
-        }
-        const v = state.customizationOptions.situation_custom;
-        ta.value = v != null ? String(v) : '';
     }
 
     /**
@@ -1054,9 +1058,8 @@
             }
         }
 
-        // Customize flow: show first sub-step and align cards with state
+        // Customize flow: align cards with state and show active sub-step
         if (state.currentStep === 3) {
-            state.customizeSubStep = 1;
             syncChoiceCardsFromState();
             renderCustomizeSubstep();
         }
@@ -1066,8 +1069,6 @@
      * Ensure generate payload matches selected cards (state is source of truth)
      */
     function syncCustomizeSelectionsFromState() {
-        syncSituationCustomFromDom();
-        syncPetNameFromDom();
         syncChoiceCardsFromState();
     }
 
@@ -1232,19 +1233,11 @@
             const parts = [];
             flow.forEach(function(step) {
                 const key = step.key;
-                if (key === 'pet_name') {
-                    const pn = (state.customizationOptions.pet_name || '').trim();
-                    if (pn) {
-                        const prefix = (i18n && i18n.petNameLabel) ? i18n.petNameLabel : 'Pet name';
-                        parts.push(prefix + ': ' + pn);
-                    }
-                    return;
-                }
                 const val = state.customizationOptions[key];
                 if (!val) {
                     return;
                 }
-                if (key === 'background_color' && val === 'natural') {
+                if (key === 'background_color' && val === 'auto') {
                     return;
                 }
                 const label = getChoiceLabel(key, val);
@@ -1252,12 +1245,6 @@
                     parts.push(label);
                 }
             });
-            const sc = (state.customizationOptions.situation_custom || '').trim();
-            if (sc && !styleRequiresPetName(state.customizationOptions.style) && !styleSkipsSituationStep(state.customizationOptions.style)) {
-                const prefix = (i18n && i18n.summaryCustomDirection) ? i18n.summaryCustomDirection : 'Custom direction';
-                const short = sc.length > 80 ? sc.slice(0, 80) + '…' : sc;
-                parts.push(prefix + ': ' + short);
-            }
             optionsEl.textContent = parts.length ? parts.join(', ') : '-';
         }
 
