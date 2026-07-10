@@ -163,6 +163,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <div class="wc-aicc-customize-panel__intro<?php echo 'situation' === $option_key ? ' wc-aicc-customize-panel__intro--character' : ''; ?>">
                             <?php if ( 'situation' === $option_key ) : ?>
                                 <h4 class="wc-aicc-customize-panel__title"><?php esc_html_e( 'Select character', 'wc-aicc' ); ?></h4>
+                            <?php elseif ( 'style' === $option_key || 'background_color' === $option_key ) : ?>
+                                <h4 class="wc-aicc-customize-panel__title"><?php echo esc_html( $option['step_title'] ?? $option['label'] ); ?></h4>
+                                <p class="wc-aicc-customize-panel__meta"><?php echo esc_html( sprintf( __( 'Step %1$d of %2$d', 'wc-aicc' ), $sub_index, $total_sub ) ); ?></p>
                             <?php else : ?>
                                 <span class="wc-aicc-customize-badge" aria-hidden="true"><?php echo esc_html( sprintf( '3.%d', $sub_index ) ); ?></span>
                                 <h4 class="wc-aicc-customize-panel__title"><?php echo esc_html( $option['step_title'] ?? $option['label'] ); ?></h4>

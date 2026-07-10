@@ -712,38 +712,44 @@
 }
 
 /* Situation / background cards: no thumbnail */
-.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb) {
+.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb):not(.wc-aicc-choice-card--with-swatch) {
     padding: 16px 14px;
     align-items: flex-start;
 }
 
 .wc-aicc-choice-card--with-swatch:not(.wc-aicc-choice-card--with-thumb) {
-    padding: 0 0 14px;
+    padding: 0;
+    align-items: stretch;
 }
 
-.wc-aicc-choice-card--with-swatch:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__label,
+.wc-aicc-choice-card--with-swatch:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__label {
+    padding: 12px 14px 0;
+}
+
 .wc-aicc-choice-card--with-swatch:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__hint {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding: 4px 14px 14px;
+}
+
+.wc-aicc-choice-card--with-icon:not(.wc-aicc-choice-card--with-thumb) {
+    padding: 14px 14px 16px;
+    align-items: flex-start;
 }
 
 .wc-aicc-choice-card--with-icon:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__icon {
-    padding-left: 14px;
-    padding-right: 14px;
-    padding-top: 2px;
+    margin-bottom: 4px;
 }
 
-.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__label,
-.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__hint {
+.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb):not(.wc-aicc-choice-card--with-swatch):not(.wc-aicc-choice-card--with-icon) .wc-aicc-choice-card__label,
+.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb):not(.wc-aicc-choice-card--with-swatch):not(.wc-aicc-choice-card--with-icon) .wc-aicc-choice-card__hint {
     padding-left: 0;
     padding-right: 0;
 }
 
-.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__label {
+.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb):not(.wc-aicc-choice-card--with-swatch):not(.wc-aicc-choice-card--with-icon) .wc-aicc-choice-card__label {
     padding-top: 0;
 }
 
-.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb) .wc-aicc-choice-card__hint {
+.wc-aicc-choice-card:not(.wc-aicc-choice-card--with-thumb):not(.wc-aicc-choice-card--with-swatch):not(.wc-aicc-choice-card--with-icon) .wc-aicc-choice-card__hint {
     padding-bottom: 0;
 }
 

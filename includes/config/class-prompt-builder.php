@@ -378,6 +378,14 @@ class Prompt_Builder {
      * @var array
      */
     const SITUATION_DEFINITIONS = array(
+        'original' => array(
+            'minimal_transform' => true,
+            'lines'             => array(
+                'no character costume or outfit overlay: keep the pet true to the uploaded reference photo',
+                'preserve natural appearance, pose, expression, and markings while applying only the selected art style treatment',
+                'minimal character transformation: stay as faithful as possible to the original photo',
+            ),
+        ),
         'neutral' => array(
             'minimal_transform' => true,
             'lines'             => array(
@@ -469,7 +477,7 @@ class Prompt_Builder {
      */
     const DEFAULTS = array(
         'style'              => 'warhol_grid',
-        'situation'          => 'royal',
+        'situation'          => 'original',
         'background_color'   => 'natural',
         'pet_name'           => '',
     );
@@ -623,6 +631,11 @@ class Prompt_Builder {
                 'step_title' => __( 'Select character', 'wc-aicc' ),
                 'type'       => 'cards',
                 'choices'    => array(
+                    'original' => array(
+                        'icon'  => "\u{1F43E}",
+                        'label' => __( 'Original', 'wc-aicc' ),
+                        'hint'  => __( 'True to your original photo', 'wc-aicc' ),
+                    ),
                     'royal' => array(
                         'icon'  => "\u{1F451}",
                         'label' => __( 'Royal', 'wc-aicc' ),
@@ -982,7 +995,7 @@ class Prompt_Builder {
         $bg_map     = apply_filters( 'wc_aicc_prompt_background_phrases', self::BACKGROUND_PHRASES );
 
         $style_def = $styles[ $style_key ] ?? $styles['warhol_grid'];
-        $sit_def   = $situations[ $situation_key ] ?? $situations['royal'];
+        $sit_def   = $situations[ $situation_key ] ?? $situations['original'];
 
         $skip_bg = ! empty( $style_def['skip_background_option'] );
 
@@ -1083,6 +1096,9 @@ class Prompt_Builder {
 
         if ( isset( $raw['style'] ) && 'black_white' === $raw['style'] ) {
             $raw['style'] = 'black_studio';
+        }
+        if ( isset( $raw['situation'] ) && 'neutral' === $raw['situation'] ) {
+            $raw['situation'] = 'original';
         }
 
         $config  = self::get_options_config();
