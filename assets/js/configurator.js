@@ -48,10 +48,8 @@
         if (styleKey === 'black_studio' || styleKey === 'royal_legacy' || styleKey === 'whiskey_office') {
             state.customizationOptions.situation = 'neutral';
             state.customizationOptions.background_color = 'natural';
-            state.customizationOptions.situation_custom = '';
         } else if (styleKey === 'magazine_dogue') {
             state.customizationOptions.situation = 'neutral';
-            state.customizationOptions.situation_custom = '';
         }
     }
 
@@ -374,9 +372,6 @@
         });
 
         container.addEventListener('input', function(e) {
-            if (e.target && e.target.classList && e.target.classList.contains('wc-aicc-situation-custom-input')) {
-                syncSituationCustomFromDom();
-            }
             if (e.target && e.target.classList && e.target.classList.contains('wc-aicc-pet-name-input')) {
                 syncPetNameFromDom();
             }
@@ -969,7 +964,6 @@
                 card.classList.toggle('wc-aicc-choice-card--selected', selected);
             });
         });
-        syncSituationCustomToDom();
         syncPetNameToDom();
     }
 
@@ -992,30 +986,6 @@
         }
         const v = state.customizationOptions.pet_name;
         input.value = v != null ? String(v) : '';
-    }
-
-    /**
-     * Read optional character / situation free text into state (max 500 client-side).
-     */
-    function syncSituationCustomFromDom() {
-        const ta = container.querySelector('.wc-aicc-situation-custom-input');
-        if (!ta) {
-            return;
-        }
-        let v = (ta.value || '').slice(0, 500);
-        if (ta.value && ta.value.length > 500) {
-            ta.value = v;
-        }
-        state.customizationOptions.situation_custom = v;
-    }
-
-    function syncSituationCustomToDom() {
-        const ta = container.querySelector('.wc-aicc-situation-custom-input');
-        if (!ta) {
-            return;
-        }
-        const v = state.customizationOptions.situation_custom;
-        ta.value = v != null ? String(v) : '';
     }
 
     /**
@@ -1066,7 +1036,6 @@
      * Ensure generate payload matches selected cards (state is source of truth)
      */
     function syncCustomizeSelectionsFromState() {
-        syncSituationCustomFromDom();
         syncPetNameFromDom();
         syncChoiceCardsFromState();
     }
@@ -1252,12 +1221,6 @@
                     parts.push(label);
                 }
             });
-            const sc = (state.customizationOptions.situation_custom || '').trim();
-            if (sc && !styleRequiresPetName(state.customizationOptions.style) && !styleSkipsSituationStep(state.customizationOptions.style)) {
-                const prefix = (i18n && i18n.summaryCustomDirection) ? i18n.summaryCustomDirection : 'Custom direction';
-                const short = sc.length > 80 ? sc.slice(0, 80) + '…' : sc;
-                parts.push(prefix + ': ' + short);
-            }
             optionsEl.textContent = parts.length ? parts.join(', ') : '-';
         }
 

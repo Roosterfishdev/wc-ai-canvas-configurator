@@ -395,22 +395,52 @@ class Prompt_Builder {
         ),
         'royal' => array(
             'lines' => array(
-                'regal context: crown or tiara optional, royal robes or ermine-trimmed cloak',
-                'palace or velvet drapery hints, dignified ceremonial portrait',
+                'regal royal portrait context: king or queen with crown or tiara, elegant ceremonial attire',
+                'palace or velvet drapery hints, dignified classical portrait composition',
+            ),
+        ),
+        'cowboy' => array(
+            'lines' => array(
+                'western cowboy context: hat, bandana, denim or leather accents',
+                'rugged frontier scenery, golden hour warmth where appropriate',
+            ),
+        ),
+        'firefighter' => array(
+            'lines' => array(
+                'heroic firefighter context: uniform with helmet and reflective gear details',
+                'dramatic courageous setting with warm emergency lighting atmosphere',
+            ),
+        ),
+        'astronaut' => array(
+            'lines' => array(
+                'astronaut context: space suit with helmet',
+                'cosmic background with stars, nebula, or space station hints',
+            ),
+        ),
+        'pirate' => array(
+            'lines' => array(
+                'classic pirate context: hat, coat, and nautical adventure styling',
+                'ocean, ship deck, or coastal ship atmosphere',
+            ),
+        ),
+        'gentleman' => array(
+            'lines' => array(
+                'sophisticated gentleman context: formal tailored attire, tuxedo, bow tie or waistcoat',
+                'elegant refined portrait with luxury editorial polish',
+            ),
+        ),
+        'knight' => array(
+            'lines' => array(
+                'medieval knight context: armor, cape, or heraldic styling',
+                'majestic castle backdrop with stone battlements or medieval hall atmosphere',
             ),
         ),
         'magazine_cover' => array(
             'lines'                 => array(
-                'magazine cover treatment: bold editorial hero portrait',
-                'clear negative space or layout rhythm suitable for a masthead',
+                'premium editorial magazine cover treatment: bold hero portrait with headline-friendly layout',
+                'clear masthead space and cover-style typography rhythm',
             ),
             'composition_priority' => 'editorial magazine cover layout with intentional headline space',
-        ),
-        'cowboy' => array(
-            'lines' => array(
-                'western cowboy context: hat, bandana or denim, rustic setting hints',
-                'rugged frontier portrait, golden hour or desert tones where appropriate',
-            ),
         ),
     );
 
@@ -439,9 +469,8 @@ class Prompt_Builder {
      */
     const DEFAULTS = array(
         'style'              => 'warhol_grid',
-        'situation'          => 'neutral',
+        'situation'          => 'royal',
         'background_color'   => 'natural',
-        'situation_custom'   => '',
         'pet_name'           => '',
     );
 
@@ -449,11 +478,6 @@ class Prompt_Builder {
      * Max length for pet name (Black Studio and similar styles).
      */
     const PET_NAME_MAX_LEN = 40;
-
-    /**
-     * Max length for free-text situation / character notes (after sanitization).
-     */
-    const SITUATION_CUSTOM_MAX_LEN = 500;
 
     /**
      * Ordered keys for customize sub-steps (UI + summaries)
@@ -628,26 +652,50 @@ class Prompt_Builder {
                 ),
             ),
             'situation' => array(
-                'label'      => __( 'Character / situation', 'wc-aicc' ),
+                'label'      => __( 'Character', 'wc-aicc' ),
                 'step'       => 2,
-                'step_title' => __( 'Select character / situation', 'wc-aicc' ),
+                'step_title' => __( 'Select character', 'wc-aicc' ),
                 'type'       => 'cards',
                 'choices'    => array(
-                    'neutral' => array(
-                        'label' => __( 'Neutral', 'wc-aicc' ),
-                        'hint'  => __( 'Keeps your original composition', 'wc-aicc' ),
-                    ),
                     'royal' => array(
+                        'icon'  => "\u{1F451}",
                         'label' => __( 'Royal', 'wc-aicc' ),
-                        'hint'  => __( 'Regal portrait treatment', 'wc-aicc' ),
-                    ),
-                    'magazine_cover' => array(
-                        'label' => __( 'Magazine Cover', 'wc-aicc' ),
-                        'hint'  => __( 'Cover-style layout & space', 'wc-aicc' ),
+                        'hint'  => __( 'King or queen portrait with elegant attire', 'wc-aicc' ),
                     ),
                     'cowboy' => array(
+                        'icon'  => "\u{1F920}",
                         'label' => __( 'Cowboy', 'wc-aicc' ),
-                        'hint'  => __( 'Western character context', 'wc-aicc' ),
+                        'hint'  => __( 'Western outfit with rugged scenery', 'wc-aicc' ),
+                    ),
+                    'firefighter' => array(
+                        'icon'  => "\u{1F692}",
+                        'label' => __( 'Firefighter', 'wc-aicc' ),
+                        'hint'  => __( 'Heroic firefighter uniform and dramatic setting', 'wc-aicc' ),
+                    ),
+                    'astronaut' => array(
+                        'icon'  => "\u{1F468}\u{200D}\u{1F680}",
+                        'label' => __( 'Astronaut', 'wc-aicc' ),
+                        'hint'  => __( 'Space suit with a cosmic background', 'wc-aicc' ),
+                    ),
+                    'pirate' => array(
+                        'icon'  => "\u{1F3F4}\u{200D}\u{2620}\u{FE0F}",
+                        'label' => __( 'Pirate', 'wc-aicc' ),
+                        'hint'  => __( 'Classic pirate outfit with a ship atmosphere', 'wc-aicc' ),
+                    ),
+                    'gentleman' => array(
+                        'icon'  => "\u{1F3A9}",
+                        'label' => __( 'Gentleman', 'wc-aicc' ),
+                        'hint'  => __( 'Sophisticated formal portrait in a tuxedo', 'wc-aicc' ),
+                    ),
+                    'knight' => array(
+                        'icon'  => "\u{2694}\u{FE0F}",
+                        'label' => __( 'Knight', 'wc-aicc' ),
+                        'hint'  => __( 'Medieval armor with a majestic castle backdrop', 'wc-aicc' ),
+                    ),
+                    'magazine_cover' => array(
+                        'icon'  => "\u{1F4D6}",
+                        'label' => __( 'Magazine Cover', 'wc-aicc' ),
+                        'hint'  => __( 'Premium editorial magazine cover with headlines', 'wc-aicc' ),
                     ),
                 ),
             ),
@@ -658,44 +706,54 @@ class Prompt_Builder {
                 'type'       => 'cards',
                 'choices'    => array(
                     'natural' => array(
-                        'label' => __( 'Natural to style', 'wc-aicc' ),
-                        'hint'  => __( 'Let the AI choose', 'wc-aicc' ),
+                        'label'  => __( 'Natural to style', 'wc-aicc' ),
+                        'hint'   => __( 'Let the AI choose', 'wc-aicc' ),
+                        'swatch' => 'auto',
                     ),
                     'white' => array(
-                        'label' => __( 'White', 'wc-aicc' ),
-                        'hint'  => __( 'Clean studio light', 'wc-aicc' ),
+                        'label'  => __( 'White', 'wc-aicc' ),
+                        'hint'   => __( 'Clean studio light', 'wc-aicc' ),
+                        'swatch' => '#f8f8f8',
                     ),
                     'black' => array(
-                        'label' => __( 'Black', 'wc-aicc' ),
-                        'hint'  => __( 'Deep dramatic backdrop', 'wc-aicc' ),
+                        'label'  => __( 'Black', 'wc-aicc' ),
+                        'hint'   => __( 'Deep dramatic backdrop', 'wc-aicc' ),
+                        'swatch' => '#1a1a1a',
                     ),
                     'navy' => array(
-                        'label' => __( 'Navy', 'wc-aicc' ),
-                        'hint'  => __( 'Midnight blues', 'wc-aicc' ),
+                        'label'  => __( 'Navy', 'wc-aicc' ),
+                        'hint'   => __( 'Midnight blues', 'wc-aicc' ),
+                        'swatch' => '#1e3a5f',
                     ),
                     'cream' => array(
-                        'label' => __( 'Cream', 'wc-aicc' ),
-                        'hint'  => __( 'Warm ivory tones', 'wc-aicc' ),
+                        'label'  => __( 'Cream', 'wc-aicc' ),
+                        'hint'   => __( 'Warm ivory tones', 'wc-aicc' ),
+                        'swatch' => '#f5f0e6',
                     ),
                     'sage' => array(
-                        'label' => __( 'Sage', 'wc-aicc' ),
-                        'hint'  => __( 'Muted green', 'wc-aicc' ),
+                        'label'  => __( 'Sage', 'wc-aicc' ),
+                        'hint'   => __( 'Muted green', 'wc-aicc' ),
+                        'swatch' => '#9caf88',
                     ),
                     'gray' => array(
-                        'label' => __( 'Gray', 'wc-aicc' ),
-                        'hint'  => __( 'Cool neutral', 'wc-aicc' ),
+                        'label'  => __( 'Gray', 'wc-aicc' ),
+                        'hint'   => __( 'Cool neutral', 'wc-aicc' ),
+                        'swatch' => '#b0b0b0',
                     ),
                     'burgundy' => array(
-                        'label' => __( 'Burgundy', 'wc-aicc' ),
-                        'hint'  => __( 'Rich wine red', 'wc-aicc' ),
+                        'label'  => __( 'Burgundy', 'wc-aicc' ),
+                        'hint'   => __( 'Rich wine red', 'wc-aicc' ),
+                        'swatch' => '#6b2d3e',
                     ),
                     'gold' => array(
-                        'label' => __( 'Gold', 'wc-aicc' ),
-                        'hint'  => __( 'Warm amber glow', 'wc-aicc' ),
+                        'label'  => __( 'Gold', 'wc-aicc' ),
+                        'hint'   => __( 'Warm amber glow', 'wc-aicc' ),
+                        'swatch' => '#c9a227',
                     ),
                     'teal' => array(
-                        'label' => __( 'Teal', 'wc-aicc' ),
-                        'hint'  => __( 'Turquoise depth', 'wc-aicc' ),
+                        'label'  => __( 'Teal', 'wc-aicc' ),
+                        'hint'   => __( 'Turquoise depth', 'wc-aicc' ),
+                        'swatch' => '#0d6e6e',
                     ),
                 ),
             ),
@@ -930,17 +988,6 @@ class Prompt_Builder {
             }
         }
 
-        $custom = isset( $options['situation_custom'] ) ? trim( (string) $options['situation_custom'] ) : '';
-        if ( $custom !== '' ) {
-            $max   = 80;
-            $short = function_exists( 'mb_substr' ) ? mb_substr( $custom, 0, $max ) : substr( $custom, 0, $max );
-            $len   = function_exists( 'mb_strlen' ) ? mb_strlen( $custom ) : strlen( $custom );
-            if ( $len > $max ) {
-                $short .= '…';
-            }
-            $parts[] = __( 'Custom direction', 'wc-aicc' ) . ': ' . $short;
-        }
-
         $pet_name = isset( $options['pet_name'] ) ? trim( (string) $options['pet_name'] ) : '';
         if ( $pet_name !== '' ) {
             $parts[] = __( 'Pet name', 'wc-aicc' ) . ': ' . $pet_name;
@@ -969,7 +1016,7 @@ class Prompt_Builder {
         $bg_map     = apply_filters( 'wc_aicc_prompt_background_phrases', self::BACKGROUND_PHRASES );
 
         $style_def = $styles[ $style_key ] ?? $styles['warhol_grid'];
-        $sit_def   = $situations[ $situation_key ] ?? $situations['neutral'];
+        $sit_def   = $situations[ $situation_key ] ?? $situations['royal'];
 
         $skip_situation = ! empty( $style_def['skip_situation'] );
         $skip_bg        = ! empty( $style_def['skip_background_option'] );
@@ -1004,14 +1051,7 @@ class Prompt_Builder {
             $prompt_parts = array_merge( $prompt_parts, $sit_def['lines'] );
         }
 
-        if ( ! $skip_situation ) {
-            $situation_custom = isset( $options['situation_custom'] ) ? trim( (string) $options['situation_custom'] ) : '';
-            if ( $situation_custom !== '' ) {
-                $prompt_parts[] = 'additional character / situation direction from customer: ' . $situation_custom;
-            }
-        }
-
-        // Composition: situation override wins; neutral skips default style framing to avoid fighting the source crop
+        // Composition: situation override wins; minimal-transform situations skip default style framing.
         if ( ! $skip_situation && ! empty( $sit_def['composition_priority'] ) ) {
             $prompt_parts[] = 'composition priority: ' . $sit_def['composition_priority'];
         } elseif ( ( $skip_situation || empty( $sit_def['minimal_transform'] ) ) && ! empty( $style_def['composition'] ) ) {
@@ -1093,8 +1133,7 @@ class Prompt_Builder {
             }
         }
 
-        $result['situation_custom'] = self::sanitize_situation_custom( $raw['situation_custom'] ?? '' );
-        $result['pet_name']         = self::sanitize_pet_name( $raw['pet_name'] ?? '' );
+        $result['pet_name'] = self::sanitize_pet_name( $raw['pet_name'] ?? '' );
 
         return wp_parse_args( $result, self::DEFAULTS );
     }
@@ -1138,28 +1177,5 @@ class Prompt_Builder {
             return mb_strtoupper( $t, 'UTF-8' );
         }
         return strtoupper( $t );
-    }
-
-    /**
-     * Sanitize free-text character / situation notes from the customer.
-     *
-     * @param mixed $raw Raw value.
-     * @return string
-     */
-    public static function sanitize_situation_custom( $raw ) {
-        $t = sanitize_textarea_field( is_string( $raw ) ? $raw : '' );
-        $t = wp_strip_all_tags( $t );
-        $t = preg_replace( '/\s+/u', ' ', $t );
-        $t = trim( $t );
-        $max = (int) self::SITUATION_CUSTOM_MAX_LEN;
-        if ( $max < 1 ) {
-            return '';
-        }
-        if ( function_exists( 'mb_strlen' ) && mb_strlen( $t ) > $max ) {
-            $t = mb_substr( $t, 0, $max );
-        } elseif ( strlen( $t ) > $max ) {
-            $t = substr( $t, 0, $max );
-        }
-        return $t;
     }
 }
