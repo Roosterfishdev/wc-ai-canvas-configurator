@@ -1,0 +1,47 @@
+/**
+ * Cart / checkout line-item preview thumbnails (watermark overlay layout).
+ * Loaded on cart and checkout only — configurator.css is product-page scoped.
+ */
+
+.wc-aicc-art-preview {
+	position: relative;
+	display: inline-block;
+	max-width: 100%;
+	line-height: 0;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.wc-aicc-art-preview__image {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+.wc-aicc-art-preview__watermark {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	pointer-events: none;
+	z-index: 1;
+	user-select: none;
+	-webkit-user-drag: none;
+}
+
+.wc-aicc-art-preview--watermarked {
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.woocommerce table.shop_table .wc-aicc-art-preview {
+	max-width: 120px;
+	vertical-align: middle;
+}
+
+.woocommerce table.shop_table .wc-aicc-art-preview__image {
+	width: 100%;
+	height: auto;
+}

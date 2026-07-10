@@ -63,6 +63,29 @@ class Cart_Integration {
 
         // Restore build data from session
         add_filter( 'woocommerce_get_cart_item_from_session', array( $this, 'get_cart_item_from_session' ), 10, 3 );
+
+        // Watermark overlay CSS for cart/checkout thumbnails (not loaded on product page configurator).
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_cart_preview_styles' ) );
+    }
+
+    /**
+     * Enqueue preview thumbnail styles on cart and checkout.
+     */
+    public function enqueue_cart_preview_styles() {
+        if ( ! function_exists( 'is_cart' ) || ! function_exists( 'is_checkout' ) ) {
+            return;
+        }
+
+        if ( ! is_cart() && ! is_checkout() ) {
+            return;
+        }
+
+        wp_enqueue_style(
+            'wc-aicc-cart-preview',
+            WC_AICC_PLUGIN_URL . 'assets/css/cart-preview.css',
+            array(),
+            WC_AICC_VERSION
+        );
     }
 
     /**

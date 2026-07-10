@@ -234,9 +234,8 @@ class Prompt_Builder {
             ),
         ),
         'magazine_dogue' => array(
-            'skip_identity_lines'    => true,
-            'skip_situation'         => true,
-            'allows_cover_text'      => true,
+            'skip_identity_lines' => true,
+            'allows_cover_text'   => true,
             'core'                   => array(
                 'using the uploaded dog photo as the exact facial reference, fur coloration, head shape, ear shape, nose, eyes, expression, and breed characteristics',
                 'luxury fashion magazine cover portrait featuring this dog as an elegant high-fashion icon',
@@ -273,8 +272,6 @@ class Prompt_Builder {
             ),
         ),
         'royal_legacy' => array(
-            'skip_situation'         => true,
-            'skip_background_option' => true,
             'core' => array(
                 '(masterpiece:1.2), majestic royal ancestral portrait mural',
                 'the same subject from the input image',
@@ -305,11 +302,8 @@ class Prompt_Builder {
             ),
         ),
         'black_studio' => array(
-            'skip_identity_lines'    => true,
-            'skip_situation'         => true,
-            'skip_background_option' => true,
-            'requires_pet_name'      => true,
-            'core'                   => array(
+            'skip_identity_lines' => true,
+            'core'                => array(
                 'premium minimalist pet portrait poster using the uploaded pet photo as the exact facial structure, expression, fur color, markings, eye shape, nose shape, and overall likeness reference',
                 'hand-painted digital illustration, Procreate-style artwork',
                 'luxury pet portrait aesthetic, soft painterly brushwork, clean edge rendering',
@@ -337,8 +331,6 @@ class Prompt_Builder {
             ),
         ),
         'whiskey_office' => array(
-            'skip_situation'         => true,
-            'skip_background_option' => true,
             'core' => array(
                 '(masterpiece:1.25), hyper-realistic cinematic portrait',
                 'use the uploaded dog as the exact character reference',
@@ -395,52 +387,60 @@ class Prompt_Builder {
         ),
         'royal' => array(
             'lines' => array(
-                'regal royal portrait context: king or queen with crown or tiara, elegant ceremonial attire',
+                'character layer applied on top of the selected art style: regal royal portrait as king or queen with crown or tiara and elegant ceremonial attire',
+                'keep the chosen art style rendering while adding royal character styling',
                 'palace or velvet drapery hints, dignified classical portrait composition',
             ),
         ),
         'cowboy' => array(
             'lines' => array(
-                'western cowboy context: hat, bandana, denim or leather accents',
+                'character layer applied on top of the selected art style: western cowboy with hat, bandana, denim or leather accents',
+                'keep the chosen art style rendering while adding cowboy character styling',
                 'rugged frontier scenery, golden hour warmth where appropriate',
             ),
         ),
         'firefighter' => array(
             'lines' => array(
-                'heroic firefighter context: uniform with helmet and reflective gear details',
+                'character layer applied on top of the selected art style: heroic firefighter with uniform, helmet, and reflective gear',
+                'keep the chosen art style rendering while adding firefighter character styling',
                 'dramatic courageous setting with warm emergency lighting atmosphere',
             ),
         ),
         'astronaut' => array(
             'lines' => array(
-                'astronaut context: space suit with helmet',
+                'character layer applied on top of the selected art style: astronaut in space suit with helmet',
+                'keep the chosen art style rendering while adding astronaut character styling',
                 'cosmic background with stars, nebula, or space station hints',
             ),
         ),
         'pirate' => array(
             'lines' => array(
-                'classic pirate context: hat, coat, and nautical adventure styling',
+                'character layer applied on top of the selected art style: classic pirate with hat, coat, and nautical adventure styling',
+                'keep the chosen art style rendering while adding pirate character styling',
                 'ocean, ship deck, or coastal ship atmosphere',
             ),
         ),
         'gentleman' => array(
             'lines' => array(
-                'sophisticated gentleman context: formal tailored attire, tuxedo, bow tie or waistcoat',
+                'character layer applied on top of the selected art style: sophisticated gentleman in formal tailored attire, tuxedo, bow tie or waistcoat',
+                'keep the chosen art style rendering while adding gentleman character styling',
                 'elegant refined portrait with luxury editorial polish',
             ),
         ),
         'knight' => array(
             'lines' => array(
-                'medieval knight context: armor, cape, or heraldic styling',
+                'character layer applied on top of the selected art style: medieval knight with armor, cape, or heraldic styling',
+                'keep the chosen art style rendering while adding knight character styling',
                 'majestic castle backdrop with stone battlements or medieval hall atmosphere',
             ),
         ),
         'magazine_cover' => array(
             'lines'                 => array(
-                'premium editorial magazine cover treatment: bold hero portrait with headline-friendly layout',
+                'character layer applied on top of the selected art style: premium editorial magazine cover hero portrait with headline-friendly layout',
+                'keep the chosen art style rendering while adding magazine cover character styling',
                 'clear masthead space and cover-style typography rhythm',
             ),
-            'composition_priority' => 'editorial magazine cover layout with intentional headline space',
+            'composition_priority' => 'editorial magazine cover layout with intentional headline space, layered on the selected art style',
         ),
     );
 
@@ -539,46 +539,12 @@ class Prompt_Builder {
      * @return array<string, array<int, array{key: string, title: string}>>
      */
     public static function get_style_customize_flows() {
-        $cfg   = self::get_options_config();
-        $flows = array(
-            'black_studio' => array(
-                array(
-                    'key'   => 'style',
-                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
-                ),
-                array(
-                    'key'   => 'pet_name',
-                    'title' => __( 'Pet name', 'wc-aicc' ),
-                ),
-            ),
-            'magazine_dogue' => array(
-                array(
-                    'key'   => 'style',
-                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
-                ),
-                array(
-                    'key'   => 'background_color',
-                    'title' => $cfg['background_color']['step_title'] ?? __( 'Select background color', 'wc-aicc' ),
-                ),
-            ),
-            'royal_legacy' => array(
-                array(
-                    'key'   => 'style',
-                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
-                ),
-            ),
-            'whiskey_office' => array(
-                array(
-                    'key'   => 'style',
-                    'title' => $cfg['style']['step_title'] ?? __( 'Select style', 'wc-aicc' ),
-                ),
-            ),
-        );
-
         /**
+         * All styles use the default flow: style → character → background.
+         *
          * @param array<string, array> $flows Style slug => ordered step definitions.
          */
-        return apply_filters( 'wc_aicc_style_customize_flows', $flows );
+        return apply_filters( 'wc_aicc_style_customize_flows', array() );
     }
 
     /**
@@ -670,7 +636,7 @@ class Prompt_Builder {
                     'firefighter' => array(
                         'icon'  => "\u{1F692}",
                         'label' => __( 'Firefighter', 'wc-aicc' ),
-                        'hint'  => __( 'Heroic firefighter uniform and dramatic setting', 'wc-aicc' ),
+                        'hint'  => __( 'Heroic firefighter uniform and setting', 'wc-aicc' ),
                     ),
                     'astronaut' => array(
                         'icon'  => "\u{1F468}\u{200D}\u{1F680}",
@@ -680,7 +646,7 @@ class Prompt_Builder {
                     'pirate' => array(
                         'icon'  => "\u{1F3F4}\u{200D}\u{2620}\u{FE0F}",
                         'label' => __( 'Pirate', 'wc-aicc' ),
-                        'hint'  => __( 'Classic pirate outfit with a ship atmosphere', 'wc-aicc' ),
+                        'hint'  => __( 'Classic pirate outfit and ship atmosphere', 'wc-aicc' ),
                     ),
                     'gentleman' => array(
                         'icon'  => "\u{1F3A9}",
@@ -695,7 +661,7 @@ class Prompt_Builder {
                     'magazine_cover' => array(
                         'icon'  => "\u{1F4D6}",
                         'label' => __( 'Magazine Cover', 'wc-aicc' ),
-                        'hint'  => __( 'Premium editorial magazine cover with headlines', 'wc-aicc' ),
+                        'hint'  => __( 'Premium editorial cover with headlines', 'wc-aicc' ),
                     ),
                 ),
             ),
@@ -1018,8 +984,7 @@ class Prompt_Builder {
         $style_def = $styles[ $style_key ] ?? $styles['warhol_grid'];
         $sit_def   = $situations[ $situation_key ] ?? $situations['royal'];
 
-        $skip_situation = ! empty( $style_def['skip_situation'] );
-        $skip_bg        = ! empty( $style_def['skip_background_option'] );
+        $skip_bg = ! empty( $style_def['skip_background_option'] );
 
         $prompt_parts = array();
 
@@ -1046,15 +1011,15 @@ class Prompt_Builder {
             }
         }
 
-        // Situation context (skipped for minimal poster styles).
-        if ( ! $skip_situation && ! empty( $sit_def['lines'] ) && is_array( $sit_def['lines'] ) ) {
+        // Character context layered on top of the selected art style.
+        if ( ! empty( $sit_def['lines'] ) && is_array( $sit_def['lines'] ) ) {
             $prompt_parts = array_merge( $prompt_parts, $sit_def['lines'] );
         }
 
-        // Composition: situation override wins; minimal-transform situations skip default style framing.
-        if ( ! $skip_situation && ! empty( $sit_def['composition_priority'] ) ) {
+        // Composition: character override wins when set; otherwise use style framing.
+        if ( ! empty( $sit_def['composition_priority'] ) ) {
             $prompt_parts[] = 'composition priority: ' . $sit_def['composition_priority'];
-        } elseif ( ( $skip_situation || empty( $sit_def['minimal_transform'] ) ) && ! empty( $style_def['composition'] ) ) {
+        } elseif ( empty( $sit_def['minimal_transform'] ) && ! empty( $style_def['composition'] ) ) {
             $prompt_parts[] = $style_def['composition'];
         }
 

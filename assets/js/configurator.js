@@ -9,16 +9,12 @@
 
     // Configuration from WordPress
     const config = window.wcAiccConfig || {};
-    const { productId, variations, options, optionDefaults, customizeFlow, styleCustomizeFlows, sizingGuide, restUrl, nonce, i18n } = config;
+    const { productId, variations, options, optionDefaults, customizeFlow, sizingGuide, restUrl, nonce, i18n } = config;
 
     /**
      * @return {Array<{key: string, title: string}>}
      */
     function getCustomizeFlow() {
-        const style = (state.customizationOptions && state.customizationOptions.style) || '';
-        if (style && styleCustomizeFlows && styleCustomizeFlows[style] && styleCustomizeFlows[style].length) {
-            return styleCustomizeFlows[style];
-        }
         if (customizeFlow && customizeFlow.length) {
             return customizeFlow;
         }
@@ -31,26 +27,6 @@
 
     function getCustomizeSubstepTotal() {
         return getCustomizeFlow().length;
-    }
-
-    function styleRequiresPetName(styleKey) {
-        return styleKey === 'black_studio';
-    }
-
-    function styleSkipsSituationStep(styleKey) {
-        return styleKey === 'magazine_dogue'
-            || styleKey === 'black_studio'
-            || styleKey === 'royal_legacy'
-            || styleKey === 'whiskey_office';
-    }
-
-    function applyStyleFlowDefaults(styleKey) {
-        if (styleKey === 'black_studio' || styleKey === 'royal_legacy' || styleKey === 'whiskey_office') {
-            state.customizationOptions.situation = 'neutral';
-            state.customizationOptions.background_color = 'natural';
-        } else if (styleKey === 'magazine_dogue') {
-            state.customizationOptions.situation = 'neutral';
-        }
     }
 
     // State
@@ -595,21 +571,6 @@
 
         syncCustomizeSelectionsFromState();
 
-        if (styleRequiresPetName(state.customizationOptions.style)) {
-            syncPetNameFromDom();
-            const name = (state.customizationOptions.pet_name || '').trim();
-            if (!name) {
-                showError((i18n && i18n.petNameRequired) ? i18n.petNameRequired : 'Please enter your pet\'s name.');
-                const flow = getCustomizeFlow();
-                const petIdx = flow.findIndex(function(step) { return step.key === 'pet_name'; });
-                if (petIdx >= 0) {
-                    state.customizeSubStep = petIdx + 1;
-                    renderCustomizeSubstep();
-                }
-                return;
-            }
-        }
-
         state.status = 'processing';
         state.errorMessage = null;
         state.pollFailureCount = 0;
@@ -897,14 +858,6 @@
             return;
         }
         state.customizationOptions[key] = value;
-        if (key === 'style') {
-            applyStyleFlowDefaults(value);
-            const flow = getCustomizeFlow();
-            if (state.customizeSubStep > flow.length) {
-                state.customizeSubStep = flow.length;
-            }
-            renderCustomizeSubstep();
-        }
         const panel = card.closest('.wc-aicc-customize-panel');
         if (panel) {
             panel.querySelectorAll('.wc-aicc-choice-card[data-option-key="' + key + '"]').forEach(c => {
