@@ -74,6 +74,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 <span class="wc-aicc-size-card__cm"><?php echo esc_html( $cm ); ?></span>
                             <?php endif; ?>
                         </div>
+                        <?php if ( ! empty( $variation['price_html'] ) ) : ?>
+                            <p class="wc-aicc-size-card__price"><?php echo wp_kses_post( $variation['price_html'] ); ?></p>
+                        <?php endif; ?>
                         <?php if ( ! $variation['in_stock'] ) : ?>
                             <p class="wc-aicc-size-card__stock"><?php esc_html_e( 'Out of stock', 'wc-aicc' ); ?></p>
                         <?php else : ?>
@@ -162,10 +165,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <div class="wc-aicc-customize-panel" data-customize-key="<?php echo esc_attr( $option_key ); ?>" data-customize-substep="<?php echo esc_attr( (string) $sub_index ); ?>" <?php echo 1 === $sub_index ? '' : 'style="display: none;"'; ?>>
                         <div class="wc-aicc-customize-panel__intro<?php echo 'situation' === $option_key ? ' wc-aicc-customize-panel__intro--character' : ''; ?>">
                             <?php if ( 'situation' === $option_key ) : ?>
-                                <h4 class="wc-aicc-customize-panel__title"><?php esc_html_e( 'Select character', 'wc-aicc' ); ?></h4>
+                                <h4 class="wc-aicc-customize-panel__title"><?php echo esc_html( $option['step_title'] ?? $option['label'] ); ?></h4>
                             <?php elseif ( 'style' === $option_key || 'background_color' === $option_key ) : ?>
                                 <h4 class="wc-aicc-customize-panel__title"><?php echo esc_html( $option['step_title'] ?? $option['label'] ); ?></h4>
-                                <p class="wc-aicc-customize-panel__meta"><?php echo esc_html( sprintf( __( 'Step %1$d of %2$d', 'wc-aicc' ), $sub_index, $total_sub ) ); ?></p>
+                                <p class="wc-aicc-customize-panel__meta wc-aicc-customize-panel__meta--dynamic"><?php echo esc_html( sprintf( __( 'Step %1$d of %2$d', 'wc-aicc' ), $sub_index, $total_sub ) ); ?></p>
                             <?php else : ?>
                                 <span class="wc-aicc-customize-badge" aria-hidden="true"><?php echo esc_html( sprintf( '3.%d', $sub_index ) ); ?></span>
                                 <h4 class="wc-aicc-customize-panel__title"><?php echo esc_html( $option['step_title'] ?? $option['label'] ); ?></h4>
@@ -275,6 +278,71 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <?php esc_html_e( '← Back', 'wc-aicc' ); ?>
                         </button>
                         <button type="button" class="wc-aicc-generate-btn">
+                            <?php esc_html_e( 'Generate Preview', 'wc-aicc' ); ?>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="wc-aicc-customize-panel" data-customize-key="memorial_text" style="display: none;">
+                    <div class="wc-aicc-customize-panel__intro">
+                        <h4 class="wc-aicc-customize-panel__title"><?php esc_html_e( 'Memorial details', 'wc-aicc' ); ?></h4>
+                        <p class="wc-aicc-customize-panel__meta wc-aicc-customize-panel__meta--dynamic"><?php esc_html_e( 'Step 2 of 3', 'wc-aicc' ); ?></p>
+                        <p class="wc-aicc-customize-panel__hint"><?php esc_html_e( 'All fields are optional. Leave blank to omit text from the artwork.', 'wc-aicc' ); ?></p>
+                    </div>
+
+                    <div class="wc-aicc-memorial-fields">
+                        <div class="wc-aicc-memorial-field">
+                            <label for="wc-aicc-memorial-name" class="wc-aicc-memorial-field__label">
+                                <?php esc_html_e( 'Name', 'wc-aicc' ); ?>
+                            </label>
+                            <input
+                                type="text"
+                                id="wc-aicc-memorial-name"
+                                class="wc-aicc-memorial-field__input"
+                                name="wc_aicc_memorial_name"
+                                maxlength="40"
+                                autocomplete="off"
+                                placeholder="<?php esc_attr_e( 'e.g. Ruffus', 'wc-aicc' ); ?>"
+                            />
+                        </div>
+                        <div class="wc-aicc-memorial-field">
+                            <label for="wc-aicc-memorial-dates" class="wc-aicc-memorial-field__label">
+                                <?php esc_html_e( 'Dates', 'wc-aicc' ); ?>
+                            </label>
+                            <input
+                                type="text"
+                                id="wc-aicc-memorial-dates"
+                                class="wc-aicc-memorial-field__input"
+                                name="wc_aicc_memorial_dates"
+                                maxlength="32"
+                                autocomplete="off"
+                                placeholder="<?php esc_attr_e( 'e.g. 2018-2026', 'wc-aicc' ); ?>"
+                            />
+                        </div>
+                        <div class="wc-aicc-memorial-field">
+                            <label for="wc-aicc-memorial-message" class="wc-aicc-memorial-field__label">
+                                <?php esc_html_e( 'Message', 'wc-aicc' ); ?>
+                            </label>
+                            <input
+                                type="text"
+                                id="wc-aicc-memorial-message"
+                                class="wc-aicc-memorial-field__input"
+                                name="wc_aicc_memorial_message"
+                                maxlength="80"
+                                autocomplete="off"
+                                placeholder="<?php esc_attr_e( 'e.g. Forever in our Hearts', 'wc-aicc' ); ?>"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="wc-aicc-btn-row wc-aicc-customize-actions">
+                        <button type="button" class="wc-aicc-customize-back-btn">
+                            <?php esc_html_e( '← Back', 'wc-aicc' ); ?>
+                        </button>
+                        <button type="button" class="wc-aicc-customize-next-btn">
+                            <?php esc_html_e( 'Continue', 'wc-aicc' ); ?>
+                        </button>
+                        <button type="button" class="wc-aicc-generate-btn" style="display: none;">
                             <?php esc_html_e( 'Generate Preview', 'wc-aicc' ); ?>
                         </button>
                     </div>

@@ -230,6 +230,20 @@
     color: #333;
 }
 
+.wc-aicc-size-card__price {
+    margin: 0;
+    text-align: center;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #111;
+}
+
+.wc-aicc-size-card__price .amount,
+.wc-aicc-size-card__price bdi {
+    font-weight: 600;
+}
+
 .wc-aicc-size-card__stock {
     margin: 0;
     text-align: center;
@@ -290,7 +304,7 @@
     border: none;
     padding: 8px 12px;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 1.125rem;
     font-weight: 500;
     color: #111;
     text-decoration: underline;
@@ -828,6 +842,48 @@
 }
 
 .wc-aicc-pet-name-input:focus {
+    outline: none;
+    border-color: #EB662C;
+    box-shadow: 0 0 0 3px rgba(235, 102, 44, 0.15);
+}
+
+.wc-aicc-memorial-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 18px;
+    margin-bottom: 4px;
+}
+
+.wc-aicc-memorial-field__label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.wc-aicc-memorial-field__input {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    border: 2px solid #e8e8e8;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wc-aicc-memorial-field__input::placeholder {
+    color: #999;
+    font-weight: 400;
+}
+
+.wc-aicc-memorial-field__input:focus {
     outline: none;
     border-color: #EB662C;
     box-shadow: 0 0 0 3px rgba(235, 102, 44, 0.15);

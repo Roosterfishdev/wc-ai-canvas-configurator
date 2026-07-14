@@ -9,12 +9,16 @@
 
     // Configuration from WordPress
     const config = window.wcAiccConfig || {};
-    const { productId, variations, options, optionDefaults, customizeFlow, sizingGuide, restUrl, nonce, i18n } = config;
+    const { productId, variations, options, optionDefaults, customizeFlow, styleCustomizeFlows, stylesSkipTheme, styleBackgroundChoices, sizingGuide, restUrl, nonce, i18n } = config;
 
     /**
      * @return {Array<{key: string, title: string}>}
      */
     function getCustomizeFlow() {
+        const style = (state.customizationOptions && state.customizationOptions.style) || '';
+        if (styleCustomizeFlows && style && styleCustomizeFlows[style] && styleCustomizeFlows[style].length) {
+            return styleCustomizeFlows[style];
+        }
         if (customizeFlow && customizeFlow.length) {
             return customizeFlow;
         }
@@ -23,6 +27,96 @@
             { key: 'situation', title: '' },
             { key: 'background_color', title: '' }
         ];
+    }
+
+    function styleSkipsTheme(styleKey) {
+        return !!(stylesSkipTheme && stylesSkipTheme.indexOf(styleKey) >= 0);
+    }
+
+    function getAllowedBackgroundChoices(styleKey) {
+        if (styleBackgroundChoices && styleKey && styleBackgroundChoices[styleKey]) {
+            return styleBackgroundChoices[styleKey];
+        }
+        return null;
+    }
+
+    function applyStyleFlowRules(styleKey) {
+        if (!styleKey) {
+            return;
+        }
+
+        if (styleSkipsTheme(styleKey)) {
+            delete state.customizationOptions.situation;
+        } else if (!state.customizationOptions.situation) {
+            state.customizationOptions.situation = (optionDefaults && optionDefaults.situation) || 'original';
+        }
+
+        if (styleKey !== 'memorial') {
+            delete state.customizationOptions.memorial_name;
+            delete state.customizationOptions.memorial_dates;
+            delete state.customizationOptions.memorial_message;
+            syncMemorialTextToDom();
+        }
+
+        const allowedBg = getAllowedBackgroundChoices(styleKey);
+        if (allowedBg && allowedBg.length) {
+            const bg = state.customizationOptions.background_color;
+            if (!bg || allowedBg.indexOf(bg) < 0) {
+                state.customizationOptions.background_color = allowedBg[0];
+            }
+        }
+
+        const total = getCustomizeSubstepTotal();
+        if (state.customizeSubStep > total) {
+            state.customizeSubStep = total;
+        }
+    }
+
+    function renderBackgroundChoicesVisibility() {
+        if (!container) {
+            return;
+        }
+        const style = (state.customizationOptions && state.customizationOptions.style) || '';
+        const allowed = getAllowedBackgroundChoices(style);
+        const panel = container.querySelector('.wc-aicc-customize-panel[data-customize-key="background_color"]');
+        if (!panel) {
+            return;
+        }
+        panel.querySelectorAll('.wc-aicc-choice-card[data-option-key="background_color"]').forEach(function(card) {
+            const val = card.dataset.value;
+            const show = !allowed || allowed.indexOf(val) >= 0;
+            card.style.display = show ? '' : 'none';
+        });
+    }
+
+    function getCustomizationOptionsForApi() {
+        const opts = Object.assign({}, state.customizationOptions || {});
+        if (styleSkipsTheme(opts.style)) {
+            delete opts.situation;
+        }
+        return opts;
+    }
+
+    function updateCustomizeStepMeta(flow, total) {
+        if (!container) {
+            return;
+        }
+        container.querySelectorAll('.wc-aicc-customize-panel[data-customize-key]').forEach(function(panel) {
+            const panelKey = panel.dataset.customizeKey || '';
+            const stepIndex = flow.findIndex(function(step) {
+                return step.key === panelKey;
+            });
+            const meta = panel.querySelector('.wc-aicc-customize-panel__meta--dynamic');
+            if (!meta) {
+                return;
+            }
+            if (stepIndex >= 0) {
+                meta.textContent = ((i18n && i18n.step) ? i18n.step : 'Step') + ' ' + (stepIndex + 1) + ' of ' + total;
+                meta.style.display = '';
+            } else if (panelKey !== 'pet_name' && panelKey !== 'memorial_text') {
+                meta.style.display = 'none';
+            }
+        });
     }
 
     function getCustomizeSubstepTotal() {
@@ -351,6 +445,9 @@
             if (e.target && e.target.classList && e.target.classList.contains('wc-aicc-pet-name-input')) {
                 syncPetNameFromDom();
             }
+            if (e.target && e.target.classList && e.target.classList.contains('wc-aicc-memorial-field__input')) {
+                syncMemorialTextFromDom();
+            }
         });
 
         // File upload
@@ -588,7 +685,7 @@
                 cache: 'no-store',
                 headers: buildApiHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({
-                    customization_options: state.customizationOptions
+                    customization_options: getCustomizationOptionsForApi()
                 })
             });
 
@@ -789,6 +886,7 @@
             state.currentStep++;
             if (state.currentStep === 3) {
                 state.customizeSubStep = 1;
+                applyStyleFlowRules(state.customizationOptions.style || (optionDefaults && optionDefaults.style) || '');
             }
             renderCurrentStep();
             updateStepIndicators();
@@ -819,6 +917,7 @@
             state.currentStep--;
             if (state.currentStep === 3) {
                 state.customizeSubStep = 1;
+                applyStyleFlowRules(state.customizationOptions.style || (optionDefaults && optionDefaults.style) || '');
             }
             renderCurrentStep();
             updateStepIndicators();
@@ -857,7 +956,14 @@
         if (!key || value === undefined) {
             return;
         }
+        const prevStyle = state.customizationOptions.style;
         state.customizationOptions[key] = value;
+        if (key === 'style' && value !== prevStyle) {
+            applyStyleFlowRules(value);
+            renderBackgroundChoicesVisibility();
+            syncChoiceCardsFromState();
+            renderCustomizeSubstep();
+        }
         const panel = card.closest('.wc-aicc-customize-panel');
         if (panel) {
             panel.querySelectorAll('.wc-aicc-choice-card[data-option-key="' + key + '"]').forEach(c => {
@@ -880,18 +986,17 @@
 
         const isLastStep = state.customizeSubStep >= total;
 
+        updateCustomizeStepMeta(flow, total);
+        renderBackgroundChoicesVisibility();
+
         container.querySelectorAll('.wc-aicc-customize-panel').forEach(function(panel) {
             const panelKey = panel.dataset.customizeKey || '';
             const isActive = panelKey === activeKey;
             panel.style.display = isActive ? 'block' : 'none';
 
             const badge = panel.querySelector('.wc-aicc-customize-badge--dynamic');
-            const meta = panel.querySelector('.wc-aicc-customize-panel__meta--dynamic');
             if (badge) {
                 badge.textContent = '3.' + state.customizeSubStep;
-            }
-            if (meta && activeStep && isActive) {
-                meta.textContent = ((i18n && i18n.step) ? i18n.step : 'Step') + ' ' + state.customizeSubStep + ' of ' + total;
             }
 
             const nextBtn = panel.querySelector('.wc-aicc-customize-next-btn');
@@ -918,6 +1023,42 @@
             });
         });
         syncPetNameToDom();
+        syncMemorialTextToDom();
+    }
+
+    function syncMemorialTextFromDom() {
+        const fields = [
+            { id: 'wc-aicc-memorial-name', key: 'memorial_name', max: 40 },
+            { id: 'wc-aicc-memorial-dates', key: 'memorial_dates', max: 32 },
+            { id: 'wc-aicc-memorial-message', key: 'memorial_message', max: 80 }
+        ];
+        fields.forEach(function(field) {
+            const input = document.getElementById(field.id);
+            if (!input) {
+                return;
+            }
+            let v = (input.value || '').slice(0, field.max);
+            if (input.value && input.value.length > field.max) {
+                input.value = v;
+            }
+            state.customizationOptions[field.key] = v;
+        });
+    }
+
+    function syncMemorialTextToDom() {
+        const fields = [
+            { id: 'wc-aicc-memorial-name', key: 'memorial_name' },
+            { id: 'wc-aicc-memorial-dates', key: 'memorial_dates' },
+            { id: 'wc-aicc-memorial-message', key: 'memorial_message' }
+        ];
+        fields.forEach(function(field) {
+            const input = document.getElementById(field.id);
+            if (!input) {
+                return;
+            }
+            const v = state.customizationOptions[field.key];
+            input.value = v != null ? String(v) : '';
+        });
     }
 
     function syncPetNameFromDom() {
@@ -979,8 +1120,9 @@
 
         // Customize flow: show first sub-step and align cards with state
         if (state.currentStep === 3) {
-            state.customizeSubStep = 1;
+            applyStyleFlowRules(state.customizationOptions.style || (optionDefaults && optionDefaults.style) || '');
             syncChoiceCardsFromState();
+            renderBackgroundChoicesVisibility();
             renderCustomizeSubstep();
         }
     }
@@ -990,6 +1132,7 @@
      */
     function syncCustomizeSelectionsFromState() {
         syncPetNameFromDom();
+        syncMemorialTextFromDom();
         syncChoiceCardsFromState();
     }
 
@@ -1160,6 +1303,20 @@
                         const prefix = (i18n && i18n.petNameLabel) ? i18n.petNameLabel : 'Pet name';
                         parts.push(prefix + ': ' + pn);
                     }
+                    return;
+                }
+                if (key === 'memorial_text') {
+                    const memorialFields = [
+                        { key: 'memorial_name', label: (i18n && i18n.memorialNameLabel) ? i18n.memorialNameLabel : 'Name' },
+                        { key: 'memorial_dates', label: (i18n && i18n.memorialDatesLabel) ? i18n.memorialDatesLabel : 'Dates' },
+                        { key: 'memorial_message', label: (i18n && i18n.memorialMessageLabel) ? i18n.memorialMessageLabel : 'Message' }
+                    ];
+                    memorialFields.forEach(function(field) {
+                        const val = (state.customizationOptions[field.key] || '').trim();
+                        if (val) {
+                            parts.push(field.label + ': ' + val);
+                        }
+                    });
                     return;
                 }
                 const val = state.customizationOptions[key];

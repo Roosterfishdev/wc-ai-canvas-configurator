@@ -269,6 +269,8 @@ class Configurator {
                 'optionDefaults' => \WC_AICC\Config\Prompt_Builder::DEFAULTS,
                 'customizeFlow' => \WC_AICC\Config\Prompt_Builder::get_customize_flow_meta(),
                 'styleCustomizeFlows' => \WC_AICC\Config\Prompt_Builder::get_style_customize_flows(),
+                'stylesSkipTheme' => \WC_AICC\Config\Prompt_Builder::get_styles_skip_theme(),
+                'styleBackgroundChoices' => \WC_AICC\Config\Prompt_Builder::get_style_background_choice_restrictions(),
                 'sizingGuide'         => Sizing_Guide::get_panel_data(),
                 'previewWatermark'    => \WC_AICC\Config\Preview_Watermark::is_enabled(),
                 'restUrl'      => rest_url( 'wc-aicc/v1' ),
@@ -300,6 +302,9 @@ class Configurator {
                     'outOfStock'       => __( 'Out of stock', 'wc-aicc' ),
                     'petNameRequired'  => __( 'Please enter your pet\'s name to continue.', 'wc-aicc' ),
                     'petNameLabel'     => __( 'Pet name', 'wc-aicc' ),
+                    'memorialNameLabel'    => __( 'Name', 'wc-aicc' ),
+                    'memorialDatesLabel'   => __( 'Dates', 'wc-aicc' ),
+                    'memorialMessageLabel' => __( 'Message', 'wc-aicc' ),
                 ),
             )
         );

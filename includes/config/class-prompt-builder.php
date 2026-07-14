@@ -370,6 +370,142 @@ class Prompt_Builder {
                 'no distorted canine anatomy',
             ),
         ),
+        'toilet' => array(
+            'skip_identity_lines' => true,
+            'core'                => array(
+                '(masterpiece:1.2), (high-end photorealistic pet photography:1.4)',
+                'the exact same pet from the uploaded reference image',
+                'preserve facial structure, breed traits, fur color, markings, eye color, ear shape and body proportions',
+                'do not change the pet\'s identity or distinctive features',
+                'pet sitting upright on a closed white toilet seat',
+                'front-facing pose, looking directly at the camera',
+                'pet holding an open newspaper naturally with both front paws',
+                'newspaper positioned across the lower chest and lap',
+                'hind paws visible resting near the front edge of the toilet seat',
+                'humorous but believable bathroom portrait',
+                'clean modern bathroom with white ceramic wall tiles',
+                'toilet paper roll mounted on the wall to the left',
+                'small potted plant and subtle bathroom accessories in the background',
+                'woven laundry basket placed on the floor to the right',
+                'soft warm neutral color palette',
+                'gentle diffused natural lighting',
+                'realistic shadows, reflections and material textures',
+                'sharp detailed fur and expressive eyes',
+                'centered symmetrical composition',
+                'eye-level camera angle',
+                'full-body vertical portrait',
+                'shallow depth of field with softly blurred background',
+                'premium editorial pet photography',
+                'playful sophisticated atmosphere',
+                'highly realistic photographic result',
+            ),
+            'composition' => 'centered symmetrical full-body vertical portrait, eye-level camera, pet seated on closed toilet seat holding newspaper',
+            'negative_extra' => array(
+                'no text, no readable headlines, no watermark, no logo',
+                'no extra animals',
+                'no humans or visible human body parts',
+                'no human hands',
+                'no human facial features',
+                'no clothing unless present in the uploaded reference image',
+                'no breed changes',
+                'no fur color changes',
+                'no altered markings',
+                'no exaggerated anatomy',
+                'no oversized head',
+                'no distorted face',
+                'no deformed eyes',
+                'no mismatched eyes',
+                'no extra paws or legs',
+                'no missing limbs',
+                'no fused paws',
+                'no malformed newspaper',
+                'no floating objects',
+                'no open toilet lid behind the pet',
+                'no visible waste or toilet humor beyond the setting',
+                'no dirty bathroom',
+                'no cartoon style',
+                'no illustration',
+                'no painting',
+                'no 3D render',
+                'no artificial plastic fur',
+                'no fisheye distortion',
+                'no extreme wide-angle perspective',
+                'no blurry subject',
+                'no low-quality render',
+            ),
+        ),
+        'memorial' => array(
+            'skip_identity_lines' => true,
+            'core'                => array(
+                '(masterpiece:1.2), (premium watercolor pet memorial portrait:1.4)',
+                '(reference-image identity preservation:1.5)',
+                '(facial likeness accuracy:1.5)',
+                'the exact same pet from the uploaded reference photo',
+                'preserve facial structure, breed traits, fur color, markings, eye color, ear shape and body proportions',
+                'do not change the pet\'s identity or distinctive physical features',
+                'full-body portrait of the pet sitting upright',
+                'front-facing pose, looking calmly toward the viewer',
+                'natural dignified posture with front paws resting on the ground',
+                'large symmetrical white angel wings extending from behind the shoulders',
+                'wings softly spread outward and upward',
+                'detailed layered feathers with delicate light gray and cream shading',
+                'angel wings positioned naturally behind the pet without covering the face or body',
+                'soft hand-painted watercolor illustration',
+                'delicate watercolor washes and subtle pigment variation',
+                'light ink and brush detailing around the fur',
+                'translate the pet\'s real fur into elegant watercolor brushwork',
+                'soft natural edges with selective fine details around the face and eyes',
+                'warm ivory watercolor-paper background',
+                'minimal uncluttered composition',
+                'subtle grounding shadow beneath the pet',
+                'centered symmetrical memorial portrait',
+                'generous negative space around the wings',
+                'additional clean space beneath the pet for memorial text',
+                'gentle peaceful and affectionate atmosphere',
+                'tasteful premium remembrance artwork',
+                'museum-quality custom pet memorial illustration',
+                'vertical 4:5 print composition',
+                'isolated artwork only, no frame and no interior mockup',
+            ),
+            'composition' => 'centered symmetrical full-body memorial portrait with angel wings and clean space beneath for optional memorial typography',
+            'negative_extra' => array(
+                'no watermark, no logo',
+                'no extra animals',
+                'no humans or human body parts',
+                'no human facial features',
+                'no breed changes',
+                'no fur color changes',
+                'no altered markings',
+                'no clothing or accessories unless present in the uploaded reference image',
+                'no halo unless specifically requested',
+                'no more than two wings',
+                'no dark or black wings',
+                'no wings growing from the head',
+                'no wings covering the face',
+                'no asymmetrical or malformed wings',
+                'no exaggerated wing size',
+                'no exaggerated anatomy',
+                'no oversized head',
+                'no distorted face',
+                'no deformed eyes',
+                'no mismatched eyes',
+                'no extra paws or legs',
+                'no missing limbs',
+                'no fused paws',
+                'do not crop the ears, paws, tail or wings',
+                'no photorealistic background',
+                'no room, wall, floor, picture frame or product mockup',
+                'no oil painting style',
+                'no cartoon style',
+                'no anime style',
+                'no 3D render',
+                'no heavy outlines',
+                'no saturated or neon colors',
+                'no busy decorative background',
+                'no blurry face',
+                'no low-quality render',
+            ),
+        ),
     );
 
     /**
@@ -450,6 +586,54 @@ class Prompt_Builder {
             ),
             'composition_priority' => 'editorial magazine cover layout with intentional headline space, layered on the selected art style',
         ),
+        'commander' => array(
+            'lines' => array(
+                'theme layer applied on top of the selected art style: military commander with dress uniform, medals, and authoritative leadership presence',
+                'keep the chosen art style rendering while adding commander theme styling',
+                'command center, naval bridge, or strategic military briefing atmosphere',
+            ),
+            'composition_priority' => 'commander portrait in military uniform with authoritative leadership atmosphere',
+        ),
+        'biker' => array(
+            'lines' => array(
+                'theme layer applied on top of the selected art style: classic biker with leather jacket, bandana, and motorcycle culture styling',
+                'keep the chosen art style rendering while adding biker theme styling',
+                'open road, garage, or motorcycle club atmosphere with gritty attitude',
+            ),
+            'composition_priority' => 'biker portrait with leather jacket and motorcycle culture atmosphere',
+        ),
+        'doctor' => array(
+            'lines' => array(
+                'theme layer applied on top of the selected art style: professional doctor in white coat with stethoscope and caring medical presence',
+                'keep the chosen art style rendering while adding doctor theme styling',
+                'hospital, clinic, or medical office atmosphere with clean professional lighting',
+            ),
+            'composition_priority' => 'doctor portrait in white coat with medical professional atmosphere',
+        ),
+        'fisherman' => array(
+            'lines' => array(
+                'theme layer applied on top of the selected art style: seasoned fisherman with rain gear, boots, and coastal working-class charm',
+                'keep the chosen art style rendering while adding fisherman theme styling',
+                'harbor dock, fishing boat deck, or misty coastal waters atmosphere',
+            ),
+            'composition_priority' => 'fisherman portrait with coastal harbor or boat deck atmosphere',
+        ),
+        'basketball_player' => array(
+            'lines' => array(
+                'theme layer applied on top of the selected art style: basketball player in jersey, shorts, and athletic game-ready energy',
+                'keep the chosen art style rendering while adding basketball player theme styling',
+                'indoor basketball court, arena lights, or dynamic sports action atmosphere',
+            ),
+            'composition_priority' => 'basketball player portrait in jersey with court or arena atmosphere',
+        ),
+        'baseball_player' => array(
+            'lines' => array(
+                'theme layer applied on top of the selected art style: baseball player in uniform, cap, and classic Americana sports styling',
+                'keep the chosen art style rendering while adding baseball player theme styling',
+                'baseball diamond, dugout, or stadium field atmosphere under bright game-day lights',
+            ),
+            'composition_priority' => 'baseball player portrait in uniform with stadium or field atmosphere',
+        ),
     );
 
     /**
@@ -480,6 +664,9 @@ class Prompt_Builder {
         'situation'          => 'original',
         'background_color'   => 'natural',
         'pet_name'           => '',
+        'memorial_name'      => '',
+        'memorial_dates'     => '',
+        'memorial_message'   => '',
     );
 
     /**
@@ -488,11 +675,42 @@ class Prompt_Builder {
     const PET_NAME_MAX_LEN = 40;
 
     /**
+     * Max lengths for memorial text fields.
+     */
+    const MEMORIAL_NAME_MAX_LEN    = 40;
+    const MEMORIAL_DATES_MAX_LEN   = 32;
+    const MEMORIAL_MESSAGE_MAX_LEN = 80;
+
+    /**
      * Ordered keys for customize sub-steps (UI + summaries)
      *
      * @var array
      */
     const CUSTOMIZE_OPTION_ORDER = array( 'style', 'situation', 'background_color' );
+
+    /**
+     * Styles that ship a complete visual theme — skip the separate theme selection step.
+     *
+     * @var array<int, string>
+     */
+    const STYLES_SKIP_THEME = array(
+        'magazine_dogue',
+        'royal_legacy',
+        'black_studio',
+        'whiskey_office',
+        'toilet',
+        'memorial',
+        'portrait',
+    );
+
+    /**
+     * Per-style background choice restrictions (style slug => allowed choice keys).
+     *
+     * @var array<string, array<int, string>>
+     */
+    const STYLE_BACKGROUND_CHOICE_RESTRICTIONS = array(
+        'portrait' => array( 'black', 'white' ),
+    );
 
     /**
      * Subdirectory under wp-content/uploads for style card thumbnails.
@@ -510,6 +728,8 @@ class Prompt_Builder {
         'black_studio'   => array( 'black_white', 'Black Studio' ),
         'magazine_dogue' => array( 'dogue', 'Dogue Cover' ),
         'royal_legacy'   => array( 'Royal Legacy' ),
+        'toilet'         => array( 'Toilet' ),
+        'memorial'       => array( 'Memorial' ),
     );
 
     /**
@@ -542,17 +762,128 @@ class Prompt_Builder {
     }
 
     /**
+     * Style slugs that skip the theme selection sub-step.
+     *
+     * @return array<int, string>
+     */
+    public static function get_styles_skip_theme() {
+        /**
+         * Styles with a built-in theme that should not show the theme picker.
+         *
+         * @param array<int, string> $slugs Style slugs.
+         */
+        return apply_filters( 'wc_aicc_styles_skip_theme', self::STYLES_SKIP_THEME );
+    }
+
+    /**
+     * Whether a style skips the theme selection sub-step.
+     *
+     * @param string $style_key Style slug.
+     * @return bool
+     */
+    public static function style_skips_theme( $style_key ) {
+        return in_array( sanitize_key( (string) $style_key ), self::get_styles_skip_theme(), true );
+    }
+
+    /**
+     * Per-style background choice restrictions for the configurator UI and sanitization.
+     *
+     * @return array<string, array<int, string>>
+     */
+    public static function get_style_background_choice_restrictions() {
+        /**
+         * Restrict background swatches for specific styles (e.g. Portrait → black/white only).
+         *
+         * @param array<string, array<int, string>> $restrictions Style slug => choice keys.
+         */
+        return apply_filters( 'wc_aicc_style_background_choice_restrictions', self::STYLE_BACKGROUND_CHOICE_RESTRICTIONS );
+    }
+
+    /**
+     * Allowed background choice keys for a style, or null when all backgrounds apply.
+     *
+     * @param string $style_key Style slug.
+     * @return array<int, string>|null
+     */
+    public static function get_allowed_background_choices_for_style( $style_key ) {
+        $style_key    = sanitize_key( (string) $style_key );
+        $restrictions = self::get_style_background_choice_restrictions();
+        if ( empty( $restrictions[ $style_key ] ) || ! is_array( $restrictions[ $style_key ] ) ) {
+            return null;
+        }
+        return array_values( $restrictions[ $style_key ] );
+    }
+
+    /**
+     * Customize flow with style and background only (no theme step).
+     *
+     * @return array<int, array{key: string, title: string}>
+     */
+    private static function get_flow_style_and_background_only() {
+        $out = array();
+        foreach ( self::get_customize_flow_meta() as $step ) {
+            if ( in_array( $step['key'], array( 'style', 'background_color' ), true ) ) {
+                $out[] = $step;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Customize flow for memorial: style → memorial text → background.
+     *
+     * @return array<int, array{key: string, title: string}>
+     */
+    private static function get_flow_memorial() {
+        $cfg = self::get_options_config();
+        $out = array();
+
+        if ( isset( $cfg['style'] ) ) {
+            $out[] = array(
+                'key'   => 'style',
+                'title' => $cfg['style']['step_title'] ?? '',
+            );
+        }
+
+        $out[] = array(
+            'key'   => 'memorial_text',
+            'title' => __( 'Memorial details', 'wc-aicc' ),
+        );
+
+        if ( isset( $cfg['background_color'] ) ) {
+            $out[] = array(
+                'key'   => 'background_color',
+                'title' => $cfg['background_color']['step_title'] ?? '',
+            );
+        }
+
+        return $out;
+    }
+
+    /**
      * Per-style customize sub-step flows (override default style → situation → background).
      *
      * @return array<string, array<int, array{key: string, title: string}>>
      */
     public static function get_style_customize_flows() {
+        $style_background_flow = self::get_flow_style_and_background_only();
+        $flows                 = array();
+
+        foreach ( self::get_styles_skip_theme() as $style_key ) {
+            $slug = sanitize_key( $style_key );
+            if ( 'memorial' === $slug ) {
+                $flows[ $slug ] = self::get_flow_memorial();
+            } else {
+                $flows[ $slug ] = $style_background_flow;
+            }
+        }
+
         /**
-         * All styles use the default flow: style → character → background.
+         * Per-style customize sub-step order (style → theme → background by default).
          *
-         * @param array<string, array> $flows Style slug => ordered step definitions.
+         * @param array<string, array<int, array{key: string, title: string}>> $flows Style slug => steps.
          */
-        return apply_filters( 'wc_aicc_style_customize_flows', array() );
+        return apply_filters( 'wc_aicc_style_customize_flows', $flows );
     }
 
     /**
@@ -623,12 +954,22 @@ class Prompt_Builder {
                         'label' => __( 'Whiskey Office', 'wc-aicc' ),
                         'hint'  => __( 'Mob boss executive portrait', 'wc-aicc' ),
                     ),
+                    'toilet' => array(
+                        'label'         => __( 'Toilet', 'wc-aicc' ),
+                        'hint'          => __( 'Humorous bathroom portrait with newspaper', 'wc-aicc' ),
+                        'example_image' => ( defined( 'WC_AICC_PLUGIN_URL' ) ? WC_AICC_PLUGIN_URL . 'assets/images/style-examples/toilet.webp' : '' ),
+                    ),
+                    'memorial' => array(
+                        'label'         => __( 'Memorial', 'wc-aicc' ),
+                        'hint'          => __( 'Watercolor angel wings with optional memorial text', 'wc-aicc' ),
+                        'example_image' => ( defined( 'WC_AICC_PLUGIN_URL' ) ? WC_AICC_PLUGIN_URL . 'assets/images/style-examples/memorial.webp' : '' ),
+                    ),
                 ),
             ),
             'situation' => array(
-                'label'      => __( 'Character', 'wc-aicc' ),
+                'label'      => __( 'Theme', 'wc-aicc' ),
                 'step'       => 2,
-                'step_title' => __( 'Select character', 'wc-aicc' ),
+                'step_title' => __( 'Select theme', 'wc-aicc' ),
                 'type'       => 'cards',
                 'choices'    => array(
                     'original' => array(
@@ -675,6 +1016,36 @@ class Prompt_Builder {
                         'icon'  => "\u{1F4D6}",
                         'label' => __( 'Magazine Cover', 'wc-aicc' ),
                         'hint'  => __( 'Premium editorial cover with headlines', 'wc-aicc' ),
+                    ),
+                    'commander' => array(
+                        'icon'  => "\u{1F396}\u{FE0F}",
+                        'label' => __( 'Commander', 'wc-aicc' ),
+                        'hint'  => __( 'Military uniform with leadership presence', 'wc-aicc' ),
+                    ),
+                    'biker' => array(
+                        'icon'  => "\u{1F3CD}\u{FE0F}",
+                        'label' => __( 'Biker', 'wc-aicc' ),
+                        'hint'  => __( 'Leather jacket and motorcycle culture', 'wc-aicc' ),
+                    ),
+                    'doctor' => array(
+                        'icon'  => "\u{2695}\u{FE0F}",
+                        'label' => __( 'Doctor', 'wc-aicc' ),
+                        'hint'  => __( 'White coat with a medical setting', 'wc-aicc' ),
+                    ),
+                    'fisherman' => array(
+                        'icon'  => "\u{1F3A3}",
+                        'label' => __( 'Fisherman', 'wc-aicc' ),
+                        'hint'  => __( 'Coastal gear with harbor or boat atmosphere', 'wc-aicc' ),
+                    ),
+                    'basketball_player' => array(
+                        'icon'  => "\u{1F3C0}",
+                        'label' => __( 'Basketball Player', 'wc-aicc' ),
+                        'hint'  => __( 'Jersey and court or arena energy', 'wc-aicc' ),
+                    ),
+                    'baseball_player' => array(
+                        'icon'  => "\u{26BE}\u{FE0F}",
+                        'label' => __( 'Baseball Player', 'wc-aicc' ),
+                        'hint'  => __( 'Uniform and stadium field atmosphere', 'wc-aicc' ),
                     ),
                 ),
             ),
@@ -952,8 +1323,15 @@ class Prompt_Builder {
      * @return string[]
      */
     public static function summarize_option_labels( array $options ) {
-        $parts = array();
-        foreach ( self::get_customize_option_order() as $key ) {
+        $parts      = array();
+        $style_key  = isset( $options['style'] ) ? sanitize_key( (string) $options['style'] ) : '';
+        $flow_steps = self::get_customize_flow_for_style( $style_key );
+
+        foreach ( $flow_steps as $step ) {
+            $key = $step['key'] ?? '';
+            if ( $key === '' || 'pet_name' === $key ) {
+                continue;
+            }
             $value = $options[ $key ] ?? '';
             if ( $value === '' || $value === null ) {
                 continue;
@@ -970,6 +1348,20 @@ class Prompt_Builder {
         $pet_name = isset( $options['pet_name'] ) ? trim( (string) $options['pet_name'] ) : '';
         if ( $pet_name !== '' ) {
             $parts[] = __( 'Pet name', 'wc-aicc' ) . ': ' . $pet_name;
+        }
+
+        if ( 'memorial' === $style_key ) {
+            $memorial_labels = array(
+                'memorial_name'    => __( 'Name', 'wc-aicc' ),
+                'memorial_dates'   => __( 'Dates', 'wc-aicc' ),
+                'memorial_message' => __( 'Message', 'wc-aicc' ),
+            );
+            foreach ( $memorial_labels as $key => $label ) {
+                $value = isset( $options[ $key ] ) ? trim( (string) $options[ $key ] ) : '';
+                if ( $value !== '' ) {
+                    $parts[] = $label . ': ' . $value;
+                }
+            }
         }
 
         return $parts;
@@ -1024,16 +1416,23 @@ class Prompt_Builder {
             }
         }
 
-        // Character context layered on top of the selected art style.
-        if ( ! empty( $sit_def['lines'] ) && is_array( $sit_def['lines'] ) ) {
-            $prompt_parts = array_merge( $prompt_parts, $sit_def['lines'] );
+        // Memorial typography (optional name, dates, message).
+        if ( 'memorial' === $style_key ) {
+            $prompt_parts = array_merge( $prompt_parts, self::build_memorial_text_lines( $options ) );
         }
 
-        // Composition: character override wins when set; otherwise use style framing.
-        if ( ! empty( $sit_def['composition_priority'] ) ) {
-            $prompt_parts[] = 'composition priority: ' . $sit_def['composition_priority'];
-        } elseif ( empty( $sit_def['minimal_transform'] ) && ! empty( $style_def['composition'] ) ) {
-            $prompt_parts[] = $style_def['composition'];
+        // Theme context layered on top of the selected art style (skipped for built-in-theme styles).
+        if ( ! self::style_skips_theme( $style_key ) ) {
+            if ( ! empty( $sit_def['lines'] ) && is_array( $sit_def['lines'] ) ) {
+                $prompt_parts = array_merge( $prompt_parts, $sit_def['lines'] );
+            }
+
+            // Composition: theme override wins when set; otherwise use style framing.
+            if ( ! empty( $sit_def['composition_priority'] ) ) {
+                $prompt_parts[] = 'composition priority: ' . $sit_def['composition_priority'];
+            } elseif ( empty( $sit_def['minimal_transform'] ) && ! empty( $style_def['composition'] ) ) {
+                $prompt_parts[] = $style_def['composition'];
+            }
         }
 
         // Background color (skip for fixed-background styles).
@@ -1055,7 +1454,10 @@ class Prompt_Builder {
         $prompt = implode( ', ', array_filter( array_map( 'trim', $prompt_parts ) ) );
 
         $negative = self::CONSTRAINTS;
-        if ( ! empty( $style_def['requires_pet_name'] ) || ! empty( $style_def['allows_cover_text'] ) ) {
+        $allows_text_in_output = ! empty( $style_def['requires_pet_name'] )
+            || ! empty( $style_def['allows_cover_text'] )
+            || ( 'memorial' === $style_key && self::has_memorial_text( $options ) );
+        if ( $allows_text_in_output ) {
             $negative = array_values(
                 array_filter(
                     $negative,
@@ -1101,10 +1503,21 @@ class Prompt_Builder {
             $raw['situation'] = 'original';
         }
 
-        $config  = self::get_options_config();
-        $result  = array();
+        $config = self::get_options_config();
+
+        $style_value = isset( $raw['style'] ) ? sanitize_text_field( $raw['style'] ) : '';
+        $style_keys  = self::get_choice_keys( 'style' );
+        $style_key   = in_array( $style_value, $style_keys, true ) ? $style_value : ( self::DEFAULTS['style'] ?? '' );
+
+        $skip_theme  = self::style_skips_theme( $style_key );
+        $allowed_bg  = self::get_allowed_background_choices_for_style( $style_key );
+        $result      = array();
 
         foreach ( array_keys( $config ) as $key ) {
+            if ( $skip_theme && 'situation' === $key ) {
+                continue;
+            }
+
             $value   = isset( $raw[ $key ] ) ? sanitize_text_field( $raw[ $key ] ) : '';
             $choices = self::get_choice_keys( $key );
             if ( in_array( $value, $choices, true ) ) {
@@ -1115,8 +1528,22 @@ class Prompt_Builder {
         }
 
         $result['pet_name'] = self::sanitize_pet_name( $raw['pet_name'] ?? '' );
+        $result['memorial_name']    = self::sanitize_memorial_text( $raw['memorial_name'] ?? '', self::MEMORIAL_NAME_MAX_LEN );
+        $result['memorial_dates']   = self::sanitize_memorial_text( $raw['memorial_dates'] ?? '', self::MEMORIAL_DATES_MAX_LEN );
+        $result['memorial_message'] = self::sanitize_memorial_text( $raw['memorial_message'] ?? '', self::MEMORIAL_MESSAGE_MAX_LEN );
 
-        return wp_parse_args( $result, self::DEFAULTS );
+        if ( is_array( $allowed_bg ) && ! empty( $allowed_bg ) ) {
+            if ( empty( $result['background_color'] ) || ! in_array( $result['background_color'], $allowed_bg, true ) ) {
+                $result['background_color'] = $allowed_bg[0];
+            }
+        }
+
+        $defaults = self::DEFAULTS;
+        if ( $skip_theme ) {
+            unset( $defaults['situation'] );
+        }
+
+        return wp_parse_args( $result, $defaults );
     }
 
     /**
@@ -1158,5 +1585,72 @@ class Prompt_Builder {
             return mb_strtoupper( $t, 'UTF-8' );
         }
         return strtoupper( $t );
+    }
+
+    /**
+     * Whether memorial options include any custom text.
+     *
+     * @param array $options Sanitized options.
+     * @return bool
+     */
+    public static function has_memorial_text( array $options ) {
+        foreach ( array( 'memorial_name', 'memorial_dates', 'memorial_message' ) as $key ) {
+            if ( ! empty( $options[ $key ] ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Build memorial typography prompt lines from optional user fields.
+     *
+     * @param array $options Sanitized options.
+     * @return array<int, string>
+     */
+    public static function build_memorial_text_lines( array $options ) {
+        $name    = self::sanitize_memorial_text( $options['memorial_name'] ?? '', self::MEMORIAL_NAME_MAX_LEN );
+        $dates   = self::sanitize_memorial_text( $options['memorial_dates'] ?? '', self::MEMORIAL_DATES_MAX_LEN );
+        $message = self::sanitize_memorial_text( $options['memorial_message'] ?? '', self::MEMORIAL_MESSAGE_MAX_LEN );
+        $lines   = array();
+
+        if ( $name !== '' ) {
+            $lines[] = 'place the pet name centered beneath the portrait: "' . $name . '"';
+            $lines[] = 'render the pet name in an elegant flowing calligraphy or refined script typeface';
+        }
+        if ( $dates !== '' ) {
+            $lines[] = 'place the dates centered beneath the name: "' . $dates . '"';
+        }
+        if ( $message !== '' ) {
+            $lines[] = 'place the memorial message centered beneath the dates: "' . $message . '"';
+            $lines[] = 'render the memorial message in a smaller refined italic serif typeface';
+        }
+        if ( ! empty( $lines ) ) {
+            $lines[] = 'use soft charcoal-gray typography';
+            $lines[] = 'keep the text perfectly centered, legible and correctly spelled';
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Sanitize memorial text field for prompt injection.
+     *
+     * @param mixed $raw Raw value.
+     * @param int   $max Max length.
+     * @return string
+     */
+    public static function sanitize_memorial_text( $raw, $max = 80 ) {
+        $t = sanitize_text_field( is_string( $raw ) ? $raw : '' );
+        $t = wp_strip_all_tags( $t );
+        $t = preg_replace( '/\s+/u', ' ', $t );
+        $t = trim( $t );
+        $max = max( 1, (int) $max );
+        if ( function_exists( 'mb_strlen' ) && mb_strlen( $t ) > $max ) {
+            $t = mb_substr( $t, 0, $max );
+        } elseif ( strlen( $t ) > $max ) {
+            $t = substr( $t, 0, $max );
+        }
+        return $t;
     }
 }
