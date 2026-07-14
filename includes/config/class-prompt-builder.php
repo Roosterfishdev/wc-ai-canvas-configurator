@@ -311,7 +311,6 @@ class Prompt_Builder {
                 'vertical poster layout 2:3 ratio, pet centered horizontally',
                 'only head and upper chest visible, pet occupies approximately 30-40% of total canvas height',
                 'large negative space above the pet, portrait in lower third of canvas, symmetrical composition, no tilt',
-                'solid matte charcoal black background #1A1A1A, no gradients, no textures, no patterns, no scenery, no shadows on background',
                 'soft professional studio lighting, subtle highlights in eyes, gentle nose highlights, natural depth',
                 'no dramatic contrast, natural golden fur coloration preserved',
                 'luxury custom pet portrait brands, modern Scandinavian poster design, premium Etsy pet portrait aesthetic',
@@ -709,7 +708,8 @@ class Prompt_Builder {
      * @var array<string, array<int, string>>
      */
     const STYLE_BACKGROUND_CHOICE_RESTRICTIONS = array(
-        'portrait' => array( 'black', 'white' ),
+        'black_studio' => array( 'black', 'white' ),
+        'portrait'     => array( 'black', 'white' ),
     );
 
     /**
@@ -725,7 +725,7 @@ class Prompt_Builder {
      * @var array<string, string[]>
      */
     private const STYLE_EXAMPLE_ALIASES = array(
-        'black_studio'   => array( 'black_white', 'Black Studio' ),
+        'black_studio'   => array( 'black_white', 'Black Studio', 'Studio Portrait' ),
         'magazine_dogue' => array( 'dogue', 'Dogue Cover' ),
         'royal_legacy'   => array( 'Royal Legacy' ),
         'toilet'         => array( 'Toilet' ),
@@ -947,8 +947,8 @@ class Prompt_Builder {
                         'hint'  => __( 'Regal old-master portrait', 'wc-aicc' ),
                     ),
                     'black_studio' => array(
-                        'label' => __( 'Black Studio', 'wc-aicc' ),
-                        'hint'  => __( 'Minimal charcoal poster with pet name', 'wc-aicc' ),
+                        'label' => __( 'Studio Portrait', 'wc-aicc' ),
+                        'hint'  => __( 'Minimal studio portrait on black or white', 'wc-aicc' ),
                     ),
                     'whiskey_office' => array(
                         'label' => __( 'Whiskey Office', 'wc-aicc' ),
@@ -1437,9 +1437,17 @@ class Prompt_Builder {
 
         // Background color (skip for fixed-background styles).
         if ( ! $skip_bg ) {
-            $bg_phrase = $bg_map[ $bg_key ] ?? '';
-            if ( $bg_phrase !== '' ) {
-                $prompt_parts[] = $bg_phrase;
+            if ( 'black_studio' === $style_key ) {
+                if ( 'white' === $bg_key ) {
+                    $prompt_parts[] = 'solid matte clean white studio background #FFFFFF, no gradients, no textures, no patterns, no scenery, no shadows on background';
+                } else {
+                    $prompt_parts[] = 'solid matte charcoal black studio background #1A1A1A, no gradients, no textures, no patterns, no scenery, no shadows on background';
+                }
+            } else {
+                $bg_phrase = $bg_map[ $bg_key ] ?? '';
+                if ( $bg_phrase !== '' ) {
+                    $prompt_parts[] = $bg_phrase;
+                }
             }
         }
 

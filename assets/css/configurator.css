@@ -233,15 +233,15 @@
 .wc-aicc-size-card__price {
     margin: 0;
     text-align: center;
-    font-size: 1.0625rem;
-    font-weight: 600;
-    line-height: 1.3;
+    font-size: clamp( 1.15rem, 2.5vw, 1.45rem );
+    font-weight: 700;
+    line-height: 1.25;
     color: #111;
 }
 
 .wc-aicc-size-card__price .amount,
 .wc-aicc-size-card__price bdi {
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .wc-aicc-size-card__stock {

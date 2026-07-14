@@ -879,6 +879,21 @@
     }
 
     /**
+     * Scroll the configurator into view at the top of the viewport on step changes.
+     */
+    function scrollConfiguratorToTop() {
+        if (!container) {
+            return;
+        }
+        const rect = container.getBoundingClientRect();
+        const top = rect.top + window.pageYOffset - 16;
+        window.scrollTo({
+            top: Math.max(0, top),
+            behavior: 'smooth'
+        });
+    }
+
+    /**
      * Go to next step
      */
     function goToNextStep() {
@@ -891,6 +906,7 @@
             renderCurrentStep();
             updateStepIndicators();
             updateGenerateUI();
+            scrollConfiguratorToTop();
 
             // Update previews when entering step 4 or 5
             if (state.currentStep === 4) {
@@ -921,6 +937,7 @@
             }
             renderCurrentStep();
             updateStepIndicators();
+            scrollConfiguratorToTop();
         }
     }
 
@@ -934,6 +951,7 @@
         }
         state.customizeSubStep--;
         renderCustomizeSubstep();
+        scrollConfiguratorToTop();
     }
 
     /**
@@ -945,6 +963,7 @@
         }
         state.customizeSubStep++;
         renderCustomizeSubstep();
+        scrollConfiguratorToTop();
     }
 
     /**
