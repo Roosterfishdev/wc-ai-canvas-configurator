@@ -9,7 +9,7 @@
 
     // Configuration from WordPress
     const config = window.wcAiccConfig || {};
-    const { productId, variations, options, optionDefaults, customizeFlow, styleCustomizeFlows, stylesSkipTheme, styleBackgroundChoices, sizingGuide, restUrl, nonce, i18n } = config;
+    const { productId, variations, options, optionDefaults, customizeFlow, styleCustomizeFlows, stylesSkipTheme, stylesSkipBackground, styleBackgroundChoices, sizingGuide, restUrl, nonce, i18n } = config;
 
     /**
      * @return {Array<{key: string, title: string}>}
@@ -31,6 +31,10 @@
 
     function styleSkipsTheme(styleKey) {
         return !!(stylesSkipTheme && stylesSkipTheme.indexOf(styleKey) >= 0);
+    }
+
+    function styleSkipsBackground(styleKey) {
+        return !!(stylesSkipBackground && stylesSkipBackground.indexOf(styleKey) >= 0);
     }
 
     function getAllowedBackgroundChoices(styleKey) {
@@ -56,6 +60,15 @@
             delete state.customizationOptions.memorial_dates;
             delete state.customizationOptions.memorial_message;
             syncMemorialTextToDom();
+        }
+
+        if (styleKey !== 'black_studio') {
+            delete state.customizationOptions.pet_name;
+            syncPetNameToDom();
+        }
+
+        if (styleSkipsBackground(styleKey)) {
+            delete state.customizationOptions.background_color;
         }
 
         const allowedBg = getAllowedBackgroundChoices(styleKey);
@@ -93,6 +106,9 @@
         const opts = Object.assign({}, state.customizationOptions || {});
         if (styleSkipsTheme(opts.style)) {
             delete opts.situation;
+        }
+        if (styleSkipsBackground(opts.style)) {
+            delete opts.background_color;
         }
         return opts;
     }
@@ -1020,9 +1036,13 @@
 
             const nextBtn = panel.querySelector('.wc-aicc-customize-next-btn');
             const genBtn = panel.querySelector('.wc-aicc-generate-btn');
-            if (isActive && nextBtn && genBtn) {
-                nextBtn.style.display = isLastStep ? 'none' : '';
-                genBtn.style.display = isLastStep ? '' : 'none';
+            if (isActive && genBtn) {
+                if (nextBtn) {
+                    nextBtn.style.display = isLastStep ? 'none' : '';
+                    genBtn.style.display = isLastStep ? '' : 'none';
+                } else {
+                    genBtn.style.display = '';
+                }
             }
         });
     }

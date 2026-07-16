@@ -252,10 +252,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <div class="wc-aicc-customize-panel" data-customize-key="pet_name" style="display: none;">
                     <div class="wc-aicc-customize-panel__intro">
-                        <span class="wc-aicc-customize-badge wc-aicc-customize-badge--dynamic" aria-hidden="true">3.2</span>
-                        <h4 class="wc-aicc-customize-panel__title"><?php esc_html_e( 'Pet name', 'wc-aicc' ); ?></h4>
+                        <h4 class="wc-aicc-customize-panel__title"><?php esc_html_e( 'Add your pet\'s name', 'wc-aicc' ); ?></h4>
                         <p class="wc-aicc-customize-panel__meta wc-aicc-customize-panel__meta--dynamic"><?php esc_html_e( 'Step 2 of 2', 'wc-aicc' ); ?></p>
-                        <p class="wc-aicc-customize-panel__hint"><?php esc_html_e( 'This name appears centered above your pet on the charcoal poster.', 'wc-aicc' ); ?></p>
+                        <p class="wc-aicc-customize-panel__hint"><?php esc_html_e( 'Optional. Leave blank to omit the name from the artwork.', 'wc-aicc' ); ?></p>
                     </div>
 
                     <div class="wc-aicc-pet-name-wrap">
@@ -265,11 +264,11 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <input
                             type="text"
                             id="wc-aicc-pet-name"
-                            class="wc-aicc-pet-name-input"
+                            class="wc-aicc-pet-name-input wc-aicc-memorial-field__input"
                             name="wc_aicc_pet_name"
                             maxlength="40"
                             autocomplete="off"
-                            placeholder="<?php esc_attr_e( 'e.g. LUNA', 'wc-aicc' ); ?>"
+                            placeholder="<?php esc_attr_e( 'e.g. Luna', 'wc-aicc' ); ?>"
                         />
                     </div>
 

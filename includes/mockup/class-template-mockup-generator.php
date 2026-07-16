@@ -23,12 +23,12 @@ class Template_Mockup_Generator implements Mockup_Generator_Interface {
     /**
      * Template configuration
      * 
-     * Template: room-1.jpg (2385 x 1590)
+     * Template: room-1.webp (2385 x 1590)
      * Drop zone: x=910, y=240, width=586, height=769
      */
     const TEMPLATE_CONFIG = array(
         'room-1' => array(
-            'file'      => 'room-1.jpg',
+            'file'      => 'room-1.webp',
             'width'     => 2385,
             'height'    => 1590,
             'drop_zone' => array(

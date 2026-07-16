@@ -132,6 +132,36 @@ class Size_Display {
 	}
 
 	/**
+	 * Price HTML for configurator UI — always show two decimal places (e.g. $79.00).
+	 *
+	 * @param \WC_Product $product Variation or simple product.
+	 * @return string
+	 */
+	public static function format_variation_price_html( $product ) {
+		if ( ! $product instanceof \WC_Product ) {
+			return '';
+		}
+
+		$force_decimals = static function ( $args ) {
+			$args['decimals'] = 2;
+			return $args;
+		};
+		$keep_trailing_zeros = static function () {
+			return false;
+		};
+
+		add_filter( 'wc_price_args', $force_decimals, 999 );
+		add_filter( 'woocommerce_price_trim_zeros', $keep_trailing_zeros, 999 );
+
+		$html = $product->get_price_html();
+
+		remove_filter( 'wc_price_args', $force_decimals, 999 );
+		remove_filter( 'woocommerce_price_trim_zeros', $keep_trailing_zeros, 999 );
+
+		return $html;
+	}
+
+	/**
 	 * Add display fields to a variation row.
 	 *
 	 * @param array $variation Variation data.

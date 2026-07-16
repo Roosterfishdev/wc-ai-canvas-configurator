@@ -276,7 +276,7 @@ class Product_Integration {
                     'size_label'   => $size_label,
                     'aspect_ratio' => $aspect_ratio,
                     'price'        => $variation->get_price(),
-                    'price_html'   => $variation->get_price_html(),
+                    'price_html'   => Size_Display::format_variation_price_html( $variation ),
                     'in_stock'     => $variation->is_in_stock(),
                 )
             );
@@ -360,6 +360,7 @@ class Product_Integration {
                 'customizeFlow' => \WC_AICC\Config\Prompt_Builder::get_customize_flow_meta(),
                 'styleCustomizeFlows' => \WC_AICC\Config\Prompt_Builder::get_style_customize_flows(),
                 'stylesSkipTheme' => \WC_AICC\Config\Prompt_Builder::get_styles_skip_theme(),
+                'stylesSkipBackground' => \WC_AICC\Config\Prompt_Builder::get_styles_skip_background(),
                 'styleBackgroundChoices' => \WC_AICC\Config\Prompt_Builder::get_style_background_choice_restrictions(),
                 'sizingGuide'         => Sizing_Guide::get_panel_data(),
                 'previewWatermark'    => \WC_AICC\Config\Preview_Watermark::is_enabled(),

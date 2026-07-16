@@ -6,7 +6,7 @@ This directory contains room mockup template images used for compositing custome
 
 ## Required Templates
 
-### room-1.jpg
+### room-1.webp
 
 **Dimensions:** 2385 x 1590 pixels
 
@@ -45,7 +45,7 @@ Example configuration:
 
 ## Image Requirements
 
-- Format: JPEG or PNG
+- Format: WebP, JPEG, or PNG
 - Recommended resolution: At least 2000px on the longest side
 - The drop zone should be a flat, front-facing wall area
 - Avoid complex shadows or perspective distortion in the drop zone area

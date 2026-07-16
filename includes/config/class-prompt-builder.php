@@ -311,6 +311,7 @@ class Prompt_Builder {
                 'vertical poster layout 2:3 ratio, pet centered horizontally',
                 'only head and upper chest visible, pet occupies approximately 30-40% of total canvas height',
                 'large negative space above the pet, portrait in lower third of canvas, symmetrical composition, no tilt',
+                'solid matte charcoal black studio background #1A1A1A, no gradients, no textures, no patterns, no scenery, no shadows on background',
                 'soft professional studio lighting, subtle highlights in eyes, gentle nose highlights, natural depth',
                 'no dramatic contrast, natural golden fur coloration preserved',
                 'luxury custom pet portrait brands, modern Scandinavian poster design, premium Etsy pet portrait aesthetic',
@@ -703,13 +704,25 @@ class Prompt_Builder {
     );
 
     /**
+     * Styles with a fixed scene/background — skip the background color sub-step.
+     *
+     * @var array<int, string>
+     */
+    const STYLES_SKIP_BACKGROUND = array(
+        'warhol_grid',
+        'royal_legacy',
+        'whiskey_office',
+        'toilet',
+        'black_studio',
+    );
+
+    /**
      * Per-style background choice restrictions (style slug => allowed choice keys).
      *
      * @var array<string, array<int, string>>
      */
     const STYLE_BACKGROUND_CHOICE_RESTRICTIONS = array(
-        'black_studio' => array( 'black', 'white' ),
-        'portrait'     => array( 'black', 'white' ),
+        'portrait' => array( 'black', 'white' ),
     );
 
     /**
@@ -786,6 +799,30 @@ class Prompt_Builder {
     }
 
     /**
+     * Style slugs that skip the background color sub-step.
+     *
+     * @return array<int, string>
+     */
+    public static function get_styles_skip_background() {
+        /**
+         * Styles with a built-in background that should not show the color picker.
+         *
+         * @param array<int, string> $slugs Style slugs.
+         */
+        return apply_filters( 'wc_aicc_styles_skip_background', self::STYLES_SKIP_BACKGROUND );
+    }
+
+    /**
+     * Whether a style skips the background color sub-step.
+     *
+     * @param string $style_key Style slug.
+     * @return bool
+     */
+    public static function style_skips_background( $style_key ) {
+        return in_array( sanitize_key( (string) $style_key ), self::get_styles_skip_background(), true );
+    }
+
+    /**
      * Per-style background choice restrictions for the configurator UI and sanitization.
      *
      * @return array<string, array<int, string>>
@@ -812,6 +849,63 @@ class Prompt_Builder {
             return null;
         }
         return array_values( $restrictions[ $style_key ] );
+    }
+
+    /**
+     * Customize flow with style only (no theme or background).
+     *
+     * @return array<int, array{key: string, title: string}>
+     */
+    private static function get_flow_style_only() {
+        $cfg = self::get_options_config();
+        if ( ! isset( $cfg['style'] ) ) {
+            return array();
+        }
+        return array(
+            array(
+                'key'   => 'style',
+                'title' => $cfg['style']['step_title'] ?? '',
+            ),
+        );
+    }
+
+    /**
+     * Customize flow with style and theme only (no background).
+     *
+     * @return array<int, array{key: string, title: string}>
+     */
+    private static function get_flow_style_and_theme_only() {
+        $out = array();
+        foreach ( self::get_customize_flow_meta() as $step ) {
+            if ( in_array( $step['key'], array( 'style', 'situation' ), true ) ) {
+                $out[] = $step;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Customize flow for Studio Portrait: style → optional pet name.
+     *
+     * @return array<int, array{key: string, title: string}>
+     */
+    private static function get_flow_studio_portrait() {
+        $cfg = self::get_options_config();
+        $out = array();
+
+        if ( isset( $cfg['style'] ) ) {
+            $out[] = array(
+                'key'   => 'style',
+                'title' => $cfg['style']['step_title'] ?? '',
+            );
+        }
+
+        $out[] = array(
+            'key'   => 'pet_name',
+            'title' => __( 'Add your pet\'s name', 'wc-aicc' ),
+        );
+
+        return $out;
     }
 
     /**
@@ -867,12 +961,18 @@ class Prompt_Builder {
      */
     public static function get_style_customize_flows() {
         $style_background_flow = self::get_flow_style_and_background_only();
-        $flows                 = array();
+        $flows                 = array(
+            'warhol_grid' => self::get_flow_style_and_theme_only(),
+        );
 
         foreach ( self::get_styles_skip_theme() as $style_key ) {
             $slug = sanitize_key( $style_key );
             if ( 'memorial' === $slug ) {
                 $flows[ $slug ] = self::get_flow_memorial();
+            } elseif ( 'black_studio' === $slug ) {
+                $flows[ $slug ] = self::get_flow_studio_portrait();
+            } elseif ( self::style_skips_background( $slug ) ) {
+                $flows[ $slug ] = self::get_flow_style_only();
             } else {
                 $flows[ $slug ] = $style_background_flow;
             }
@@ -948,7 +1048,7 @@ class Prompt_Builder {
                     ),
                     'black_studio' => array(
                         'label' => __( 'Studio Portrait', 'wc-aicc' ),
-                        'hint'  => __( 'Minimal studio portrait on black or white', 'wc-aicc' ),
+                        'hint'  => __( 'Minimal charcoal portrait with optional pet name', 'wc-aicc' ),
                     ),
                     'whiskey_office' => array(
                         'label' => __( 'Whiskey Office', 'wc-aicc' ),
@@ -1389,7 +1489,7 @@ class Prompt_Builder {
         $style_def = $styles[ $style_key ] ?? $styles['warhol_grid'];
         $sit_def   = $situations[ $situation_key ] ?? $situations['original'];
 
-        $skip_bg = ! empty( $style_def['skip_background_option'] );
+        $skip_bg = ! empty( $style_def['skip_background_option'] ) || self::style_skips_background( $style_key );
 
         $prompt_parts = array();
 
@@ -1408,8 +1508,8 @@ class Prompt_Builder {
             $prompt_parts = array_merge( $prompt_parts, $style_def['core'] );
         }
 
-        // Pet name typography (Black Studio).
-        if ( ! empty( $style_def['requires_pet_name'] ) ) {
+        // Optional pet name typography (Studio Portrait).
+        if ( 'black_studio' === $style_key ) {
             $pet_name = self::sanitize_pet_name( $options['pet_name'] ?? '' );
             if ( $pet_name !== '' ) {
                 $prompt_parts[] = 'Pet name: "' . $pet_name . '" centered above the pet, modern minimalist sans-serif font, all uppercase, white text, wide letter spacing, small size relative to canvas, luxury editorial aesthetic';
@@ -1437,17 +1537,9 @@ class Prompt_Builder {
 
         // Background color (skip for fixed-background styles).
         if ( ! $skip_bg ) {
-            if ( 'black_studio' === $style_key ) {
-                if ( 'white' === $bg_key ) {
-                    $prompt_parts[] = 'solid matte clean white studio background #FFFFFF, no gradients, no textures, no patterns, no scenery, no shadows on background';
-                } else {
-                    $prompt_parts[] = 'solid matte charcoal black studio background #1A1A1A, no gradients, no textures, no patterns, no scenery, no shadows on background';
-                }
-            } else {
-                $bg_phrase = $bg_map[ $bg_key ] ?? '';
-                if ( $bg_phrase !== '' ) {
-                    $prompt_parts[] = $bg_phrase;
-                }
+            $bg_phrase = $bg_map[ $bg_key ] ?? '';
+            if ( $bg_phrase !== '' ) {
+                $prompt_parts[] = $bg_phrase;
             }
         }
 
@@ -1464,7 +1556,8 @@ class Prompt_Builder {
         $negative = self::CONSTRAINTS;
         $allows_text_in_output = ! empty( $style_def['requires_pet_name'] )
             || ! empty( $style_def['allows_cover_text'] )
-            || ( 'memorial' === $style_key && self::has_memorial_text( $options ) );
+            || ( 'memorial' === $style_key && self::has_memorial_text( $options ) )
+            || ( 'black_studio' === $style_key && self::sanitize_pet_name( $options['pet_name'] ?? '' ) !== '' );
         if ( $allows_text_in_output ) {
             $negative = array_values(
                 array_filter(
@@ -1540,6 +1633,10 @@ class Prompt_Builder {
         $result['memorial_dates']   = self::sanitize_memorial_text( $raw['memorial_dates'] ?? '', self::MEMORIAL_DATES_MAX_LEN );
         $result['memorial_message'] = self::sanitize_memorial_text( $raw['memorial_message'] ?? '', self::MEMORIAL_MESSAGE_MAX_LEN );
 
+        if ( self::style_skips_background( $style_key ) ) {
+            unset( $result['background_color'] );
+        }
+
         if ( is_array( $allowed_bg ) && ! empty( $allowed_bg ) ) {
             if ( empty( $result['background_color'] ) || ! in_array( $result['background_color'], $allowed_bg, true ) ) {
                 $result['background_color'] = $allowed_bg[0];
@@ -1550,8 +1647,16 @@ class Prompt_Builder {
         if ( $skip_theme ) {
             unset( $defaults['situation'] );
         }
+        if ( self::style_skips_background( $style_key ) ) {
+            unset( $defaults['background_color'] );
+        }
 
-        return wp_parse_args( $result, $defaults );
+        $sanitized = wp_parse_args( $result, $defaults );
+        if ( self::style_skips_background( $style_key ) ) {
+            unset( $sanitized['background_color'] );
+        }
+
+        return $sanitized;
     }
 
     /**
